@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedView } from '@/components/themed-view';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+// import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 // const HEADER_HEIGHT = 64;
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   // },
   content: {
     flex: 1,
-    padding: 32,
+    padding: 24,
     paddingTop: 64,
     gap: 16,
     overflow: 'hidden',

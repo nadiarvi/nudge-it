@@ -13,22 +13,30 @@ export default function TasksScreen() {
   return (
    <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Tasks</ThemedText>
+        <ThemedText type="title">CS473 Social Computing</ThemedText>
       </ThemedView>
-      <ThemedText>This is the page for tasks</ThemedText>
+      <ThemedView style={styles.separator}/>
+      <ThemedText type="subtitle">DP3</ThemedText>
+      <ThemedView style={styles.taskCard}>
+        <ThemedText>Hi</ThemedText>
+      </ThemedView>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
   titleContainer: {
     flexDirection: 'row',
     gap: 8,
   },
+  separator: {
+    height: 0.5,
+    backgroundColor: '#CCCCCC',
+    marginVertical: 2,
+  },
+  taskCard: {
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: '#F0F0F0',
+  }
 });
