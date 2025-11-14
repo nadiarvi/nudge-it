@@ -5,7 +5,7 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?: 'default' | 'H1' | 'H2' | 'Body1' | 'Body2' | 'Body3';
 };
 
 export function ThemedText({
@@ -22,10 +22,11 @@ export function ThemedText({
       style={[
         { color },
         type === 'default' ? styles.default : undefined,
-        type === 'title' ? styles.title : undefined,
-        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
-        type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
+        type === "H1" ? styles.h1 : undefined,
+        type === "H2" ? styles.h2 : undefined,
+        type === "Body1" ? styles.body1 : undefined,
+        type === "Body2" ? styles.body2 : undefined,
+        type === "Body3" ? styles.body3 : undefined,
         style,
       ]}
       {...rest}
@@ -38,23 +39,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
-  defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
+  h1 : {
+    lineHeight: 1.4 * 24,
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  h2: {
+    lineHeight: 1 * 20,
+    fontSize: 20,
     fontWeight: '600',
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: 32,
-  },
-  subtitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  link: {
-    lineHeight: 30,
+  body1: {
+    lineHeight: 1 * 16,
     fontSize: 16,
-    color: '#0a7ea4',
+    fontWeight: '400',
+  },
+  body2: {
+    lineHeight: 1 * 14,
+    fontSize: 14,
+  },
+  body3: {
+    lineHeight: 1 * 12,
+    fontSize: 12,
   },
 });
