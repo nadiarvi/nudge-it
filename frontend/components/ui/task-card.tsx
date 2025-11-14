@@ -1,13 +1,16 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { ThemeTouchableView } from '@/components/touchable-themed-view';
 import { BellIcon } from '@/components/ui/bell-icon';
 import { StatusDropdown, TaskStatus } from '@/components/ui/status-dropdown';
 import { UserCircleIcon } from '@/components/ui/user-circle-icon';
 import { Colors, StatusColors } from '@/constants/theme';
+import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { SearchIcon } from './search-icon';
 
 interface TaskCardProps {
+  id?: string;
   title: string;
   deadline: string;
   assignedTo: string;
@@ -17,6 +20,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ 
+  id,
   title, 
   deadline, 
   assignedTo, 
@@ -24,8 +28,25 @@ export function TaskCard({
   reviewer = null,
   onStatusChange = () => {},
 }: TaskCardProps) {
+  const router = useRouter();
+
+  const handlePress = () => {
+    // Navigate to task detail page with parameters
+    router.push({
+      pathname: '/task-detail',
+      params: { 
+        id: id || title, // Use id if available, otherwise fallback to title
+        title,
+        deadline,
+        assignedTo,
+        status,
+        reviewer: reviewer || '',
+      }
+    });
+  };
+
   return (
-    <ThemedView style={styles.taskCard}>
+    <ThemeTouchableView style={styles.taskCard} onPress={handlePress}>
       <ThemedView style={styles.leftSection}>
         <ThemedText type="Body1">{title}</ThemedText>
         <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>{deadline}</ThemedText>
@@ -52,7 +73,7 @@ export function TaskCard({
           onValueChange={onStatusChange}
         />
       </ThemedView>
-    </ThemedView>
+    </ThemeTouchableView>
   );
 }
 
