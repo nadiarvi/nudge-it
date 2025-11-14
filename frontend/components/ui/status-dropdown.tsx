@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StatusColors } from '../../constants/theme';
 
 export type TaskStatus = 'To Do' | 'In Review' | 'Revise' | 'Done';
 
@@ -11,11 +12,11 @@ interface StatusDropdownProps {
 
 const defaultOptions: TaskStatus[] = ['To Do', 'In Review', 'Revise', 'Done'];
 
-const statusColors = {
-  'To Do': '#FF6B6B',
-  'In Review': '#FFD93D',
-  'Revise': '#A855F7',
-  'Done': '#6BCF7F',
+const statusColorMap = {
+  'To Do': StatusColors.toDo,
+  'In Review': StatusColors.inReview,
+  'Revise': StatusColors.revise,
+  'Done': StatusColors.done,
 };
 
 export function StatusDropdown({ 
@@ -43,7 +44,7 @@ export function StatusDropdown({
     <View>
       <TouchableOpacity 
         ref={dropdownRef}
-        style={[styles.dropdown, { backgroundColor: statusColors[value] }]}
+        style={[styles.dropdown, { backgroundColor: statusColorMap[value] }]}
         onPress={openDropdown}
       >
         <Text style={styles.dropdownText}>{value}</Text>
@@ -74,7 +75,7 @@ export function StatusDropdown({
             {options.map((option) => (
               <TouchableOpacity
                 key={option}
-                style={[styles.option, { backgroundColor: statusColors[option] }]}
+                style={[styles.option, { backgroundColor: statusColorMap[option] }]}
                 onPress={() => handleSelect(option)}
               >
                 <Text style={styles.optionText}>{option}</Text>

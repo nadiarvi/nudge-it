@@ -8,6 +8,13 @@ import { Platform } from 'react-native';
 const tintColorLight = '#3B82F6';
 const tintColorDark = '#fff';
 
+export const StatusColors = {
+  toDo: '#F87171',
+  inReview: '#FACC15',
+  revise: '#A78BFA',
+  done: '#34D399',
+};
+
 export const Colors = {
   light: {
     text: '#1F2937',

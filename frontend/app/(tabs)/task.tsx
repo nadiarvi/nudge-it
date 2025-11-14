@@ -9,17 +9,34 @@ import { TaskCard } from '@/components/ui/task-card';
 const taskLists = [
   {
     milestone: "DP3",
-    tasks: [{
+    tasks: [
+    {
       title: "Implement user authentication",
       deadline: "Fri, 24 Oct 2025",
       user: "Alice",
-      status: "In Review" as TaskStatus,
-    }, {
+      status: "To Do" as TaskStatus,
+    }, 
+    {
+      title: "Implement user authentication",
+      deadline: "Fri, 24 Oct 2025",
+      user: "Alice",
+      status: "Revise" as TaskStatus,
+    },
+    {  
       title: "Design database schema",
       deadline: "Mon, 27 Oct 2025",
       user: "Bob",
-      status: "To Do" as TaskStatus,
-    }]
+      status: "In Review" as TaskStatus,
+      reviewer: "Eve",
+    }, 
+    {
+      title: "Design the chatbox",
+      deadline: "Wed, 29 Oct 2025",
+      user: "Charlie",
+      status: "In Review" as TaskStatus,
+      reviewer: "Not Assigned",
+    }
+  ]
   }
 ]
 
@@ -32,7 +49,7 @@ export default function TasksScreen() {
       <ThemedView style={styles.separator}/>
 
       {taskLists.map((list) => (
-        <ThemedView key={list.milestone} style={{marginTop: 16, marginBottom: 8, gap: 8}}>
+        <ThemedView key={list.milestone} style={{gap: 8}}>
           <ThemedText type="H2">{list.milestone}</ThemedText>
           {list.tasks.map((task, index) => (
             <TaskCard
@@ -41,6 +58,7 @@ export default function TasksScreen() {
               deadline={task.deadline}
               assignedTo={task.user}
               status={task.status}
+              reviewer={task.reviewer ?? null}
               onStatusChange={(newStatus) => {
                 // Handle status change here
                 console.log(`Task "${task.title}" status changed to: ${newStatus}`);
