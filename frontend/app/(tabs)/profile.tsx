@@ -6,20 +6,11 @@ import { StyleSheet } from 'react-native';
 
 export default function ProfileScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#FFF0E6', dark: '#3A2B1F' }}
-      headerImage={
-        <IconSymbol
-          size={220}
-          color="#FFA94D"
-          name="person.crop.circle"
-          style={styles.headerImage}
-        />
-      }>
+    <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Profile</ThemedText>
       </ThemedView>
-      <ThemedText>Profile details and settings will appear here.</ThemedText>
+      <ThemedText>This is the page for profile</ThemedText>
     </ParallaxScrollView>
   );
 }
