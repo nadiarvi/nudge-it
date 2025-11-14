@@ -6,20 +6,11 @@ import { StyleSheet } from 'react-native';
 
 export default function ChatScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#E6F7FF', dark: '#083344' }}
-      headerImage={
-        <IconSymbol
-          size={220}
-          color="#6EA8FF"
-          name="message.fill"
-          style={styles.headerImage}
-        />
-      }>
+    <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Chat</ThemedText>
       </ThemedView>
-      <ThemedText>Welcome to Chat — messages and conversations will appear here.</ThemedText>
+      <ThemedText>This is the page for chat</ThemedText>
     </ParallaxScrollView>
   );
 }
