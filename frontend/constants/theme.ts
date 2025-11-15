@@ -10,9 +10,13 @@ const tintColorDark = '#fff';
 
 export const StatusColors = {
   toDo: '#F87171',
+  toDoLight: '#FAECEC',
   inReview: '#FACC15',
+  inReviewLight: '#FAF5E3',
   revise: '#A78BFA',
+  reviseLight: '#F2EFFA',
   done: '#34D399',
+  doneLight: '#E6F6F0',
 };
 
 export const Colors = {
