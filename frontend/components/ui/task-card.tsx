@@ -48,7 +48,7 @@ export function TaskCard({
   return (
     <ThemedTouchableView style={styles.taskCard} onPress={handlePress}>
       <ThemedView style={styles.leftSection}>
-        <ThemedText type="Body1">{title}</ThemedText>
+        <ThemedText type="H3">{title}</ThemedText>
         <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>{deadline}</ThemedText>
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
           <UserCircleIcon size={12} color={Colors.light.tint} />
@@ -67,7 +67,7 @@ export function TaskCard({
         </View>
       </ThemedView>
       <ThemedView style={styles.rightSection}>
-        <BellIcon size={16} color={Colors.light.blackSecondary} />
+        <BellIcon size={20} color={Colors.light.blackSecondary} />
         <StatusDropdown 
           value={status}
           onValueChange={onStatusChange}

@@ -39,7 +39,13 @@ const taskLists = [
       user: "Charlie",
       status: "In Review" as TaskStatus,
       reviewer: "Not Assigned",
-    }
+    },
+    {
+      title: "Implement user authentication",
+      deadline: "Fri, 24 Oct 2025",
+      user: "Alice",
+      status: "To Do" as TaskStatus,
+    }, 
   ]
   }
 ]

@@ -1,43 +1,31 @@
-import { Colors, StatusColors } from '@/constants/theme';
+import { Colors } from '@/constants/theme';
 import React, { useRef, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './themed-text';
 
-export type TaskStatus = 'To Do' | 'In Review' | 'Revise' | 'Done';
+export type Member = string;
 
-interface StatusDropdownProps {
-  value: TaskStatus;
-  onValueChange: (status: TaskStatus) => void;
-  options?: TaskStatus[];
+interface MemberDropdownProps {
+  value: Member;
+  onValueChange: (member: Member) => void;
+  members?: Member[];
+  placeholder?: string;
 }
 
-const defaultOptions: TaskStatus[] = ['To Do', 'In Review', 'Revise', 'Done'];
+const defaultMembers: Member[] = ['Member1', 'Member2', 'Member3'];
 
-const statusColorMap = {
-  'To Do': StatusColors.toDo,
-  'In Review': StatusColors.inReview,
-  'Revise': StatusColors.revise,
-  'Done': StatusColors.done,
-};
-
-const statusLightColorMap = {
-  'To Do': StatusColors.toDoLight,
-  'In Review': StatusColors.inReviewLight,
-  'Revise': StatusColors.reviseLight,
-  'Done': StatusColors.doneLight,
-};
-
-export function StatusDropdown({ 
+export function MemberDropdown({ 
   value, 
   onValueChange, 
-  options = defaultOptions 
-}: StatusDropdownProps) {
+  members = defaultMembers,
+  placeholder = 'Select Member'
+}: MemberDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownLayout, setDropdownLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const dropdownRef = useRef<View>(null);
 
-  const handleSelect = (status: TaskStatus) => {
-    onValueChange(status);
+  const handleSelect = (member: Member) => {
+    onValueChange(member);
     setIsOpen(false);
   };
 
@@ -47,24 +35,21 @@ export function StatusDropdown({
       setIsOpen(true);
     });
   };
-
-  const getBackgroundColor = (status: TaskStatus) => {
-    return statusLightColorMap[status] || StatusColors.toDoLight;
-  };
-
-  const getStatusColor = (status: TaskStatus) => {
-    return statusColorMap[status] || StatusColors.toDo;
-  }
-
   return (
     <View>
       <TouchableOpacity 
         ref={dropdownRef}
-        style={[styles.dropdown, { backgroundColor: getBackgroundColor(value), borderColor: getStatusColor(value), borderWidth: 1 }]}
+        style={styles.dropdown}
         onPress={openDropdown}
       >
-        <ThemedText style={{ color: getStatusColor(value) }} type="Body2">{value}</ThemedText>
-        {/* <ThemedText style={{ color: getStatusColor(value) }} type="Body2">▼</ThemedText> */}
+        <ThemedText 
+          type='Body2'
+          style={{
+            color: value ? Colors.light.text : Colors.light.blackSecondary
+          }}
+        >
+          {value || placeholder}
+        </ThemedText>
       </TouchableOpacity>
 
       <Modal
@@ -89,16 +74,16 @@ export function StatusDropdown({
               }
             ]}
           >
-            {options.map((option, index) => (
+            {members.map((member, index) => (
               <TouchableOpacity
-                key={option}
+                key={member}
                 style={[
                   styles.option,
-                  index === options.length - 1 && { borderBottomWidth: 0 }
+                  index === members.length - 1 && { borderBottomWidth: 0 }
                 ]}
-                onPress={() => handleSelect(option)}
+                onPress={() => handleSelect(member)}
               >
-                <Text style={[styles.optionText, { color: getStatusColor(option) }]}>{option}</Text>
+                <Text style={[styles.optionText, { color: Colors.light.text }]}>{member}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -113,13 +98,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 3,
-    borderRadius: 8,
-    minWidth: 60,
   },
   arrow: {
-    color: 'white',
     fontSize: 8,
     marginLeft: 4,
   },
@@ -128,17 +108,20 @@ const styles = StyleSheet.create({
   },
   optionsContainer: {
     backgroundColor: 'white',
-    borderRadius: 8,
+    borderRadius: 0,
     minWidth: 120,
-    borderColor: '#9CA3AF',
+    borderColor: Colors.light.cardBorder,
     borderWidth: 0.5,
     elevation: 5,
   },
   option: {
-    paddingVertical: 4,
+    paddingVertical: 8,
     borderBottomWidth: 0.5,
-    borderColor: '#9CA3AF',
-    marginVertical: 2,
+    borderColor: Colors.light.cardBorder,
+    marginVertical: 0,
+    minWidth: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   optionText: {
     color: Colors.light.text,
