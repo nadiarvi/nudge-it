@@ -1,4 +1,4 @@
-import { ThemedText } from '@/components/themed-text';
+import { ThemedText } from '@/components/ui/themed-text';
 import { Colors } from '@/constants/theme';
 import { ReactNode } from 'react';
 import { Pressable, StyleSheet, ViewStyle } from 'react-native';

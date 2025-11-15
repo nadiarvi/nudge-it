@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
 
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
 import { TaskStatus } from '@/components/ui/status-dropdown';
 import { TaskCard } from '@/components/ui/task-card';
+import { ThemedText } from '@/components/ui/themed-text';
+import { ThemedView } from '@/components/ui/themed-view';
 
 const taskLists = [
   {

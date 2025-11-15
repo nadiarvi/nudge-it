@@ -1,13 +1,13 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { ThemeTouchableView } from '@/components/touchable-themed-view';
-import { BellIcon } from '@/components/ui/bell-icon';
+import { BellIcon } from '@/components/icons/bell-icon';
+import { UserCircleIcon } from '@/components/icons/user-circle-icon';
 import { StatusDropdown, TaskStatus } from '@/components/ui/status-dropdown';
-import { UserCircleIcon } from '@/components/ui/user-circle-icon';
+import { ThemedText } from '@/components/ui/themed-text';
+import { ThemedView } from '@/components/ui/themed-view';
+import { ThemeTouchableView } from '@/components/ui/touchable-themed-view';
 import { Colors, StatusColors } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
-import { SearchIcon } from './search-icon';
+import { SearchIcon } from '../icons/search-icon';
 
 interface TaskCardProps {
   id?: string;

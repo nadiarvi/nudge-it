@@ -1,13 +1,13 @@
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedTextInput } from '@/components/themed-text-input';
-import { ThemedView } from '@/components/themed-view';
+import { CalendarIcon } from '@/components/icons/calendar-icon';
+import { SearchIcon } from '@/components/icons/search-icon';
+import { StatusIcon } from '@/components/icons/status-icon';
+import { UserCircleIcon } from '@/components/icons/user-circle-icon';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon } from '@/components/ui/calendar-icon';
-import { SearchIcon } from '@/components/ui/search-icon';
+import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
 import { StatusDropdown, TaskStatus } from '@/components/ui/status-dropdown';
-import { StatusIcon } from '@/components/ui/status-icon';
-import { UserCircleIcon } from '@/components/ui/user-circle-icon';
+import { ThemedText } from '@/components/ui/themed-text';
+import { ThemedTextInput } from '@/components/ui/themed-text-input';
+import { ThemedView } from '@/components/ui/themed-view';
 import { Colors } from '@/constants/theme';
 import { ReactElement } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -42,7 +42,7 @@ export default function TaskDetailPage() {
     <ParallaxScrollView paddingTop={0}>
         <ThemedView style={styles.taskDetails}>
             <ThemedText type='H1'>Design the Chatbox</ThemedText>
-            {taskDetailItem(<CalendarIcon size={14}/>, 'Deadline', '2024-09-30')}
+            {taskDetailItem(<CalendarIcon size={14}/>, 'Deadline', '2024-09-30')} 
             {taskDetailItem(<UserCircleIcon size={14}/>, 'Assigned To', 'Alice')}
             {taskDetailItem(<StatusIcon size={14}/>, 'Status', statusComponent('In Review' as TaskStatus))}
             {taskDetailItem(<SearchIcon size={14}/>, 'Reviewer', 'Bob')}
