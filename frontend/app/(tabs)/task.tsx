@@ -1,11 +1,15 @@
 import { StyleSheet } from 'react-native';
 
+import { ThemedTouchableView } from '@/components/ui';
 import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
 import { TaskStatus } from '@/components/ui/status-dropdown';
 import { TaskCard } from '@/components/ui/task-card';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
+import { useRouter } from 'expo-router';
+import { View } from 'react-native';
 
+// Dummy Data -- @BE to replace with real data from backend
 const taskLists = [
   {
     milestone: "DP3",
@@ -41,6 +45,22 @@ const taskLists = [
 ]
 
 export default function TasksScreen() {
+  const router = useRouter();
+
+  const handleAddTask = () => {
+    router.push({
+      pathname: '/task-detail',
+      params: { 
+        id: 'new', // Special ID to indicate new task creation
+        title: '',
+        deadline: '',
+        assignedTo: '',
+        status: 'To Do',
+        reviewer: '',
+      }
+    });
+  };
+
   return (
    <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
@@ -50,7 +70,12 @@ export default function TasksScreen() {
 
       {taskLists.map((list) => (
         <ThemedView key={list.milestone} style={{gap: 8}}>
-          <ThemedText type="H2">{list.milestone}</ThemedText>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <ThemedText type="H2">{list.milestone}</ThemedText>
+            <ThemedTouchableView onPress={handleAddTask}>
+              <ThemedText type="Body2">+ Task</ThemedText>
+            </ThemedTouchableView>
+          </View>
           {list.tasks.map((task, index) => (
             <TaskCard
               key={index}

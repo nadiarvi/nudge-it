@@ -1,18 +1,18 @@
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { TouchableOpacity, type TouchableOpacityProps } from 'react-native';
 
-export type ThemeTouchableViewProps = TouchableOpacityProps & {
+export type ThemedTouchableViewProps = TouchableOpacityProps & {
   lightColor?: string;
   darkColor?: string;
 };
 
-export function ThemeTouchableView({ 
+export function ThemedTouchableView({ 
   style, 
   lightColor, 
   darkColor, 
   activeOpacity = 0.7,
   ...otherProps 
-}: ThemeTouchableViewProps) {
+}: ThemedTouchableViewProps) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
   return (

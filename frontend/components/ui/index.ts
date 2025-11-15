@@ -11,6 +11,6 @@ export { ThemedTextInput } from './themed-text-input';
 export type { ThemedTextInputProps } from './themed-text-input';
 export { ThemedView } from './themed-view';
 export type { ThemedViewProps } from './themed-view';
-export { ThemeTouchableView } from './touchable-themed-view';
-export type { ThemeTouchableViewProps } from './touchable-themed-view';
+export { ThemedTouchableView } from './touchable-themed-view';
+export type { ThemedTouchableViewProps } from './touchable-themed-view';
 

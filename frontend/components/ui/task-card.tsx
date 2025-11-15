@@ -3,7 +3,7 @@ import { UserCircleIcon } from '@/components/icons/user-circle-icon';
 import { StatusDropdown, TaskStatus } from '@/components/ui/status-dropdown';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
-import { ThemeTouchableView } from '@/components/ui/touchable-themed-view';
+import { ThemedTouchableView } from '@/components/ui/touchable-themed-view';
 import { Colors, StatusColors } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
@@ -46,7 +46,7 @@ export function TaskCard({
   };
 
   return (
-    <ThemeTouchableView style={styles.taskCard} onPress={handlePress}>
+    <ThemedTouchableView style={styles.taskCard} onPress={handlePress}>
       <ThemedView style={styles.leftSection}>
         <ThemedText type="Body1">{title}</ThemedText>
         <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>{deadline}</ThemedText>
@@ -73,7 +73,7 @@ export function TaskCard({
           onValueChange={onStatusChange}
         />
       </ThemedView>
-    </ThemeTouchableView>
+    </ThemedTouchableView>
   );
 }
 
