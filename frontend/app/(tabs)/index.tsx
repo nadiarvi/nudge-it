@@ -1,18 +1,14 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { StyleSheet } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
+import { ThemedText } from '@/components/ui/themed-text';
+import { ThemedView } from '@/components/ui/themed-view';
 
 export default function HomeScreen() {
   return (
     <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Dashboard</ThemedText>
+        <ThemedText type="H1">Dashboard</ThemedText>
       </ThemedView>
       <ThemedText>This is the page for dashboard</ThemedText>
     </ParallaxScrollView>
