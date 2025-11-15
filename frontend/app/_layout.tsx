@@ -1,19 +1,18 @@
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { TouchableOpacity } from 'react-native';
 import 'react-native-reanimated';
 
-// import { useColorScheme } from '@/hooks/use-color-scheme';
+import { MenuIcon } from '@/components/icons/menu-icon';
+import { Colors } from '@/constants/theme';
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
 export default function RootLayout() {
-  // const colorScheme = useColorScheme();
-
   return (
-    // Disabled light/dark mode - always use DefaultTheme (light)
     <ThemeProvider value={DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -23,7 +22,16 @@ export default function RootLayout() {
           options={{ 
             headerShown: true,
             title: '',
-            headerBackTitle: ''
+            headerBackTitle: '',
+            headerRight: () => (
+              <TouchableOpacity 
+                onPress={() => {
+                  console.log('Menu pressed');
+                }}
+              >
+                <MenuIcon size={24} color={Colors.light.tint} />
+              </TouchableOpacity>
+            ),
           }} 
         />
       </Stack>

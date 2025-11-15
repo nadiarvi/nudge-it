@@ -9,7 +9,8 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedTextInput } from '@/components/ui/themed-text-input';
 import { ThemedView } from '@/components/ui/themed-view';
 import { Colors } from '@/constants/theme';
-import { ReactElement } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { ReactElement, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 const taskDetailItem = (icon: ReactElement, name: string, content: string | ReactElement) => {
@@ -28,24 +29,42 @@ const taskDetailItem = (icon: ReactElement, name: string, content: string | Reac
     )
 }
 
-const statusComponent = (status: TaskStatus) => {
+export default function TaskDetailPage() {
+  // Retrieve parameters passed from the calling page
+  const params = useLocalSearchParams();
+  const {
+    id,
+    title,
+    deadline,
+    assignedTo,
+    status,
+    reviewer
+  } = params;
+
+  // Convert status to proper TaskStatus type and manage local state
+  const initialStatus = (status as TaskStatus) || 'To Do';
+  const [currentStatus, setCurrentStatus] = useState<TaskStatus>(initialStatus);
+
+  const statusComponent = (taskStatus: TaskStatus) => {
     return (
-        <StatusDropdown value={status} onValueChange={(newStatus) => {
+        <StatusDropdown 
+          value={taskStatus} 
+          onValueChange={(newStatus) => {
             console.log('Status changed to:', newStatus);
-            // Handle status change here
+            setCurrentStatus(newStatus);
+            // Handle status change here - you can add API calls or other logic
         }} />
     )
-}
-
-export default function TaskDetailPage() {
+  }
+  
   return (
     <ParallaxScrollView paddingTop={0}>
         <ThemedView style={styles.taskDetails}>
-            <ThemedText type='H1'>Design the Chatbox</ThemedText>
-            {taskDetailItem(<CalendarIcon size={14}/>, 'Deadline', '2024-09-30')} 
-            {taskDetailItem(<UserCircleIcon size={14}/>, 'Assigned To', 'Alice')}
-            {taskDetailItem(<StatusIcon size={14}/>, 'Status', statusComponent('In Review' as TaskStatus))}
-            {taskDetailItem(<SearchIcon size={14}/>, 'Reviewer', 'Bob')}
+            <ThemedText type='H1'>{title as string || 'Task Details'}</ThemedText>
+            {taskDetailItem(<CalendarIcon size={14}/>, 'Deadline', deadline as string || 'No deadline set')} 
+            {taskDetailItem(<UserCircleIcon size={14}/>, 'Assigned To', assignedTo as string || 'Unassigned')}
+            {taskDetailItem(<StatusIcon size={14}/>, 'Status', statusComponent(currentStatus))}
+            {taskDetailItem(<SearchIcon size={14}/>, 'Reviewer', (reviewer && reviewer !== '') ? reviewer as string : 'Not Assigned')}
         </ThemedView>
 
         <ThemedView style={styles.buttonSection}>
@@ -78,7 +97,7 @@ export default function TaskDetailPage() {
 
 const styles = StyleSheet.create({
     taskDetails: {
-        paddingVertical: 16,
+        paddingTop: 16,
     },
     taskDetailItem: {
         flexDirection: 'row',
