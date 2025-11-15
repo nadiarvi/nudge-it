@@ -7,7 +7,7 @@ interface ButtonProps {
   children: ReactNode;
   onPress?: () => void;
   style?: ViewStyle;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'hover';
   disabled?: boolean;
 }
 
@@ -24,6 +24,8 @@ export function Button({
         return styles.secondaryButton;
       case 'outline':
         return styles.outlineButton;
+      case 'hover':
+        return styles.hoverButton;
       default:
         return styles.primaryButton;
     }
@@ -33,6 +35,8 @@ export function Button({
     switch (variant) {
       case 'outline':
         return Colors.light.tint;
+      case 'hover':
+        return Colors.light.blackSecondary;
       default:
         return '#FFFFFF';
     }
@@ -79,6 +83,16 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.tint,
     paddingHorizontal: 24,
     paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hoverButton: {
+    backgroundColor: Colors.light.background,
+    borderColor: Colors.light.blackSecondary,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
