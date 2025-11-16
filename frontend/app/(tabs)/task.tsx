@@ -70,7 +70,7 @@ export default function TasksScreen() {
   return (
    <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="H1">CS473 Social Computing</ThemedText>
+        <ThemedText type="H1">Tasks</ThemedText>
       </ThemedView>
       <ThemedView style={styles.separator}/>
 

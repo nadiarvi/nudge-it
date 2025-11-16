@@ -53,7 +53,7 @@ export function TaskCard({
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
           <UserCircleIcon size={12} color={Colors.light.tint} />
           <ThemedText type="Body3" style={{color: Colors.light.tint}}>{assignedTo}</ThemedText>
-          {reviewer && (
+          { status !== "To Do" && (
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>
                 |
