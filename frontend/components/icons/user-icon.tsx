@@ -1,19 +1,19 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
 
-interface TodoIconProps {
+interface UserIconProps {
   size?: number;
   color?: string;
   strokeWidth?: number;
   variant?: 'outline' | 'solid';
 }
 
-export function TodoIcon({ 
+export function UserIcon({ 
   size = 24, 
   color = 'currentColor', 
   strokeWidth = 1.5,
   variant = 'outline'
-}: TodoIconProps) {
+}: UserIconProps) {
   if (variant === 'solid') {
     return (
       <Svg 
@@ -25,7 +25,7 @@ export function TodoIcon({
         <Path
           fillRule="evenodd"
           clipRule="evenodd"
-          d="M2.625 6.75a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0ZM9 7.5a.75.75 0 0 0 0 1.5h11.25a.75.75 0 0 0 0-1.5H9ZM2.625 12a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0ZM9 12.75a.75.75 0 0 0 0 1.5h11.25a.75.75 0 0 0 0-1.5H9ZM2.625 17.25a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0ZM9 18a.75.75 0 0 0 0 1.5h11.25a.75.75 0 0 0 0-1.5H9Z"
+          d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
         />
       </Svg>
     );
@@ -44,7 +44,7 @@ export function TodoIcon({
       <Path
         strokeLinecap="round"
         strokeLinejoin="round"
-        d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
       />
     </Svg>
   );
