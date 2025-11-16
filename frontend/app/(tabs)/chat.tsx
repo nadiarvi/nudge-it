@@ -1,25 +1,15 @@
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
+import { ThemedText } from '@/components/ui/themed-text';
+import { ThemedView } from '@/components/ui/themed-view';
 import { StyleSheet } from 'react-native';
 
 export default function ChatScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#E6F7FF', dark: '#083344' }}
-      headerImage={
-        <IconSymbol
-          size={220}
-          color="#6EA8FF"
-          name="message.fill"
-          style={styles.headerImage}
-        />
-      }>
+    <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Chat</ThemedText>
+        <ThemedText type="H1">Chat</ThemedText>
       </ThemedView>
-      <ThemedText>Welcome to Chat — messages and conversations will appear here.</ThemedText>
+      <ThemedText>This is the page for chat</ThemedText>
     </ParallaxScrollView>
   );
 }
