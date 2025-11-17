@@ -1,4 +1,3 @@
-export { Collapsible } from './collapsible';
 export { HapticTab } from './haptic-tab';
 export { default as ParallaxScrollView } from './parallax-scroll-view';
 export { StatusDropdown } from './status-dropdown';
