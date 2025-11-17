@@ -59,9 +59,6 @@ export default function TasksScreen() {
           <ThemedTouchableView onPress={handleAddTask}>
             <PlusIcon size={22} color={ Colors.light.tint }/>
           </ThemedTouchableView>
-          {/* <ThemedButton onPress={handleAddTask} variant="primary">
-            New
-          </ThemedButton> */}
         </ThemedView>
       </ThemedView>
       <ThemedView style={styles.separator}/>
