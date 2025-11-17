@@ -1,9 +1,8 @@
 import { Colors, StatusColors } from '@/constants/theme';
+import { TaskStatus } from '@/types/task';
 import React, { useRef, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './themed-text';
-
-export type TaskStatus = 'To Do' | 'In Review' | 'Revise' | 'Done';
 
 interface StatusDropdownProps {
   value: TaskStatus;

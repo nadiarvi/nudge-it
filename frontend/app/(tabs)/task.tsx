@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
 
 import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
-import { TaskStatus } from '@/components/ui/status-dropdown';
 import { TaskCard } from '@/components/ui/task-card';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
+import { TaskStatus } from '@/types/task';
 import { useRouter } from 'expo-router';
 
 import { FilterIcon } from '@/components/icons/filter-icon';
@@ -30,6 +30,7 @@ export default function TasksScreen() {
         assignedTo: '',
         status: 'To Do',
         reviewer: '',
+        nudgeCount: 0,
       }
     });
   };
@@ -75,6 +76,7 @@ export default function TasksScreen() {
           assignedTo={task.user}
           status={task.status as TaskStatus}
           reviewer={task.reviewer ?? null}
+          nudgeCount={task.nudgeCount}
           onStatusChange={(newStatus) => {
             // Handle status change here
             console.log(`Task "${task.title}" status changed to: ${newStatus}`);
