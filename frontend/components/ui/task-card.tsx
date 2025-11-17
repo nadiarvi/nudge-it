@@ -36,7 +36,7 @@ export function TaskCard({
         assignedTo,
         status,
         reviewer: reviewer || '',
-        nudgeCount: 0,
+        nudgeCount,
       }
     });
   };
