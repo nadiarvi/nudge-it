@@ -20,6 +20,6 @@ export interface TaskDetailParams {
   deadline: string;
   assignedTo: string;
   status: TaskStatus;
-  reviewer?: string;
+  reviewer?: string | null;
   nudgeCount?: number;
 }
