@@ -32,14 +32,16 @@ export const MY_TASKS = (userId: string) => [
             deadline: "2024-09-15",
             assignedTo: userId,
             status: "To Do",
-            reviewer: "Not Assigned"
+            reviewer: "Not Assigned",
+            nudgeCount: 1,
         }, {
             id: "task-11",
             title: "Design Landing Page",
             deadline: "2024-09-15",
             assignedTo: userId,
             status: "To Do",
-            reviewer: "Not Assigned"
+            reviewer: "Not Assigned",
+            nudgeCount: 0,
         }]
     },
     {
@@ -50,7 +52,8 @@ export const MY_TASKS = (userId: string) => [
             deadline: "2024-09-15",
             assignedTo: "Bob",
             status: "In Review",
-            reviewer: userId
+            reviewer: userId,
+            nudgeCount: 2,
         }]
     },
     {
@@ -61,7 +64,51 @@ export const MY_TASKS = (userId: string) => [
             deadline: "2024-09-15",
             assignedTo: userId,
             status: "In Review",
-            reviewer: "Charlie"
+            reviewer: "Charlie",
+            nudgeCount: 0,
         }]
     }
+]
+
+export const ALL_TASKS = (userId: string) => [
+    {
+        title: "Implement user authentication",
+        deadline: "Fri, 24 Oct 2025",
+        user: "Alice",
+        status: "To Do",
+        reviewer: null,
+        nudgeCount: 2,
+    }, 
+    {
+        title: "Implement user authentication",
+        deadline: "Fri, 24 Oct 2025",
+        user: "Alice",
+        status: "Revise",
+        reviewer: "Bob",
+        nudgeCount: 3,
+    },
+    {  
+        title: "Design database schema",
+        deadline: "Mon, 27 Oct 2025",
+        user: "Bob",
+        status: "In Review",
+        reviewer: "Eve",
+        nudgeCount: 1,
+    }, 
+    {
+        title: "Design the chatbox",
+        deadline: "Wed, 29 Oct 2025",
+        user: "Charlie",
+        status: "In Review",
+        reviewer: "Not Assigned",
+        nudgeCount: 0,
+    },
+    {
+        title: "Implement user authentication",
+        deadline: "Thu, 30 Oct 2025",
+        user: "Alice",
+        status: "To Do",
+        reviewer: null,
+        nudgeCount: 0,
+    }, 
 ]
