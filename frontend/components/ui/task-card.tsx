@@ -55,7 +55,7 @@ export function TaskCard({
     <ThemedTouchableView style={styles.taskCard} onPress={handlePress}>
       <ThemedView style={styles.leftSection}>
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-          <ThemedText type="H3">{nudgeCount > 3 ? title : truncatedTitle}</ThemedText>
+          <ThemedText type="H3">{nudgeCount > 3 ? truncatedTitle : title}</ThemedText>
           { nudgeCount > 0 && (
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <FlagIcon size={18} color={Colors.light.red} strokeWidth={2}/>
