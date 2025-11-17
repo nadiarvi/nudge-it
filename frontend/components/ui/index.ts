@@ -1,10 +1,10 @@
-export { Button } from './button';
 export { Collapsible } from './collapsible';
 export { HapticTab } from './haptic-tab';
 export { default as ParallaxScrollView } from './parallax-scroll-view';
 export { StatusDropdown } from './status-dropdown';
 export type { TaskStatus } from './status-dropdown';
 export { TaskCard } from './task-card';
+export { ThemedButton } from './themed-button';
 export { ThemedText } from './themed-text';
 export type { ThemedTextProps } from './themed-text';
 export { ThemedTextInput } from './themed-text-input';

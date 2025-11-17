@@ -1,54 +1,21 @@
 import { StyleSheet } from 'react-native';
 
-import { ThemedTouchableView } from '@/components/ui';
 import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
 import { TaskStatus } from '@/components/ui/status-dropdown';
 import { TaskCard } from '@/components/ui/task-card';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { useRouter } from 'expo-router';
-import { View } from 'react-native';
 
-// Dummy Data -- @BE to replace with real data from backend
-const taskLists = [
-  {
-    milestone: "DP3",
-    tasks: [
-    {
-      title: "Implement user authentication",
-      deadline: "Fri, 24 Oct 2025",
-      user: "Alice",
-      status: "To Do" as TaskStatus,
-    }, 
-    {
-      title: "Implement user authentication",
-      deadline: "Fri, 24 Oct 2025",
-      user: "Alice",
-      status: "Revise" as TaskStatus,
-    },
-    {  
-      title: "Design database schema",
-      deadline: "Mon, 27 Oct 2025",
-      user: "Bob",
-      status: "In Review" as TaskStatus,
-      reviewer: "Eve",
-    }, 
-    {
-      title: "Design the chatbox",
-      deadline: "Wed, 29 Oct 2025",
-      user: "Charlie",
-      status: "In Review" as TaskStatus,
-      reviewer: "Not Assigned",
-    },
-    {
-      title: "Implement user authentication",
-      deadline: "Fri, 24 Oct 2025",
-      user: "Alice",
-      status: "To Do" as TaskStatus,
-    }, 
-  ]
-  }
-]
+import { FilterIcon } from '@/components/icons/filter-icon';
+import { SortIcon } from '@/components/icons/sort-icon';
+
+import { PlusIcon } from '@/components/icons/plus-icon';
+import { ThemedTouchableView } from '@/components/ui';
+import { ALL_TASKS } from '@/constants/dataPlaceholder';
+import { Colors } from '@/constants/theme';
+
+const taskLists = ALL_TASKS("Alice");
 
 export default function TasksScreen() {
   const router = useRouter();
@@ -67,37 +34,54 @@ export default function TasksScreen() {
     });
   };
 
+  const handleFilter = () => {
+    // Implement filter logic here
+    console.log('Filter button pressed');
+  };
+
+  const handleSort = () => {
+    // Implement sort logic here
+    console.log('Sort button pressed');
+  };
+
   return (
    <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="H1">Tasks</ThemedText>
+        <ThemedText type="H1" style={{ flex: 1 }}>Tasks</ThemedText>
+        <ThemedView style={styles.actionContainer}>
+          <ThemedTouchableView onPress={handleFilter}>
+            <FilterIcon size={22} color={ Colors.light.tint }/>
+          </ThemedTouchableView>
+          <ThemedTouchableView onPress={handleSort}>
+            <SortIcon size={22} color={ Colors.light.tint }/>
+          </ThemedTouchableView>
+          <ThemedTouchableView onPress={handleAddTask}>
+            <PlusIcon size={22} color={ Colors.light.tint }/>
+          </ThemedTouchableView>
+          {/* <ThemedButton onPress={handleAddTask} variant="primary">
+            New
+          </ThemedButton> */}
+        </ThemedView>
       </ThemedView>
       <ThemedView style={styles.separator}/>
 
-      {taskLists.map((list) => (
-        <ThemedView key={list.milestone} style={{gap: 8}}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <ThemedText type="H2">{list.milestone}</ThemedText>
-            <ThemedTouchableView onPress={handleAddTask}>
-              <ThemedText type="Body2">+ Task</ThemedText>
-            </ThemedTouchableView>
-          </View>
-          {list.tasks.map((task, index) => (
-            <TaskCard
-              key={index}
-              title={task.title}
-              deadline={task.deadline}
-              assignedTo={task.user}
-              status={task.status}
-              reviewer={task.reviewer ?? null}
-              onStatusChange={(newStatus) => {
-                // Handle status change here
-                console.log(`Task "${task.title}" status changed to: ${newStatus}`);
-              }}
-            />
-          ))}
-        </ThemedView>
+      <ThemedView style={{ gap: 8 }}>
+      
+      {taskLists.map((task, index) => (
+        <TaskCard
+          key={index}
+          title={task.title}
+          deadline={task.deadline}
+          assignedTo={task.user}
+          status={task.status as TaskStatus}
+          reviewer={task.reviewer ?? null}
+          onStatusChange={(newStatus) => {
+            // Handle status change here
+            console.log(`Task "${task.title}" status changed to: ${newStatus}`);
+          }}
+        />
       ))}
+      </ThemedView>
     </ParallaxScrollView>
   );
 }
@@ -105,11 +89,17 @@ export default function TasksScreen() {
 const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  actionContainer: {
+    flexDirection: 'row',
     gap: 8,
+    alignItems: 'center',
   },
   separator: {
-    height: 0.5,
-    backgroundColor: '#CCCCCC',
-    marginVertical: 2,
+    height: 1,
+    backgroundColor: Colors.light.cardBorder,
+    marginTop: -4,
   }
 });

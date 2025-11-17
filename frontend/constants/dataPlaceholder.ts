@@ -65,3 +65,39 @@ export const MY_TASKS = (userId: string) => [
         }]
     }
 ]
+
+export const ALL_TASKS = (userId: string) => [
+    {
+        title: "Implement user authentication",
+        deadline: "Fri, 24 Oct 2025",
+        user: "Alice",
+        status: "To Do",
+    }, 
+    {
+        title: "Implement user authentication",
+        deadline: "Fri, 24 Oct 2025",
+        user: "Alice",
+        status: "Revise",
+        reviewer: "Bob",
+    },
+    {  
+        title: "Design database schema",
+        deadline: "Mon, 27 Oct 2025",
+        user: "Bob",
+        status: "In Review",
+        reviewer: "Eve",
+    }, 
+    {
+        title: "Design the chatbox",
+        deadline: "Wed, 29 Oct 2025",
+        user: "Charlie",
+        status: "In Review",
+        reviewer: "Not Assigned",
+    },
+    {
+        title: "Implement user authentication",
+        deadline: "Thu, 30 Oct 2025",
+        user: "Alice",
+        status: "To Do",
+    }, 
+]
