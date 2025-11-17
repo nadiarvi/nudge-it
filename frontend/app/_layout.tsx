@@ -1,11 +1,9 @@
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { TouchableOpacity } from 'react-native';
 import 'react-native-reanimated';
 
-import { MenuIcon } from '@/components/icons/menu-icon';
-import { Colors } from '@/constants/theme';
+import { TaskDetailHeader } from '@/components/ui/task-detail-header';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -23,15 +21,7 @@ export default function RootLayout() {
             headerShown: true,
             title: '',
             headerBackTitle: '',
-            headerRight: () => (
-              <TouchableOpacity 
-                onPress={() => {
-                  console.log('Menu pressed');
-                }}
-              >
-                <MenuIcon size={24} color={Colors.light.tint} />
-              </TouchableOpacity>
-            ),
+            headerRight: () => <TaskDetailHeader />,
           }} 
         />
       </Stack>
