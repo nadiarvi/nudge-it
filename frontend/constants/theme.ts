@@ -31,6 +31,10 @@ export const Colors = {
     card: '#FFFFFF',
     cardBorder: '#E5E7EB',
     blackSecondary: '#9CA3AF',
+    red: StatusColors.toDo,
+    yellow: StatusColors.inReview,
+    purple: StatusColors.revise,
+    green: StatusColors.done,
   },
   dark: {
     text: '#ECEDEE',
