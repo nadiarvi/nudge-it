@@ -45,7 +45,7 @@ export function TaskCard({
     showNudgeAlert(title, { option2Enabled: false, option3Enabled: false });
   }
 
-  const MAX_TITLE_LENGTH = 25;
+  const MAX_TITLE_LENGTH = 23;
 
   const truncatedTitle = title.length > MAX_TITLE_LENGTH 
                             ? title.substring(0, MAX_TITLE_LENGTH) + "..." 
@@ -61,7 +61,7 @@ export function TaskCard({
               <FlagIcon size={18} color={Colors.light.red} strokeWidth={2}/>
               <ThemedText type="Body3" style={{color: Colors.light.red}}>{`${nudgeCount}`}</ThemedText>
               { nudgeCount >= 3 && (
-                <ThemedText type="Body3" style={{color: Colors.light.red}}>|TA</ThemedText>
+                <ThemedText type="Body3" style={{color: Colors.light.red}}>| TA</ThemedText>
               )}
             </View>
           )}
