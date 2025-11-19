@@ -42,7 +42,10 @@ export function TaskCard({
   };
 
   const handleNudge = () => {
-    showNudgeAlert(title, { option2Enabled: false, option3Enabled: false });
+    const option2Enabled = nudgeCount >= 1;
+    const option3Enabled = nudgeCount >= 2;
+    
+    showNudgeAlert(title, { option2Enabled, option3Enabled });
   }
 
   const MAX_TITLE_LENGTH = 23;
