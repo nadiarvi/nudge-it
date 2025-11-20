@@ -11,11 +11,12 @@ interface ModalState {
   showConfirmation: boolean;
   taskTitle: string;
   selectedNudgeType: string;
+  targetUser: string;
   options: NudgeOptions;
 }
 
 interface NudgeContextType {
-  showNudgeAlert: (taskTitle: string, options?: NudgeOptions) => void;
+  showNudgeAlert: (taskTitle: string, targetUser: string, options?: NudgeOptions) => void;
 }
 
 const NudgeContext = createContext<NudgeContextType | undefined>(undefined);
@@ -30,15 +31,17 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
     showConfirmation: false,
     taskTitle: '',
     selectedNudgeType: '',
+    targetUser: '',
     options: {},
   });
 
-  const showNudgeAlert = (taskTitle: string, options: NudgeOptions = {}) => {
+  const showNudgeAlert = (taskTitle: string, targetUser: string, options: NudgeOptions = {}) => {
     setModalState({
       showSelection: true,
       showConfirmation: false,
       taskTitle,
       selectedNudgeType: '',
+      targetUser,
       options,
     });
   };
@@ -63,6 +66,7 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
       showConfirmation: false,
       taskTitle: '',
       selectedNudgeType: '',
+      targetUser: '',
       options: {},
     });
   };
@@ -82,6 +86,7 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
         onClose={handleClose}
         taskTitle={modalState.taskTitle}
         nudgeType={modalState.selectedNudgeType}
+        targetUser={modalState.targetUser}
         onConfirm={handleConfirm}
       />
     </NudgeContext.Provider>
