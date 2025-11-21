@@ -1,10 +1,31 @@
 # Backend for Nudge-It
 
-## Table of Contents
-1. [Setup](#setup)
+## 🗃️ Table of Contents
+- [Backend for Nudge-It](#backend-for-nudge-it)
+  - [🗃️ Table of Contents](#️-table-of-contents)
+  - [⚙️ Setup](#️-setup)
+  - [👤 User API](#-user-api)
+    - [1. Sign Up](#1-sign-up)
+    - [2. Login](#2-login)
+    - [3. Get User Information](#3-get-user-information)
+    - [4. Update User Information](#4-update-user-information)
+  - [👥 Group API](#-group-api)
+    - [1. Create a New Group](#1-create-a-new-group)
+    - [2. Get a Group Information](#2-get-a-group-information)
+    - [3. Delete a Group](#3-delete-a-group)
+    - [4. Update a Group Information](#4-update-a-group-information)
+    - [5. Get Members of a Group](#5-get-members-of-a-group)
+    - [6. Add Members to a Group](#6-add-members-to-a-group)
+    - [7. Delete Members from a Group](#7-delete-members-from-a-group)
+  - [🗂️ Task API](#️-task-api)
+    - [1. Create a New Task](#1-create-a-new-task)
+    - [2. Get a Task by ID](#2-get-a-task-by-id)
+    - [3. Get All Tasks in a Group](#3-get-all-tasks-in-a-group)
+    - [4. Delete a Task](#4-delete-a-task)
+  - [💬 Chat API](#-chat-api)
 
 
-## Setup
+## ⚙️ Setup
 1. **Install Dependencies**
    ```
    yarn install
