@@ -2,7 +2,9 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 
+const groupRoutes = require("./routes/group_routes");
 const taskRoutes = require("./routes/task_routes");
+const userRoutes = require("./routes/user_routes");
 
 const { connectDB } = require("./config/db");
 const HttpError = require("./models/http-error");
@@ -19,7 +21,9 @@ app.use(cors());
 app.use(express.json());
 
 // routes
+app.use('/api/groups', groupRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/users', userRoutes);
 
 app.use((req, res, next) => {
     const error = new HttpError("Route not found", 404);

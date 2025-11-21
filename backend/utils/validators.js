@@ -9,13 +9,13 @@ const checkUserExists = async (userId) => {
         if (!existingUser) {
             throw new HttpError('User does not exist', 404);
         }
+        return existingUser;
     } catch (err) {
         if (err instanceof HttpError) {
             throw err;
         }
         throw new HttpError('Fetching user failed, please try again later.', 500);
     }
-    return existingUser;
 };
 
 const checkGroupExists = async (groupId) => {
@@ -25,6 +25,7 @@ const checkGroupExists = async (groupId) => {
         if (!existingGroup) {
             throw new HttpError('Group does not exist', 404);
         }
+        return existingGroup;
     } catch (err) {
         if (err instanceof HttpError) {
             throw err;
