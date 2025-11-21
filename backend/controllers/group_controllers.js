@@ -12,12 +12,12 @@ const createGroup = async (req, res, next) => {
         );
     }
 
-    const { name, members, tasks, chats } = req.body;
+    const { name, members } = req.body;
 
     let newGroup;
     try {
         newGroup = new Group({
-            name, members, tasks, chats
+            name, members
         });
         await newGroup.save();
     } catch (err) {
