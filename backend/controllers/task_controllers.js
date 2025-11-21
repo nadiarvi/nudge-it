@@ -29,7 +29,7 @@ const createTask = async (req, res, next) => {
         });
         await newTask.save();
     } catch (err) {
-        err && console.error(err);
+        console.error(err);
         const error = new HttpError(
             "Failed to create a task, please try again later.", 500
         );
@@ -45,13 +45,16 @@ const retrieveTask = async (req, res, next) => {
     let existingTask;
 
     try {
+        console.log("lets check");
         await checkGroupExists(gid);
+        console.log("-- oh the group exists!");
     } catch (err) {
         return next(err);
     }
 
     try {
-        existingTask = await Task.findOne({ _id: tid, group_id: gid })
+        console.log("oh the group exists!");
+        existingTask = await Task.findOne({ _id: tid, group_id: gid });
         if (!existingTask) {
             return next(new HttpError('Task does not exist', 400));
         }
@@ -61,7 +64,7 @@ const retrieveTask = async (req, res, next) => {
     }
 
     res.json({
-        ...existingTask._doc,
+        ...existingTask._doc
     })
 }
 
