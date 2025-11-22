@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const HttpError = require("../models/http-error");
 const { validationResult } = require("express-validator");
+const { checkUserExists } = require("../utils/validators");
 
 const signup = async (req, res, next) => {
     const errors = validationResult(req);
@@ -82,9 +83,36 @@ const updateUser = async (req, res, next) => {
     res.json({ message: "User updated", user });
 };
 
+const addToken = async (req, res, next) => {
+    const { uid } = req.params;
+    const { pushToken } = req.body;
+    let existingUser;
+
+    if (!pushToken) {
+        return next(new HttpError("Missing Expo Push Token", 400));
+    }
+
+    if (!pushToken.startsWith("ExponentPushToken")) {
+        return next(new HttpError("Invalid expo push token", 400));
+    }
+
+    try {
+        existingUser = checkUserExists(uid);
+        if (!existingUser.expo_push_tokens.includes(pushToken)) {
+            existingUser.expo_push_tokens.push(pushToken);
+            await user.save();
+        }
+    } catch (err) {
+        return next(new HttpError("Failed to register Expo push token", 500));
+    }
+
+    res.status(200).json({ message: "Expo push token registered" });
+}
+
 module.exports = {
     signup,
     login,
     getUser,
-    updateUser
+    updateUser,
+    addToken
 };

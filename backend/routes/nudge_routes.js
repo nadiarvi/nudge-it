@@ -3,7 +3,7 @@ const { check } = require("express-validator");
 const router = express.Router();
 
 const nudgeController = require("../controllers/nudge_controllers");
-const { createNudge } = nudgeController;
+const { createNudge, getNudgesReceivedByUser, getNudgesSentByUser, getNudgesPerTask } = nudgeController;
 
 router.post("/create",
     [
@@ -25,5 +25,11 @@ router.post("/create",
     ],
     createNudge
 );
+
+router.get("/:gid/:uid/received", getNudgesReceivedByUser);
+
+router.get("/:gid/:uid/sent", getNudgesSentByUser);
+
+router.get("/:gid/:tid", getNudgesPerTask);
 
 module.exports = router;

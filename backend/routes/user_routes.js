@@ -3,7 +3,7 @@ const { check } = require("express-validator");
 const router = express.Router();
 
 const userControllers = require("../controllers/user_controllers");
-const { signup, login, getUser, updateUser } = userControllers;
+const { signup, login, getUser, updateUser, addToken } = userControllers;
 
 router.post(
     "/signup",
@@ -20,5 +20,7 @@ router.post("/login", login);
 router.get("/:uid", getUser);
 
 router.patch("/:uid", updateUser);
+
+router.patch("/:uid/token", addToken);
 
 module.exports = router;
