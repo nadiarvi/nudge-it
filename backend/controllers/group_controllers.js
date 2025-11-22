@@ -4,20 +4,20 @@ const { validationResult } = require("express-validator");
 const { checkGroupExists, checkUserExists } = require("../utils/validators");
 
 const createGroup = async (req, res, next) => {
-    const error = validationResult(req);
+    const errors = validationResult(req);
 
-    if (!error.isEmpty()) {
+    if (!errors.isEmpty()) {
         return next(
             new HttpError(JSON.stringify(errors), 422)
         );
     }
 
-    const { name, members } = req.body;
-
+    const { name, members, ta_email } = req.body;
     let newGroup;
+    
     try {
         newGroup = new Group({
-            name, members
+            name, members, ta_email
         });
         await newGroup.save();
     } catch (err) {
@@ -62,13 +62,14 @@ const deleteGroup = async (req, res, next) => {
 
 const updateGroup = async (req, res, next) => {
     const { gid } = req.params;
-    const { name, tasks, chats } = req.body;
+    const { name, ta_email, tasks, chats } = req.body;
     let existingGroup;
 
     try {
         existingGroup = await checkGroupExists(gid);
 
         if (name !== undefined) existingGroup.name = name;
+        if (ta_email !== undefined) existingGroup.ta_email = ta_email;
         if (tasks !== undefined) existingGroup.tasks = tasks;
         if (chats !== undefined) existingGroup.chats = chats;
         await existingGroup.save();

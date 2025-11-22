@@ -4,9 +4,9 @@ const { checkGroupExists } = require("../utils/validators");
 const { validationResult } = require("express-validator");
 
 const createTask = async (req, res, next) => {
-    const error = validationResult(req);
+    const errors = validationResult(req);
 
-    if (!error.isEmpty()) {
+    if (!errors.isEmpty()) {
         return next(
             new HttpError(JSON.stringify(errors), 422)
         );

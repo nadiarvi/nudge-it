@@ -7,7 +7,7 @@ const { createTask, retrieveTask, getTasks, deleteTask } = taskController;
 
 router.post("/create",
     [
-        check("group_id").not().isEmpty()
+        check("group_id").notEmpty()
     ],
     createTask
 );

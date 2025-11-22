@@ -7,7 +7,7 @@ const { createGroup, getGroup, deleteGroup, updateGroup, getMembers, addMembers,
 
 router.post("/create",
     [
-        check("name").not().isEmpty()
+        check("name").notEmpty()
     ],
     createGroup
 );
