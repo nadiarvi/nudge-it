@@ -154,7 +154,8 @@ const handleNudgeDelivery = async (type, receiverId, groupId, taskId, taEmail) =
 module.exports = {
   sendPushNotification,
   simulatePhoneCall,
-  sendEmailToTA
+  sendEmailToTA,
+  handleNudgeDelivery
 }
 
 
