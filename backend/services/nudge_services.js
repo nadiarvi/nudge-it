@@ -27,7 +27,7 @@ const sendPushNotification = async (receiverId, groupId, taskId) => {
 
         const tokens = receiver.expo_push_tokens || [];
         if (tokens.length === 0) {
-            console.log("No Expo push token for user", user.name);
+            console.log("No Expo push token for user", receiver.name);
             return false;
         }
 
