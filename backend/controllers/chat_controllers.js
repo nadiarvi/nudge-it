@@ -86,7 +86,7 @@ const getUserChats = async (req, res, next) => {
     const currentUserId = req.userData?.id || req.query.uid;
 
     try {
-        const existingGroup = checkGroupExists(gid);
+        const existingGroup = await checkGroupExists(gid);
     } catch (err) {
         return next(new HttpError("Fetching group failed", 500));
     }
