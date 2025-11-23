@@ -182,7 +182,7 @@ const confirmUserMessage = async (req, res, next) => {
             sender: currentUserId,
             receiver: otherUserId,
             content: chosenContent,
-            timestamp: Date.now
+            timestamp: Date.now()
         });
         await chat.save();
         return res.status(201).json({ message: "Message sent", chat });
@@ -205,7 +205,7 @@ const sendNuggetMessage = async (req, res, next) => {
             senderType: "user",
             sender: currentUserId,
             content,
-            timestamp: Date.now
+            timestamp: Date.now()
         });
         await chat.save();
 
@@ -216,7 +216,7 @@ const sendNuggetMessage = async (req, res, next) => {
             sender: null,
             receiver: currentUserId,
             content: botReply,
-            timestamp: Date.now
+            timestamp: Date.now()
         });
 
         await chat.save();
