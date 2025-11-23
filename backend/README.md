@@ -23,6 +23,17 @@
     - [3. Get All Tasks in a Group](#3-get-all-tasks-in-a-group)
     - [4. Delete a Task](#4-delete-a-task)
   - [💬 Chat API](#-chat-api)
+    - [1. Create or Get a Chat](#1-create-or-get-a-chat)
+    - [2. Get All Chats for Current User](#2-get-all-chats-for-current-user)
+    - [3. Get a Specific Chat](#3-get-a-specific-chat)
+    - [4. Send a Message (User Chat)](#4-send-a-message-user-chat)
+    - [5. Confirm and Save User Message (After Revision)](#5-confirm-and-save-user-message-after-revision)
+    - [6. Send a Message (Nugget Chat)](#6-send-a-message-nugget-chat)
+  - [🔔 Nudge API](#-nudge-api)
+    - [1. Send a Nudge (Notification)](#1-send-a-nudge-notification)
+    - [2. Get Nudges Received by User](#2-get-nudges-received-by-user)
+    - [3. Get Nudges Sent by User](#3-get-nudges-sent-by-user)
+    - [4. Get Nudges for a Task](#4-get-nudges-for-a-task)
 
 
 ## ⚙️ Setup
@@ -272,3 +283,169 @@
 
 ---
 ## 💬 Chat API
+
+### 1. Create or Get a Chat
+
+**Endpoint:** `POST api/chats/create`
+- **Description:** Create or get a chat between two users or with Nugget in a group
+- **Request Body:**
+  - `otherUserId`: String (required)
+  - `groupId`: String (required)
+  - `type`: String, either "user" or "nugget" (required)
+
+**Request Example:**
+```json
+{
+  "otherUserId": "userId2",
+  "groupId": "groupId1",
+  "type": "user"
+}
+```
+
+**Responses:**
+- `201 OK`: Chat created
+- `200 OK`: Existing chat returned
+- `422`: Invalid request
+- `500`: Server error
+
+---
+### 2. Get All Chats for Current User
+
+**Endpoint:** `GET api/chats/get`
+- **Description:** Get all chats for the current user in a group
+
+**Responses:**
+- `200 OK`: Returns array of chats
+- `500`: Server error
+
+---
+### 3. Get a Specific Chat
+
+**Endpoint:** `GET api/chats/:cid`
+- **Description:** Get a specific chat by chat ID
+
+**Responses:**
+- `200 OK`: Returns chat object
+- `404`: Chat not found
+- `500`: Server error
+
+---
+### 4. Send a Message (User Chat)
+
+**Endpoint:** `POST api/chats/:cid/messages/user`
+- **Description:** Send a message in a user chat. The backend will check the tone and may suggest a revision.
+- **Request Body:**
+  - `content`: String (required)
+
+**Request Example:**
+```json
+{
+  "content": "Hey, why didn't you finish your part?"
+}
+```
+
+**Responses:**
+- `201 OK`: Message sent (if no revision needed)
+- `200 OK`: If needsRevision = true, response includes both original and suggested message. You must call `POST api/chats/:cid/messages/confirm` to save the chosen message.
+- `500`: Server error
+
+**Note:**
+- If `needsRevision = true` in the response from `POST api/chats/:cid/messages/user`, you must call `POST api/chats/:cid/messages/confirm` with the user's choice to save the message.
+
+---
+### 5. Confirm and Save User Message (After Revision)
+
+**Endpoint:** `POST api/chats/:cid/messages/confirm`
+- **Description:** Confirm and save the user's chosen message after revision suggestion.
+- **Request Body:**
+  - `chosenContent`: String (required)
+
+**Request Example:**
+```json
+{
+  "chosenContent": "You could have asked for help if you needed it."
+}
+```
+
+**Responses:**
+- `201 OK`: Message saved
+- `500`: Server error
+
+---
+### 6. Send a Message (Nugget Chat)
+
+**Endpoint:** `POST api/chats/:cid/messages/nugget`
+- **Description:** Send a message in a Nugget chat. Nugget will reply with advice based on chat history.
+- **Request Body:**
+  - `content`: String (required)
+
+**Request Example:**
+```json
+{
+  "content": "I'm frustrated with my teammate. What should I do?"
+}
+```
+
+**Responses:**
+- `201 OK`: Message sent and Nugget reply added
+- `500`: Server error
+
+---
+## 🔔 Nudge API
+
+### 1. Send a Nudge (Notification)
+
+**Endpoint:** `POST api/nudges/create`
+- **Description:** Send a nudge notification (reminder, phone call, or email to TA) related to a task in a group
+- **Request Body:**
+  - `type`: String, one of ["reminder", "phone_call", "email_ta"] (required)
+  - `group_id`: String (required)
+  - `task_id`: String (required)
+  - `sender`: String (required)
+  - `receiver`: String (required)
+
+**Request Example:**
+```json
+{
+  "type": "reminder",
+  "group_id": "groupId1",
+  "task_id": "taskId1",
+  "sender": "userId1",
+  "receiver": "userId2"
+}
+```
+
+**Responses:**
+- `201 OK`: Nudge created and notification sent
+- `422`: Invalid request
+- `500`: Server error
+
+---
+### 2. Get Nudges Received by User
+
+**Endpoint:** `GET api/nudges/:gid/:uid/received`
+- **Description:** Get all nudges received by a user in a group
+
+**Responses:**
+- `200 OK`: Returns array of nudges and totalNudge
+- `500`: Server error
+
+---
+### 3. Get Nudges Sent by User
+
+**Endpoint:** `GET api/nudges/:gid/:uid/sent`
+- **Description:** Get all nudges sent by a user in a group
+
+**Responses:**
+- `200 OK`: Returns array of nudges and totalNudge
+- `500`: Server error
+
+---
+### 4. Get Nudges for a Task
+
+**Endpoint:** `GET api/nudges/:gid/:tid`
+- **Description:** Get all nudges related to a specific task in a group
+
+**Responses:**
+- `200 OK`: Returns array of nudges and totalNudge
+- `500`: Server error

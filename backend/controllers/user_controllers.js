@@ -1,7 +1,11 @@
 const User = require("../models/user");
 const HttpError = require("../models/http-error");
+const dotenv = requrie("dotenv");
+const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const { checkUserExists } = require("../utils/validators");
+
+dotenv.config();
 
 const signup = async (req, res, next) => {
     const errors = validationResult(req);
@@ -24,6 +28,12 @@ const signup = async (req, res, next) => {
     const newUser = new User({ name, email, password });
     try {
         await newUser.save();
+
+        const token = jwt.sign(
+            { id: newUser.id },
+            process.env.JWT_SECRET,
+            { expiresIn: "30d" }
+        );
     } catch (err) {
         return next(new HttpError("Signup failed, please try again later.", 500));
     }
@@ -40,11 +50,17 @@ const login = async (req, res, next) => {
         if (!existingUser || existingUser.password !== password) {
             return next(new HttpError("Invalid credentials.", 401));
         }
+
+        const token = jwt.sign(
+            { id: newUser.id },
+            process.env.JWT_SECRET,
+            { expiresIn: "30d" }
+        );
     } catch (err) {
         return next(new HttpError("Login failed, please try again later.", 500));
     }
 
-    res.json({ message: "Login successful", userId: existingUser.id, user: existingUser });
+    res.json({ message: "Login successful", userId: existingUser.id });
 };
 
 const getUser = async (req, res, next) => {
@@ -52,7 +68,7 @@ const getUser = async (req, res, next) => {
 
     let user;
     try {
-        user = await User.findById(uid);
+        user = await User.findOne({ _id: uid }, '-password');
         if (!user) {
             return next(new HttpError("User not found.", 404));
         }
@@ -64,17 +80,18 @@ const getUser = async (req, res, next) => {
 };
 
 const updateUser = async (req, res, next) => {
-    const { uid } = req.params;
-    const { name, email } = req.body;
+    const { id } = req.userData;
+    const { name, email, password } = req.body;
 
     let user;
     try {
-        user = await User.findById(uid);
+        user = await User.findById(id);
         if (!user) {
             return next(new HttpError("User not found.", 404));
         }
         if (name) user.name = name;
         if (email) user.email = email;
+        if (password) user.password = password;
         await user.save();
     } catch (err) {
         return next(new HttpError("Updating user failed, please try again later.", 500));
@@ -84,7 +101,7 @@ const updateUser = async (req, res, next) => {
 };
 
 const addToken = async (req, res, next) => {
-    const { uid } = req.params;
+    const { id } = req.userData;
     const { pushToken } = req.body;
     let existingUser;
 
@@ -97,10 +114,10 @@ const addToken = async (req, res, next) => {
     }
 
     try {
-        existingUser = checkUserExists(uid);
+        existingUser = await User.findById(id);
         if (!existingUser.expo_push_tokens.includes(pushToken)) {
             existingUser.expo_push_tokens.push(pushToken);
-            await user.save();
+            await existingUser.save();
         }
     } catch (err) {
         return next(new HttpError("Failed to register Expo push token", 500));

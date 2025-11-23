@@ -62,7 +62,7 @@ const getAdvice = async (groupId, ownerId, aboutId, userMessage) => {
 
         const messages = [
             { role: "system", content: system_prompt },
-            { role: "system", content: `Recent conversatio:\n${contextText}` },
+            { role: "system", content: `Recent conversation:\n${contextText}` },
             ...nuggetChatHistory,
             { role: "user", content: userMessage }
         ]
@@ -73,10 +73,6 @@ const getAdvice = async (groupId, ownerId, aboutId, userMessage) => {
         });
 
         const botReply = response.choices[0].message.content;
-
-        // save the chat
-        nuggetChat.messages.push({ sender: "nugget", receiver: ownerId, content: botReply, timestamp: Date.now });
-        await nuggetChat.save();
 
         return botReply;
 }

@@ -4,6 +4,7 @@ const router = express.Router();
 
 const userControllers = require("../controllers/user_controllers");
 const { signup, login, getUser, updateUser, addToken } = userControllers;
+const { checkAuthUser } = require("../middleware/check_auth");
 
 router.post(
     "/signup",
@@ -17,10 +18,10 @@ router.post(
 
 router.post("/login", login);
 
-router.get("/:uid", getUser);
+router.get("/:uid", checkAuthUser, getUser);
 
-router.patch("/:uid", updateUser);
+router.patch("/:uid", checkAuthUser, updateUser);
 
-router.patch("/:uid/token", addToken);
+router.patch("/:uid/token", checkAuthUser, addToken);
 
 module.exports = router;

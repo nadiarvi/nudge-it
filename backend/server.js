@@ -14,11 +14,6 @@ const HttpError = require("./models/http-error");
 dotenv.config();
 const app = express();
 
-// const corsOptions = {
-//   origin: 'http://localhost:3000/',
-//   optionsSuccessStatus: 200
-// }
-
 app.use(cors());
 app.use(express.json());
 

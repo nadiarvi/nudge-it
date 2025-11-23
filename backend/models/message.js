@@ -9,7 +9,12 @@ const MessageSchema = new mongoose.Schema({
     sender: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",               // only used when senderType === "user"
-        default: null,             // will stay null for nugget
+        default: null             // will stay null for nugget
+    },
+    receiver: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null
     },
     content: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },
