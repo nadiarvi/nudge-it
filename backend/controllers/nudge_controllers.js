@@ -66,7 +66,7 @@ const getNudgesReceivedByUser = async (req, res, next) => {
 const getNudgesSentByUser = async (req, res, next) => {
     const { gid, uid } = req.params;
     try {
-        const nudges = await Nudge.find({ group_id, sender: uid });
+        const nudges = await Nudge.find({ group_id: gid, sender: uid });
         res.status(200).json({ nudges, totalNudge: nudges.length });
     } catch (err) {
         return next(new HttpError("Failed to fetch sent nudges", 500));
