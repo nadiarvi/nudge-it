@@ -1,7 +1,7 @@
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
 const { Expo } = require("expo-server-sdk");
-const ExpoPush = require("expo-server-sdk").Expo;
+const ExpoSDK = require("expo-server-sdk").Expo;
 const ExpoPush = new ExpoSDK();
 
 const HttpError = require("../models/http-error");
@@ -159,17 +159,17 @@ module.exports = {
 
 
 // For testing purposes
-// if (require.main === module) {
-//     (async () => {
-//         try {
-//             await sendEmailToTA(
-//                 "dellptri@gmail.com",
-//                 "dummyGroupId",
-//                 "dummyReceiverId"
-//             );
-//             console.log("Test email sent successfully!");
-//         } catch (err) {
-//             console.error("Error sending test email:", err);
-//         }
-//     })();
-// }
+if (require.main === module) {
+    (async () => {
+        try {
+            await sendEmailToTA(
+                "yonglin2902@gmail.com",
+                "dummyGroupId",
+                "dummyReceiverId"
+            );
+            console.log("Test email sent successfully!");
+        } catch (err) {
+            console.error("Error sending test email:", err);
+        }
+    })();
+}

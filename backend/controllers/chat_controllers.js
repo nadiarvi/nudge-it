@@ -2,7 +2,7 @@ const Chat = require("../models/chat");
 const HttpError = require("../models/http-error");
 const { validationResult } = require("express-validator");
 const { checkGroupExists } = require("../utils/validators");
-const { getAdvice, reviseMessage } = requier("../services/openai_services");
+const { getAdvice, reviseMessage } = require("../services/openai_services");
 
 const createOrGetChat = async (req, res, next) => {
     const errors = validationResult(req);

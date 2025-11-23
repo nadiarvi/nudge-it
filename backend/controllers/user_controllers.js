@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const HttpError = require("../models/http-error");
-const dotenv = requrie("dotenv");
+const dotenv = requrire("dotenv");
 const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const { checkUserExists } = require("../utils/validators");
