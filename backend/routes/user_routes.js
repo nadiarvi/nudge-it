@@ -9,7 +9,8 @@ const { checkAuthUser } = require("../middleware/check_auth");
 router.post(
     "/signup",
     [
-        check("name").notEmpty(),
+        check("first_name").notEmpty(),
+        check("last_name").notEmpty(),
         check("email").isEmail(),
         check("password").isLength({ min: 8 })
     ],
