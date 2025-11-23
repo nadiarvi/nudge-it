@@ -24,6 +24,7 @@ export default function RootLayout() {
               title: '',
               headerBackTitle: '',
               headerRight: () => <TaskDetailHeader />,
+              gestureEnabled: false,
             }} 
           />
         </Stack>
