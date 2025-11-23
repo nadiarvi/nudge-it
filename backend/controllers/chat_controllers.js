@@ -182,7 +182,7 @@ const confirmUserMessage = async (req, res, next) => {
             sender: currentUserId,
             receiver: otherUserId,
             content: chosenContent,
-            timestamp: Date.now
+            timestamp: Date.now()
         });
         await chat.save();
         return res.status(201).json({ message: "Message sent", chat });
