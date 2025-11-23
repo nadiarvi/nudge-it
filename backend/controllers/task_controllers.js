@@ -72,6 +72,7 @@ const getTasks = async (req, res, next) => {
     const { gid } = req.params;
     let tasks;
     let totalTasks;
+    let results;
 
     try {
         tasks = await Task.find({ group_id: gid });
