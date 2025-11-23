@@ -11,11 +11,12 @@ import { ThemedTextInput } from '@/components/ui/themed-text-input';
 import { ThemedView } from '@/components/ui/themed-view';
 import { MEMBER_LISTS, SAMPLE_COMMENTS } from '@/constants/dataPlaceholder';
 import { Colors } from '@/constants/theme';
+import { useAuth } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskStatus } from '@/types/task';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ReactElement, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ReactElement, useEffect, useState } from 'react';
+import { Alert, StyleSheet, View } from 'react-native';
 
 const formatTimestamp = (timestamp: string) => {
     //  return is MM.DD HH:MM
@@ -80,6 +81,14 @@ export default function TaskDetailPage() {
   const [currentAssignedTo, setCurrentAssignedTo] = useState<string>(assignedTo as string || '');
   const [currentReviewer, setCurrentReviewer] = useState<string>((reviewer && reviewer !== '') ? reviewer as string : '');
   const [comments, setComments] = useState(SAMPLE_COMMENTS);
+  const { user } = useAuth();
+  const [ allowNudge, setAllowNudge ] = useState(false);
+
+  useEffect(() => {
+    const show = user?.firstName === assignedTo;
+    setAllowNudge(!show);
+  }, [user, assignedTo]);
+  
   
   // Get nudge alert hook and router
   const { showNudgeAlert } = useNudgeAlert();
@@ -113,12 +122,28 @@ export default function TaskDetailPage() {
   }
 
   const handleNudgePress = () => {
+    if (!allowNudge) {
+      Alert.alert(
+        'Nudge Disabled',
+        'You cannot nudge a task that you are assigned to',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
     const taskNudgeCount = parseInt(nudgeCount as string) || 0;
     console.log('Nudge button pressed - Title:', title, 'Assigned To:', currentAssignedTo, 'Count:', taskNudgeCount);
     showNudgeAlert(title as string, currentAssignedTo, taskNudgeCount);
   }
 
   const handleChatPress = () => {
+    if (!allowNudge) {
+      Alert.alert(
+        'Chat Disabled',
+        'You cannot chat about a task that you are assigned to',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
     router.replace('/chat');
   }
   

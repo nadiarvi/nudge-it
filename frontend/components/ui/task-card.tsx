@@ -5,9 +5,11 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { ThemedTouchableView } from '@/components/ui/touchable-themed-view';
 import { Colors, StatusColors } from '@/constants/theme';
+import { useAuth } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskCardProps } from '@/types/task';
 import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { FlagIcon } from '../icons/flag-icon';
 import { SearchIcon } from '../icons/search-icon';
@@ -23,7 +25,10 @@ export function TaskCard({
   onStatusChange = () => {},
 }: TaskCardProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const { showNudgeAlert } = useNudgeAlert();
+
+  const [showNudgeButton, setShowNudgeButton] = useState(false);
 
   const handlePress = () => {
     // Navigate to task detail page with parameters
@@ -43,13 +48,18 @@ export function TaskCard({
 
   const handleNudge = () => {
     showNudgeAlert(title, assignedTo, nudgeCount);
-  }
+  };
 
   const MAX_TITLE_LENGTH = 23;
 
   const truncatedTitle = title.length > MAX_TITLE_LENGTH 
                             ? title.substring(0, MAX_TITLE_LENGTH) + "..." 
                             : title;
+
+  useEffect(() => {
+    const show = user?.firstName === assignedTo;
+    setShowNudgeButton(!show);
+  }, [user, assignedTo]);
 
   return (
     <ThemedTouchableView style={styles.taskCard} onPress={handlePress}>
@@ -85,7 +95,7 @@ export function TaskCard({
       </ThemedView>
       <ThemedView style={styles.rightSection}>
         <ThemedTouchableView onPress={handleNudge} style={{ marginLeft: 8 }}>
-          <BellIcon size={24} color={Colors.light.blackSecondary} />
+          { showNudgeButton && <BellIcon size={24} color={Colors.light.blackSecondary} /> }
         </ThemedTouchableView>
         <StatusDropdown 
           value={status}
