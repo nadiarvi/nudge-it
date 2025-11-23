@@ -5,6 +5,8 @@ import { ThemedTextInput } from '@/components/ui/themed-text-input';
 import { ThemedView } from '@/components/ui/themed-view';
 import { ThemedTouchableView } from '@/components/ui/touchable-themed-view';
 import { Colors } from '@/constants/theme';
+import { useAuth } from '@/contexts/auth-context';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 interface ProfileSectionProps {
@@ -67,12 +69,14 @@ interface EditingFieldState {
 }
 
 export default function ProfileScreen() {
+  const router = useRouter();
+  const { user, logout } = useAuth();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingField, setEditingField] = useState<EditingFieldState | null>(null);
   const [editValue, setEditValue] = useState('');
   const [profileData, setProfileData] = useState<ProfileData>({
-    username: 'john_doe',
-    email: 'john_doe@example.com',
+    username: user?.firstName && user?.lastName ? `${user.firstName}_${user.lastName}`.toLowerCase() : 'user',
+    email: user?.email || 'user@example.com',
     projectName: 'CS473 Social Computing',
     nudgeLimit: '1',
   });
@@ -99,10 +103,15 @@ export default function ProfileScreen() {
     setEditingField(null);
     setEditValue('');
   };
-  const handleConfirmLogout = () => {
-    console.log("User confirmed logout - implementing logout logic...");
-    // TODO: Implement actual logout logic here
-    // Example: clear user session, navigate to login screen, etc.
+  const handleConfirmLogout = async () => {
+    try {
+      await logout();
+      console.log("User logged out");
+      // Navigate to login screen and reset navigation stack
+      router.replace('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   const handleLogOut = () => {

@@ -11,8 +11,9 @@ import { ThemedTextInput } from '@/components/ui/themed-text-input';
 import { ThemedView } from '@/components/ui/themed-view';
 import { MEMBER_LISTS, SAMPLE_COMMENTS } from '@/constants/dataPlaceholder';
 import { Colors } from '@/constants/theme';
+import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskStatus } from '@/types/task';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ReactElement, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -67,7 +68,8 @@ export default function TaskDetailPage() {
     deadline,
     assignedTo,
     status,
-    reviewer
+    reviewer,
+    nudgeCount
   } = params;
 
   // Convert status to proper TaskStatus type and manage local state
@@ -78,6 +80,10 @@ export default function TaskDetailPage() {
   const [currentAssignedTo, setCurrentAssignedTo] = useState<string>(assignedTo as string || '');
   const [currentReviewer, setCurrentReviewer] = useState<string>((reviewer && reviewer !== '') ? reviewer as string : '');
   const [comments, setComments] = useState(SAMPLE_COMMENTS);
+  
+  // Get nudge alert hook and router
+  const { showNudgeAlert } = useNudgeAlert();
+  const router = useRouter();
 
   const statusComponent = (taskStatus: TaskStatus) => {
     return (
@@ -105,6 +111,16 @@ export default function TaskDetailPage() {
         />
     )
   }
+
+  const handleNudgePress = () => {
+    const taskNudgeCount = parseInt(nudgeCount as string) || 0;
+    console.log('Nudge button pressed - Title:', title, 'Assigned To:', currentAssignedTo, 'Count:', taskNudgeCount);
+    showNudgeAlert(title as string, currentAssignedTo, taskNudgeCount);
+  }
+
+  const handleChatPress = () => {
+    router.replace('/chat');
+  }
   
   return (
     <ParallaxScrollView paddingTop={0}>
@@ -117,10 +133,10 @@ export default function TaskDetailPage() {
         </ThemedView>
 
         <ThemedView style={styles.buttonSection}>
-            <ThemedButton variant='hover' onPress={() => console.log('Nudge pressed')}>
+            <ThemedButton variant='hover' onPress={handleNudgePress}>
                 Nudge
             </ThemedButton>
-            <ThemedButton variant='hover' onPress={() => console.log('Chat pressed')}>
+            <ThemedButton variant='hover' onPress={handleChatPress}>
                 Chat
             </ThemedButton>
         </ThemedView>

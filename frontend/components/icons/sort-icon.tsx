@@ -5,20 +5,22 @@ interface SortIconProps {
   size?: number;
   color?: string;
   strokeWidth?: number;
+  variant?: 'outline' | 'solid';
 }
 
 export function SortIcon({ 
   size = 24, 
   color = 'currentColor',
-  strokeWidth = 1.5
+  strokeWidth = 1.5,
+  variant = 'outline'
 }: SortIconProps) {
   return (
     <Svg 
       width={size} 
       height={size} 
       viewBox="0 0 24 24" 
-      fill="none"
-      stroke={color}
+      fill={variant === 'solid' ? color : 'none'}
+      stroke={variant === 'solid' ? 'none' : color}
       strokeWidth={strokeWidth}
     >
       <Path

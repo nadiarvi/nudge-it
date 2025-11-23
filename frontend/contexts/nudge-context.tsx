@@ -16,7 +16,7 @@ interface ModalState {
 }
 
 interface NudgeContextType {
-  showNudgeAlert: (taskTitle: string, targetUser: string, options?: NudgeOptions) => void;
+  showNudgeAlert: (taskTitle: string, targetUser: string, nudgeCount: number) => void;
 }
 
 const NudgeContext = createContext<NudgeContextType | undefined>(undefined);
@@ -35,14 +35,18 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
     options: {},
   });
 
-  const showNudgeAlert = (taskTitle: string, targetUser: string, options: NudgeOptions = {}) => {
+  const showNudgeAlert = (taskTitle: string, targetUser: string, nudgeCount: number) => {
+    // Calculate which options should be enabled based on nudge count
+    const option2Enabled = nudgeCount >= 1;
+    const option3Enabled = nudgeCount >= 2;
+    
     setModalState({
       showSelection: true,
       showConfirmation: false,
       taskTitle,
       selectedNudgeType: '',
       targetUser,
-      options,
+      options: { option2Enabled, option3Enabled },
     });
   };
 
