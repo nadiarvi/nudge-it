@@ -72,12 +72,13 @@ const getTasks = async (req, res, next) => {
     const { gid } = req.params;
     let tasks;
     let totalTasks;
+    let results;
 
     try {
         tasks = await Task.find({ group_id: gid });
         totalTasks = await Task.countDocuments({ group_id: gid });
 
-        const results = {
+        results = {
             tasks: tasks.map(task => {
                 const _task = task.toObject({ getters: true });
                 return {
