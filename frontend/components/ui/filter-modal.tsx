@@ -1,44 +1,68 @@
 import { CheckIcon } from '@/components/icons/check-icon';
 import { Colors } from '@/constants/theme';
 import React, { useEffect, useState } from 'react';
-import { Modal, StyleSheet, TouchableOpacity } from 'react-native';
+import { Modal, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { ThemedButton } from './themed-button';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
+export interface FilterOption {
+  field: string;
+  options: string[];
+}
+
+export interface FilterState {
+  [key: string]: string | null;
+}
+
 interface FilterModalProps {
   visible: boolean;
   onClose: () => void;
-  selectedFilter: string | null;
-  onFilterSelect: (filter: string | null) => void;
+  selectedFilters: FilterState;
+  onFiltersApply: (filters: FilterState) => void;
+  filterOptions: FilterOption[];
 }
 
-const FILTER_OPTIONS = [
-  { label: 'All Tasks', value: null },
-  { label: 'To Do', value: 'To Do' },
-  { label: 'In Progress', value: 'In Progress' },
-  { label: 'In Review', value: 'In Review' },
-  { label: 'Done', value: 'Done' },
-];
-
-export function FilterModal({ visible, onClose, selectedFilter, onFilterSelect }: FilterModalProps) {
-  const [tempFilter, setTempFilter] = useState<string | null>(selectedFilter);
+export function FilterModal({ visible, onClose, selectedFilters, onFiltersApply, filterOptions }: FilterModalProps) {
+  const [tempFilters, setTempFilters] = useState<FilterState>(selectedFilters);
 
   const handleApply = () => {
-    onFilterSelect(tempFilter);
+    onFiltersApply(tempFilters);
     onClose();
   };
 
   const handleCancel = () => {
-    setTempFilter(selectedFilter);
+    setTempFilters(selectedFilters);
     onClose();
+  };
+
+  const handleClearAll = () => {
+    const clearedFilters: FilterState = {};
+    filterOptions.forEach(filter => {
+      clearedFilters[filter.field] = null;
+    });
+    setTempFilters(clearedFilters);
+  };
+
+  const handleOptionSelect = (field: string, value: string | null) => {
+    setTempFilters(prev => ({
+      ...prev,
+      [field]: prev[field] === value ? null : value,
+    }));
   };
 
   useEffect(() => {
     if (visible) {
-      setTempFilter(selectedFilter);
+      setTempFilters(selectedFilters);
     }
-  }, [visible, selectedFilter]);
+  }, [visible, selectedFilters]);
+
+  const formatFieldLabel = (field: string) => {
+    return field
+      .split(/(?=[A-Z])/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
   return (
     <Modal
@@ -60,28 +84,47 @@ export function FilterModal({ visible, onClose, selectedFilter, onFilterSelect }
           </ThemedButton>
         </ThemedView>
         
-        <ThemedView style={styles.modalContent}>
-          {FILTER_OPTIONS.map((option) => (
-            <TouchableOpacity
-              key={option.value || 'all'}
-              style={styles.optionItem}
-              onPress={() => setTempFilter(option.value)}
-            >
-              <ThemedText 
-                type="Body2" 
-                style={[
-                  styles.optionText,
-                  tempFilter === option.value && styles.selectedText
-                ]}
-              >
-                {option.label}
+        <ScrollView style={styles.modalContent}>
+          <TouchableOpacity 
+            style={styles.clearAllButton}
+            onPress={handleClearAll}
+          >
+            <ThemedText type="Body2" style={styles.clearAllText}>
+              Clear All Filters
+            </ThemedText>
+          </TouchableOpacity>
+
+          {filterOptions.map((filterOption) => (
+            <ThemedView key={filterOption.field} style={styles.filterSection}>
+              <ThemedText type="Body1" style={styles.filterLabel}>
+                {formatFieldLabel(filterOption.field)}
               </ThemedText>
-              {tempFilter === option.value && (
-                <CheckIcon size={20} color={Colors.light.tint} />
-              )}
-            </TouchableOpacity>
+              
+              <ThemedView style={styles.optionsContainer}>
+                {filterOption.options.map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    style={styles.optionItem}
+                    onPress={() => handleOptionSelect(filterOption.field, option)}
+                  >
+                    <ThemedText 
+                      type="Body2" 
+                      style={[
+                        styles.optionText,
+                        tempFilters[filterOption.field] === option && styles.selectedText
+                      ]}
+                    >
+                      {option}
+                    </ThemedText>
+                    {tempFilters[filterOption.field] === option && (
+                      <CheckIcon size={20} color={Colors.light.tint} />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ThemedView>
+            </ThemedView>
           ))}
-        </ThemedView>
+        </ScrollView>
       </ThemedView>
     </Modal>
   );
@@ -104,7 +147,25 @@ const styles = StyleSheet.create({
   modalContent: {
     paddingVertical: 12,
     paddingHorizontal: 24,
-    flex: 1,
+  },
+  clearAllButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 16,
+  },
+  clearAllText: {
+    color: Colors.light.tint,
+    fontWeight: '600',
+  },
+  filterSection: {
+    marginBottom: 24,
+  },
+  filterLabel: {
+    fontWeight: '600',
+    marginBottom: 12,
+    color: Colors.light.text,
+  },
+  optionsContainer: {
+    gap: 8,
   },
   optionItem: {
     flexDirection: 'row',
@@ -116,7 +177,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.cardBorder,
     borderWidth: 0.5,
     borderRadius: 8,
-    marginBottom: 8,
   },
   optionText: {
     flex: 1,
