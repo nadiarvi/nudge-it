@@ -77,7 +77,7 @@ const getTasks = async (req, res, next) => {
         tasks = await Task.find({ group_id: gid });
         totalTasks = await Task.countDocuments({ group_id: gid });
 
-        results = {
+        const results = {
             tasks: tasks.map(task => {
                 const _task = task.toObject({ getters: true });
                 return {
