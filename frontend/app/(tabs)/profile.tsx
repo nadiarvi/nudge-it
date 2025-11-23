@@ -61,9 +61,14 @@ interface ProfileData {
   nudgeLimit: string;
 }
 
+interface EditingFieldState {
+  label: string;
+  key: keyof ProfileData;
+}
+
 export default function ProfileScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingField, setEditingField] = useState<{label: string, key: keyof ProfileData} | null>(null);
+  const [editingField, setEditingField] = useState<EditingFieldState | null>(null);
   const [editValue, setEditValue] = useState('');
   const [profileData, setProfileData] = useState<ProfileData>({
     username: 'john_doe',
