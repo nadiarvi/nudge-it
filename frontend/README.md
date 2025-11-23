@@ -1,50 +1,24 @@
-# Welcome to your Expo app 👋
+# Getting Started
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
-
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+## Version Syncing
+1. After cloning the repo, make sure to pull the latest changes on `frontend` branch into your local version.
 ```bash
-npm run reset-project
+git fetch origin
+git switch frontend
+git pull origin frontend
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Navigate to your own workspace (the branch under your name) and merge the `frontend` branch into your branch to sync the latest update.
+```bash
+git switch your_branch_name
+git merge frontend
+```
 
-## Learn more
+3. Resolve merging conflicts (if any). Make sure to accept the latest version.
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+4. After you're done working, push the changes to your branch on the cloud and make a pull request to the `frontend` branch.
+```bash
+git add .
+git commit -m "feat: describe your changes"
+git push origin your_branch_name
+```
