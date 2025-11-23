@@ -1,14 +1,10 @@
-import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
-import { ThemedButton } from '@/components/ui/themed-button';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedTextInput } from '@/components/ui/themed-text-input';
-import { ThemedView } from '@/components/ui/themed-view';
-import { ThemedTouchableView } from '@/components/ui/touchable-themed-view';
+import { ParallaxScrollView, ThemedButton, ThemedText, ThemedTextInput, ThemedTouchableView, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Modal, StyleSheet, TouchableOpacity } from 'react-native';
+
 interface ProfileSectionProps {
   children: React.ReactNode;
   sectionTitle?: string;

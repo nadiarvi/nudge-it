@@ -1,24 +1,9 @@
+import { ArrowIcon, CheckIcon, ClockIcon, DropdownIcon, InboxIcon, SendIcon, TodoIcon } from '@/components/icons';
+import { ParallaxScrollView, TaskCard, ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui';
+import { MY_TASKS } from '@/constants/dataPlaceholder';
+import { Colors } from '@/constants/theme';
 import React, { ReactElement, useRef, useState } from 'react';
 import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
-
-import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedView } from '@/components/ui/themed-view';
-
-import { ArrowIcon } from '@/components/icons/arrow-icon';
-import { ClockIcon } from '@/components/icons/clock-icon';
-import { DropdownIcon } from '@/components/icons/dropdown-icon';
-import { InboxIcon } from '@/components/icons/inbox-icon';
-import { SendIcon } from '@/components/icons/send-icon';
-import { TodoIcon } from '@/components/icons/todo-icon';
-
-import { ThemedTouchableView } from '@/components/ui';
-import { Colors } from '@/constants/theme';
-
-import { CheckIcon } from '@/components/icons/check-icon';
-import { TaskCard } from '@/components/ui';
-
-import { MY_TASKS } from '@/constants/dataPlaceholder';
 
 const nudgeCountComponent = (icon: ReactElement, title: string, count: number) => (
   <ThemedView style={styles.nudgeComponent}>

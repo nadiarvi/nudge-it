@@ -1,9 +1,5 @@
-import { EyeIcon } from '@/components/icons/eye-icon';
-import { EyeSlashIcon } from '@/components/icons/eye-slash-icon';
-import { ThemedButton } from '@/components/ui/themed-button';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedTextInput } from '@/components/ui/themed-text-input';
-import { ThemedView } from '@/components/ui/themed-view';
+import { EyeIcon, EyeSlashIcon } from '@/components/icons';
+import { ThemedButton, ThemedText, ThemedTextInput, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from 'expo-router';

@@ -1,14 +1,5 @@
-import { CalendarIcon } from '@/components/icons/calendar-icon';
-import { SearchIcon } from '@/components/icons/search-icon';
-import { StatusIcon } from '@/components/icons/status-icon';
-import { UserCircleIcon } from '@/components/icons/user-circle-icon';
-import { MemberDropdown } from '@/components/ui/member-dropdown';
-import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
-import { StatusDropdown } from '@/components/ui/status-dropdown';
-import { ThemedButton } from '@/components/ui/themed-button';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedTextInput } from '@/components/ui/themed-text-input';
-import { ThemedView } from '@/components/ui/themed-view';
+import { CalendarIcon, SearchIcon, StatusIcon, UserCircleIcon } from '@/components/icons';
+import { MemberDropdown, ParallaxScrollView, StatusDropdown, ThemedButton, ThemedText, ThemedTextInput, ThemedView } from '@/components/ui';
 import { MEMBER_LISTS, SAMPLE_COMMENTS } from '@/constants/dataPlaceholder';
 import { Colors } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth-context';

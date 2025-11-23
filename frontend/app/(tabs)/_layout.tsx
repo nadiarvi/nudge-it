@@ -1,11 +1,8 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
-import { ChatIcon } from '@/components/icons/chat-icon';
-import { HomeIcon } from '@/components/icons/home-icon';
-import { TodoIcon } from '@/components/icons/todo-icon';
-import { UserIcon } from '@/components/icons/user-icon';
-import { HapticTab } from '@/components/ui/haptic-tab';
+import { ChatIcon, HomeIcon, TodoIcon, UserIcon } from '@/components/icons';
+import { HapticTab } from '@/components/ui';
 import { Colors } from '@/constants/theme';
 
 export default function TabLayout() {

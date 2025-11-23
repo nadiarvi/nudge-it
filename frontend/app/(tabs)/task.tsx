@@ -1,22 +1,11 @@
-import React, { useMemo, useState } from 'react';
-import { StyleSheet } from 'react-native';
-
-import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
-import { TaskCard } from '@/components/ui/task-card';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedView } from '@/components/ui/themed-view';
-import { TaskStatus } from '@/types/task';
-import { useRouter } from 'expo-router';
-
-import { FilterIcon } from '@/components/icons/filter-icon';
-import { SortIcon } from '@/components/icons/sort-icon';
-
-import { PlusIcon } from '@/components/icons/plus-icon';
-import { ThemedTouchableView } from '@/components/ui';
-import { FilterModal } from '@/components/ui/filter-modal';
-import { SortModal } from '@/components/ui/sort-modal';
+import { FilterIcon, PlusIcon, SortIcon } from '@/components/icons';
+import { FilterModal, ParallaxScrollView, SortModal, TaskCard, ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui';
 import { ALL_TASKS, MEMBER_LISTS } from '@/constants/dataPlaceholder';
 import { Colors } from '@/constants/theme';
+import { TaskStatus } from '@/types/task';
+import { useRouter } from 'expo-router';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet } from 'react-native';
 
 const taskLists = ALL_TASKS("Alice");
 
