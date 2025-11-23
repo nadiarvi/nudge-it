@@ -54,18 +54,25 @@ const ActionItem = ({ label, labelStyle, icon, onPress, style }: ActionItemProps
   );
 }
 
+interface ProfileData {
+  username: string;
+  email: string;
+  projectName: string;
+  nudgeLimit: string;
+}
+
 export default function ProfileScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingField, setEditingField] = useState<{label: string, key: keyof typeof profileData} | null>(null);
+  const [editingField, setEditingField] = useState<{label: string, key: keyof ProfileData} | null>(null);
   const [editValue, setEditValue] = useState('');
-  const [profileData, setProfileData] = useState({
+  const [profileData, setProfileData] = useState<ProfileData>({
     username: 'john_doe',
     email: 'john_doe@example.com',
     projectName: 'CS473 Social Computing',
     nudgeLimit: '1',
   });
 
-  const handleFieldPress = (label: string, key: keyof typeof profileData, currentValue: string) => {
+  const handleFieldPress = (label: string, key: keyof ProfileData, currentValue: string) => {
     setEditingField({ label, key });
     setEditValue(currentValue);
     setIsModalVisible(true);
