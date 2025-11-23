@@ -54,36 +54,41 @@ const ActionItem = ({ label, labelStyle, icon, onPress, style }: ActionItemProps
   );
 }
 
+interface ProfileData {
+  username: string;
+  email: string;
+  projectName: string;
+  nudgeLimit: string;
+}
+
+interface EditingFieldState {
+  label: string;
+  key: keyof ProfileData;
+}
+
 export default function ProfileScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingField, setEditingField] = useState<{label: string, value: string} | null>(null);
+  const [editingField, setEditingField] = useState<EditingFieldState | null>(null);
   const [editValue, setEditValue] = useState('');
-  const [profileData, setProfileData] = useState({
+  const [profileData, setProfileData] = useState<ProfileData>({
     username: 'john_doe',
     email: 'john_doe@example.com',
     projectName: 'CS473 Social Computing',
     nudgeLimit: '1',
   });
 
-  const handleFieldPress = (label: string, currentValue: string) => {
-    setEditingField({ label, value: currentValue });
+  const handleFieldPress = (label: string, key: keyof ProfileData, currentValue: string) => {
+    setEditingField({ label, key });
     setEditValue(currentValue);
     setIsModalVisible(true);
   };
 
   const handleSave = () => {
     if (editingField) {
-      setProfileData(prev => {
-        const key = editingField.label === 'Username' ? 'username' :
-                   editingField.label === 'Email' ? 'email' :
-                   editingField.label === 'Project Name' ? 'projectName' :
-                   editingField.label === 'Nudge Limit per Stage' ? 'nudgeLimit' : '';
-        
-        if (key) {
-          return { ...prev, [key]: editValue };
-        }
-        return prev;
-      });
+      setProfileData(prev => ({
+        ...prev,
+        [editingField.key]: editValue
+      }));
     }
     setIsModalVisible(false);
     setEditingField(null);
@@ -132,12 +137,12 @@ export default function ProfileScreen() {
         <FieldItem 
           label="Username" 
           value={profileData.username} 
-          onPress={() => handleFieldPress('Username', profileData.username)}
+          onPress={() => handleFieldPress('Username', 'username', profileData.username)}
         />
         <FieldItem 
           label="Email" 
           value={profileData.email}
-          onPress={() => handleFieldPress('Email', profileData.email)}
+          onPress={() => handleFieldPress('Email', 'email', profileData.email)}
           style={{ borderBottomWidth: 0}}
         />
       </ProfileSection>
@@ -146,12 +151,12 @@ export default function ProfileScreen() {
         <FieldItem 
           label="Project Name" 
           value={profileData.projectName}
-          onPress={() => handleFieldPress('Project Name', profileData.projectName)}
+          onPress={() => handleFieldPress('Project Name', 'projectName', profileData.projectName)}
         />
         <FieldItem 
           label="Nudge Limit per Stage" 
           value={profileData.nudgeLimit}
-          onPress={() => handleFieldPress('Nudge Limit per Stage', profileData.nudgeLimit)}
+          onPress={() => handleFieldPress('Nudge Limit per Stage', 'nudgeLimit', profileData.nudgeLimit)}
           style={{ borderBottomWidth: 0}}
         />  
       </ProfileSection>
