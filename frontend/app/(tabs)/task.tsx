@@ -24,7 +24,7 @@ export default function TasksScreen() {
     router.push({
       pathname: '/task-detail',
       params: { 
-        id: 'new', // Special ID to indicate new task creation
+        id: 'new',
         title: '',
         deadline: '',
         assignedTo: '',
