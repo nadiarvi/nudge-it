@@ -1,5 +1,6 @@
 const OpenAI = require("openai");
 const dotenv = require("dotenv");
+const Chat = require("../models/chat");
 const HttpError = require("../models/http-error");
 
 dotenv.config();
