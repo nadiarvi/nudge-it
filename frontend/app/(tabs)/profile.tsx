@@ -57,7 +57,8 @@ const ActionItem = ({ label, labelStyle, icon, onPress, style }: ActionItemProps
 }
 
 interface ProfileData {
-  username: string;
+  firstName: string;
+  lastName: string;
   email: string;
   projectName: string;
   nudgeLimit: string;
@@ -75,7 +76,8 @@ export default function ProfileScreen() {
   const [editingField, setEditingField] = useState<EditingFieldState | null>(null);
   const [editValue, setEditValue] = useState('');
   const [profileData, setProfileData] = useState<ProfileData>({
-    username: user?.firstName && user?.lastName ? `${user.firstName}_${user.lastName}`.toLowerCase() : 'user',
+    firstName: user?.firstName || 'First',
+    lastName: user?.lastName || 'Last',
     email: user?.email || 'user@example.com',
     projectName: 'CS473 Social Computing',
     nudgeLimit: '1',
@@ -144,9 +146,14 @@ export default function ProfileScreen() {
 
       <ProfileSection sectionTitle="Account Info">
         <FieldItem 
-          label="Username" 
-          value={profileData.username} 
-          onPress={() => handleFieldPress('Username', 'username', profileData.username)}
+          label="First Name" 
+          value={profileData.firstName} 
+          onPress={() => handleFieldPress('First Name', 'firstName', profileData.firstName)}
+        />
+        <FieldItem 
+          label="Last Name" 
+          value={profileData.lastName} 
+          onPress={() => handleFieldPress('Last Name', 'lastName', profileData.lastName)}
         />
         <FieldItem 
           label="Email" 
