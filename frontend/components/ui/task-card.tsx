@@ -5,7 +5,7 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { ThemedTouchableView } from '@/components/ui/touchable-themed-view';
 import { Colors, StatusColors } from '@/constants/theme';
-import { useNudgeAlert } from '@/hooks/use-nudge-alert';
+import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskCardProps } from '@/types/task';
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
@@ -42,10 +42,10 @@ export function TaskCard({
   };
 
   const handleNudge = () => {
-    showNudgeAlert(title, { option2Enabled: false, option3Enabled: false });
+    showNudgeAlert(title, assignedTo, nudgeCount);
   }
 
-  const MAX_TITLE_LENGTH = 25;
+  const MAX_TITLE_LENGTH = 23;
 
   const truncatedTitle = title.length > MAX_TITLE_LENGTH 
                             ? title.substring(0, MAX_TITLE_LENGTH) + "..." 
@@ -61,7 +61,7 @@ export function TaskCard({
               <FlagIcon size={18} color={Colors.light.red} strokeWidth={2}/>
               <ThemedText type="Body3" style={{color: Colors.light.red}}>{`${nudgeCount}`}</ThemedText>
               { nudgeCount >= 3 && (
-                <ThemedText type="Body3" style={{color: Colors.light.red}}>|TA</ThemedText>
+                <ThemedText type="Body3" style={{color: Colors.light.red}}>| TA</ThemedText>
               )}
             </View>
           )}

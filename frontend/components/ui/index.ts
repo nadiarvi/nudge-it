@@ -1,4 +1,5 @@
 export type { TaskStatus } from '@/types/task';
+export { CustomAlert, NudgeConfirmationModal, NudgeSelectionModal } from './custom-alert';
 export { HapticTab } from './haptic-tab';
 export { default as ParallaxScrollView } from './parallax-scroll-view';
 export { StatusDropdown } from './status-dropdown';
