@@ -13,7 +13,7 @@ const signup = async (req, res, next) => {
         return next(new HttpError(JSON.stringify(errors.array()), 422));
     }
 
-    const { name, email, password } = req.body;
+    const { first_name, last_name, email, password } = req.body;
 
     let existingUser;
     try {
@@ -25,7 +25,7 @@ const signup = async (req, res, next) => {
         return next(new HttpError("Signup failed, please try again later.", 500));
     }
 
-    const newUser = new User({ name, email, password });
+    const newUser = new User({ first_name, last_name, email, password });
     try {
         await newUser.save();
 
@@ -81,7 +81,7 @@ const getUser = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
     const { id } = req.userData;
-    const { name, email, password } = req.body;
+    const { first_name, last_name, email, password } = req.body;
 
     let user;
     try {
@@ -89,7 +89,8 @@ const updateUser = async (req, res, next) => {
         if (!user) {
             return next(new HttpError("User not found.", 404));
         }
-        if (name) user.name = name;
+        if (first_name) user.first_name = first_name;
+        if (last_name) user.last_name = last_name;
         if (email) user.email = email;
         if (password) user.password = password;
         await user.save();
