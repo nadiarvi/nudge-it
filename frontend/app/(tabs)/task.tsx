@@ -1,3 +1,4 @@
+import React, { useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
@@ -12,6 +13,7 @@ import { SortIcon } from '@/components/icons/sort-icon';
 
 import { PlusIcon } from '@/components/icons/plus-icon';
 import { ThemedTouchableView } from '@/components/ui';
+import { FilterModal } from '@/components/ui/filter-modal';
 import { ALL_TASKS } from '@/constants/dataPlaceholder';
 import { Colors } from '@/constants/theme';
 
@@ -19,6 +21,16 @@ const taskLists = ALL_TASKS("Alice");
 
 export default function TasksScreen() {
   const router = useRouter();
+  const [filterCondition, setFilterCondition] = useState<string | null>(null);
+  const [sortCondition, setSortCondition] = useState<string | null>(null);
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
+
+  const filteredTasks = useMemo(() => {
+    if (!filterCondition) {
+      return taskLists;
+    }
+    return taskLists.filter(task => task.status === filterCondition);
+  }, [filterCondition]);
 
   const handleAddTask = () => {
     router.push({
@@ -36,8 +48,7 @@ export default function TasksScreen() {
   };
 
   const handleFilter = () => {
-    // Implement filter logic here
-    console.log('Filter button pressed');
+    setIsFilterModalVisible(true);
   };
 
   const handleSort = () => {
@@ -45,19 +56,21 @@ export default function TasksScreen() {
     console.log('Sort button pressed');
   };
 
+  const BUTTONS_COLOR = Colors.light.blackSecondary;
+
   return (
    <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="H1" style={{ flex: 1 }}>Tasks</ThemedText>
         <ThemedView style={styles.actionContainer}>
           <ThemedTouchableView onPress={handleFilter}>
-            <FilterIcon size={22} color={ Colors.light.tint }/>
+            <FilterIcon size={22} color={ BUTTONS_COLOR }/>
           </ThemedTouchableView>
           <ThemedTouchableView onPress={handleSort}>
-            <SortIcon size={22} color={ Colors.light.tint }/>
+            <SortIcon size={22} color={ BUTTONS_COLOR }/>
           </ThemedTouchableView>
           <ThemedTouchableView onPress={handleAddTask}>
-            <PlusIcon size={22} color={ Colors.light.tint }/>
+            <PlusIcon size={22} color={ BUTTONS_COLOR }/>
           </ThemedTouchableView>
         </ThemedView>
       </ThemedView>
@@ -65,7 +78,7 @@ export default function TasksScreen() {
 
       <ThemedView style={{ gap: 8 }}>
       
-      {taskLists.map((task, index) => (
+      {filteredTasks.map((task, index) => (
         <TaskCard
           key={index}
           title={task.title}
@@ -81,6 +94,13 @@ export default function TasksScreen() {
         />
       ))}
       </ThemedView>
+
+      <FilterModal
+        visible={isFilterModalVisible}
+        onClose={() => setIsFilterModalVisible(false)}
+        selectedFilter={filterCondition}
+        onFilterSelect={setFilterCondition}
+      />
     </ParallaxScrollView>
   );
 }
