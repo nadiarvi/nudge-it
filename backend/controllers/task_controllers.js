@@ -105,27 +105,27 @@ const getTaskByUser = async (req, res, next) => {
         // Find tasks assigned to the user
         const toDoTasks = await Task.find({ group_id: gid, assignee: uid });
         // Find tasks to review by the user
-        const reviewedTasks = await Task.find({ group_id: gid, reviewer: uid });
+        const toReviewTasks = await Task.find({ group_id: gid, reviewer: uid, status: 'In Review' });
 
         // Helper to format task
         const formatTask = (task) => ({
             id: task._id,
             title: task.title,
             deadline: task.deadline,
-            assignedTo: Array.isArray(task.assignee) ? task.assignee[0] : task.assignee,
+            assignee: Array.isArray(task.assignee) ? task.assignee[0] : task.assignee,
             status: task.status,
             reviewer: task.reviewer || 'Not Assigned',
-            nudgeCount: Array.isArray(task.nudges) ? task.nudges.length : 0,
+            nudges: Array.isArray(task.nudges) ? task.nudges.length : 0,
         });
 
         const result = [
             {
                 category: 'To Do',
-                tasks: toDoTasks.filter(t => t.status === 'To-Do').map(formatTask)
+                tasks: toDoTasks.filter(t => t.status === 'To-Do' || t.status === 'Revise').map(formatTask)
             },
             {
                 category: 'To Review',
-                tasks: reviewedTasks.map(formatTask)
+                tasks: toReviewTasks.map(formatTask)
             },
             {
                 category: 'Pending for Review',

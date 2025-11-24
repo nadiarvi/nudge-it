@@ -16,7 +16,7 @@ router.get("/:gid/:tid", retrieveTask);
 
 router.get("/:gid", getTasks);
 
-router.get("/:gid/:uid", getTaskByUser);
+router.get("/:gid/user/:uid", getTaskByUser);
 
 router.delete("/:gid/:tid", deleteTask);
 
