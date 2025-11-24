@@ -31,7 +31,7 @@ export default function ChatScreen() {
   );
 
   const handleChatPress = (chat: { id: string; name: string }) => {
-    router.push(`/chat1?name=${encodeURIComponent(chat.name)}`);
+    router.push(`/chat-member?name=${encodeURIComponent(chat.name)}`);
   };
 
   const MAX_LENGTH = 45;
