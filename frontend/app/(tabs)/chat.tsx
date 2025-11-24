@@ -12,17 +12,7 @@ import { ProfileIcon } from '@/components/icons/profile-icon';
 import { useAuthStore } from '@/contexts/auth-context';
 import axios from 'axios';
 
-const SAMPLE_LONG_MSG = `
-Hey, I just wanted to check in and see how things are going with the project.
-Let me know if you need any help or have any questions. Looking forward to hearing from you soon!
-`;
-
-const chatData = [
-  { id: '1', name: 'Adel', message: 'You: How is your progress? :D' },
-  { id: '2', name: 'Nadia', message: 'You: Could you check my part please?' },
-  { id: '3', name: 'Chian Ye', message: 'This part is a bit ugly TT', unread: true },
-  { id: '4', name: 'Nuggit', message: SAMPLE_LONG_MSG },
-];
+import { User } from '@/types/user';
 
 export default function ChatScreen() {
   const { uid, groups } = useAuthStore();
@@ -35,17 +25,19 @@ export default function ChatScreen() {
     try {
       const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${gid}/${uid}`);
       const chats = res.data.chats;
+      
 
       const _chatData = chats
                           .filter((chat: any) => chat.type === "user")
                           .map((chat: any) => {
-                            const entry = {
-                              id: chat.id,
-                              name: chat.people.filter((person: string) => person !== uid)[0],
-                              message: chat.messages[0]
-                            }
-                          })
-      console.log('Fetched chats:', _chatData);
+                            return {
+                              id: chat._id,
+                              name: chat.people.filter((person: User) => person._id !== uid)[0].first_name,
+                              message: chat.messages[0].content,
+                            };
+                          });
+
+      setChatData(_chatData);
     } catch (error) {
       console.error('Error fetching chats:', error);
       console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/get`);
@@ -60,16 +52,16 @@ export default function ChatScreen() {
   const router = useRouter();
 
 
-  const filteredChats = chatData.filter(chat =>
-    chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    chat.message.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // const filteredChats = chatData.filter(chat =>
+  //   chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //   chat.message.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
 
   const handleChatPress = (chat: { id: string; name: string }) => {
     router.push(`/chat-member?name=${encodeURIComponent(chat.name)}`);
   };
 
-  const MAX_LENGTH = 45;
+  const MAX_LENGTH = 400;
   const displayChat = (chat: string) => {
     return chat.length > MAX_LENGTH ? chat.substring(0, MAX_LENGTH) + "..." : chat;
   }
@@ -79,15 +71,6 @@ export default function ChatScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="H1">Chats</ThemedText>
       </ThemedView>
-      {/* <ThemedView style={styles.separator} /> */}
-
-      {/* <TextInput
-        style={styles.searchInput}
-        placeholder="Search chats..."
-        placeholderTextColor="#888"
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      /> */}
 
       {chatData.map((item) => (
         <ThemedTouchableView 
@@ -103,9 +86,10 @@ export default function ChatScreen() {
 
           {/* Chat Text */}
           <View style={styles.chatTextContainer}>
-            <ThemedText type="Body1">{item.name}</ThemedText>
-            <ThemedText type="Body3" style={styles.messagePreview}>
-              {displayChat(item.message)}
+            <ThemedText type="H3">{item.name}</ThemedText>
+            <ThemedText type="Body3" style={styles.messagePreview} numberOfLines={1}>
+              {/* {displayChat(item.message)} */}
+              {item.message}
             </ThemedText>
           </View>
 
