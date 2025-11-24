@@ -10,7 +10,7 @@ import { useAuthStore } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskCardProps } from '@/types/task';
 import { formatDate } from '@/utils/date-formatter';
-import axios from 'axios';
+import { getNameByUid } from '@/utils/uid-to-name';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -30,14 +30,13 @@ export function TaskCard({
   const router = useRouter();
   const { uid, first_name } = useAuthStore();
   const { showNudgeAlert } = useNudgeAlert();
-
-  const [assigneeStr, setAssigneeStr] = useState();
+  const [assigneeStr, setAssigneeStr] = useState(assignedTo);
 
   useEffect(() => {
     const getAssigneeName = async () => {
       try {
-        const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/users/${assignedTo}`);
-        setAssigneeStr(res.data.user.first_name);
+        const name = await getNameByUid(assignedTo);
+        setAssigneeStr(name);
       } catch (error) {
         console.error("Failed to fetch assignee name:", error);
       }
