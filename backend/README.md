@@ -22,6 +22,8 @@
     - [2. Get a Task by ID](#2-get-a-task-by-id)
     - [3. Get All Tasks in a Group](#3-get-all-tasks-in-a-group)
     - [4. Delete a Task](#4-delete-a-task)
+    - [5. Get All Tasks Related to a User in a Group](#5-get-all-tasks-related-to-a-user-in-a-group)
+    - [6. Update a Task](#6-update-a-task)
   - [💬 Chat API](#-chat-api)
     - [1. Create or Get a Chat](#1-create-or-get-a-chat)
     - [2. Get All Chats for Current User](#2-get-all-chats-for-current-user)
@@ -399,6 +401,104 @@
 
 **Responses:**
 - `200 OK`: Task deleted
+- `400`: Task does not exist
+- `500`: Server error
+
+---
+### 5. Get All Tasks Related to a User in a Group
+
+**Endpoint:** `GET api/tasks/:gid/user/:uid`
+- **Description:** Get all tasks assigned to or reviewed by a user in a group, grouped by category (To Do, To Review, Pending for Review)
+
+**Responses:**
+- `200 OK`: Returns result array, each with category name and list of tasks
+```json
+{
+  "result": [
+    {
+      "category": "To Do",
+      "tasks": [
+        {
+          "id": "task-1",
+          "title": "Design Landing Page",
+          "deadline": "2024-09-15T00:00:00.000Z",
+          "assignedTo": "userId1",
+          "status": "To Do",
+          "reviewer": "Not Assigned",
+          "nudgeCount": 1
+        }
+      ]
+    },
+    {
+      "category": "To Review",
+      "tasks": [
+        {
+          "id": "task-2",
+          "title": "Task 2 Title",
+          "deadline": "2024-09-15T00:00:00.000Z",
+          "assignedTo": "Bob",
+          "status": "In Review",
+          "reviewer": "userId1",
+          "nudgeCount": 2
+        }
+      ]
+    },
+    {
+      "category": "Pending for Review",
+      "tasks": [
+        {
+          "id": "task-3",
+          "title": "Design Landing Page",
+          "deadline": "2024-09-15T00:00:00.000Z",
+          "assignedTo": "userId1",
+          "status": "In Review",
+          "reviewer": "Charlie",
+          "nudgeCount": 0
+        }
+      ]
+    }
+  ]
+}
+```
+- `500`: Server error
+
+---
+### 6. Update a Task
+
+**Endpoint:** `PATCH api/tasks/:gid/:tid`
+- **Description:** Update a task by its ID and group ID
+- **Request Body:**
+  - `title`: String (optional)
+  - `deadline`: Date (optional)
+  - `assignee`: Array of User ID ([String], optional)
+  - `reviewer`: Array of User ID ([String], optional)
+  - `status`: String (optional)
+  - `comments`: Array of Comments (optional)
+  - `nudges`: Array (optional)
+
+**Request Example:**
+```json
+{
+  "title": "Update Landing Page",
+  "reviewer": ["userId3"],
+  "status": "In Review"
+}
+```
+
+**Responses:**
+- `200 OK`: Task updated
+```json
+{
+  "message": "Task updated",
+  "task": {
+    "_id": "taskid",
+    "title": "Update Landing Page",
+    "reviewer": ["userId3"],
+    "status": "In Review"
+    // ...other fields
+  }
+}
+```
 - `400`: Task does not exist
 - `500`: Server error
 
