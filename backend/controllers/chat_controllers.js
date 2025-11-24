@@ -11,7 +11,7 @@ const createOrGetChat = async (req, res, next) => {
     }
 
     const { otherUserId, groupId, type } = req.body;
-    const currentUserId = req.userData?.id || req.params?.uid;
+    const currentUserId = req.params.uid;
 
     if (!currentUserId) {
         return next(new HttpError("No current user specified.", 400));
@@ -42,11 +42,11 @@ const createOrGetChat = async (req, res, next) => {
                 group_id: groupId,
                 people: currentUserId,
                 about: otherUserId,
-            });
+            }).populate("people").populate(messages);
         }
 
         if (existingChat) {
-            return res.status(200).json({ chat: existingChat });
+            return res.status(200).json({ existingChat });
         }
 
         // Otherwise create a new chat
@@ -71,7 +71,7 @@ const createOrGetChat = async (req, res, next) => {
         await newChat.save();
         await newChat.populate("people").populate("messages");
 
-        res.status(201).json({ chat: newChat });
+        res.status(201).json({ newChat });
     } catch (err) {
         console.error(err);
         return next(
@@ -82,8 +82,7 @@ const createOrGetChat = async (req, res, next) => {
 
 // get all chats that involves the current user in the current group
 const getUserChats = async (req, res, next) => {
-    const { gid } = req.params;
-    const currentUserId = req.userData?.id || req.query.uid;
+    const { gid, uid } = req.params;
 
     try {
         const existingGroup = await checkGroupExists(gid);
@@ -91,16 +90,17 @@ const getUserChats = async (req, res, next) => {
         return next(new HttpError("Fetching group failed", 500));
     }
 
-    if (!currentUserId) {
+    if (!uid) {
         return next(new HttpError("No current user specified.", 400));
     }
 
     try {
         const chats = await Chat.find({
-            people: currentUserId,
+            people: uid,
             group_id: gid
         })
         .populate("people")
+        .populate("messages")
         .sort({ updatedAt: -1 });
 
         res.status(200).json({ chats });
@@ -119,6 +119,7 @@ const getChatById = async (req, res, next) => {
     try {
         existingChat = await Chat.findById(cid)
             .populate("people")
+            .populate("messages")
         
         if (!existingChat) {
             return next(new HttpError("Chat not found", 404));
@@ -137,9 +138,9 @@ const getChatById = async (req, res, next) => {
 const sendUserMessage = async (req, res, next) => {
     const { content } = req.body;
     const chatId = req.params.cid;
-    const currentUserId = req.userData.id;
+    const currentUserId = req.params.uid;
     try {
-        let chat = await Chat.findById(chatId);
+        let chat = await Chat.findById(chatId).populate("people").populate("messages");
         if (!chat) return next(new HttpError("Chat not found", 404));
         const otherUserId = chat.people.find(p => p.toString() !== currentUserId.toString());
 
@@ -171,10 +172,10 @@ const sendUserMessage = async (req, res, next) => {
 const confirmUserMessage = async (req, res, next) => {
     const { chosenContent } = req.body;
     const chatId = req.params.cid;
-    const currentUserId = req.userData.id;
+    const currentUserId = req.params.uid;
 
     try {
-        let chat = await Chat.findById(chatId);
+        let chat = await Chat.findById(chatId).populate("people").populate("messages");
         if (!chat) return next(new HttpError("Chat not found", 404));
         const otherUserId = chat.people.find(p => p.toString() !== currentUserId.toString());
         chat.messages.push({
@@ -195,9 +196,9 @@ const confirmUserMessage = async (req, res, next) => {
 const sendNuggetMessage = async (req, res, next) => {
     const { content } = req.body;
     const chatId = req.params.cid;
-    const currentUserId = req.userData.id;
+    const currentUserId = req.params.uid;
     try {
-        const chat = await Chat.findById(chatId);
+        const chat = await Chat.findById(chatId).populate("people").populate("messages");
         if (!chat) return next(new HttpError("Chat not found", 404));
         
         // Save user's message

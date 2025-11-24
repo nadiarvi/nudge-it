@@ -46,16 +46,13 @@ const retrieveTask = async (req, res, next) => {
     let existingTask;
 
     try {
-        console.log("lets check");
         await checkGroupExists(gid);
-        console.log("-- oh the group exists!");
     } catch (err) {
         return next(err);
     }
 
     try {
-        console.log("oh the group exists!");
-        existingTask = await Task.findOne({ _id: tid, group_id: gid });
+        existingTask = await Task.findOne({ _id: tid, group_id: gid }).populate("assignee").populate("reviewer");
         if (!existingTask) {
             return next(new HttpError('Task does not exist', 400));
         }
@@ -77,7 +74,7 @@ const getTasks = async (req, res, next) => {
     let results;
 
     try {
-        tasks = await Task.find({ group_id: gid });
+        tasks = await Task.find({ group_id: gid }).populate("asignee").populate("reviewer");
         totalTasks = await Task.countDocuments({ group_id: gid });
 
         results = {
@@ -103,9 +100,13 @@ const getTaskByUser = async (req, res, next) => {
     try {
         await checkGroupExists(gid);
         // Find tasks assigned to the user
-        const toDoTasks = await Task.find({ group_id: gid, assignee: uid });
+        const toDoTasks = await Task.find({ group_id: gid, assignee: uid })
+            .populate("assignee")
+            .populate("reviewer");
         // Find tasks to review by the user
-        const toReviewTasks = await Task.find({ group_id: gid, reviewer: uid, status: 'In Review' });
+        const toReviewTasks = await Task.find({ group_id: gid, reviewer: uid, status: 'In Review' })
+            .populate("assignee")
+            .populate("reviewer");
 
         // Helper to format task
         const formatTask = (task) => ({

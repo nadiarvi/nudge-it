@@ -171,8 +171,6 @@
 - **Description:** Create a new group
 - **Request Body:**
   - `name`: String (required)
-  - `members`: Array of user IDs (optional)
-  - `ta_email`: String (optional)
   - `nudge_limit`: Integer (optional, default: 1)
 
 **Request Example:**
@@ -365,9 +363,10 @@
   - `group_id`: String (required)
   - `title`: String (required)
   - `deadline`: Date (optional)
-  - `assignee`: Array of User ID ([String], optional)
-  - `status`: String (optional, set default to TO-DO)
-  - `comments`: Array of Comments (optional)
+  - `assignee`: String or [String] (optional)
+  - `reviewer`: String (optional)
+  - `status`: String (optional)
+  - `comments`: Array (optional)
   - `nudges`: Array (optional)
 
 **Request Example:**
@@ -376,8 +375,8 @@
   "group_id": "groupid",
   "title": "Design Landing Page",
   "deadline": "2025-12-01T00:00:00Z",
-  "assignee": ["userId1"],
-  "reviewer": ["userId2"],
+  "assignee": "userId1",
+  "reviewer": "userId2",
   "status": "To-Do"
 }
 ```
@@ -591,7 +590,7 @@
 
 ### 1. Create or Get a Chat
 
-**Endpoint:** `POST api/chats/create`
+**Endpoint:** `POST api/chats/create/:uid`
 - **Description:** Create or get a chat between two users or with Nugget in a group
 - **Request Body:**
   - `otherUserId`: String (required)
@@ -602,7 +601,7 @@
 ```json
 {
   "otherUserId": "userId2",
-  "groupId": "groupId1",
+  "groupId": "groupid",
   "type": "user"
 }
 ```
@@ -624,7 +623,7 @@
 // for type = nugget
 {
     "id": "chatid1",
-    "type": "user",
+    "type": "nugget",
     "people": ["userid1"],
     "group_id": "groupid1",
     "about": "userid2",
@@ -640,7 +639,7 @@
 ---
 ### 2. Get All Chats for Current User
 
-**Endpoint:** `GET api/chats/get`
+**Endpoint:** `GET api/chats/:gid/:uid`
 - **Description:** Get all chats for the current user in a group
 
 **Responses:**
@@ -715,7 +714,7 @@
 ---
 ### 4. Send a Message (User Chat)
 
-**Endpoint:** `POST api/chats/:cid/messages/user`
+**Endpoint:** `POST api/chats/:cid/:uid/user`
 - **Description:** Send a message in a user chat. The backend will check the tone and may suggest a revision.
 - **Request Body:**
   - `content`: String (required)
@@ -733,25 +732,27 @@
 {
   "message": "Message sent",
   "needsRevision": false,
-  "id": "chatid1",
-  "type": "user",
-  "people": ["userid1", "userid2"],
-  "group_id": "groupid1",
-  "about": null,
-  "messages": [
-    {
-      "senderType": "user",
-      "sender": "userid1",
-      "receiver": "userid2",
-      "content": "Hey, why didn't you finish your part?",
-      "timestamp": "date1"
-    }
-  ],
-  "createdAt": "date1",
-  "updatedAt": "date1"
+  "chat": {
+    "id": "chatid1",
+    "type": "user",
+    "people": ["userid1", "userid2"],
+    "group_id": "groupid1",
+    "about": null,
+    "messages": [
+      {
+        "senderType": "user",
+        "sender": "userid1",
+        "receiver": "userid2",
+        "content": "Hey, why didn't you finish your part?",
+        "timestamp": "date1"
+      }
+    ],
+    "createdAt": "date1",
+    "updatedAt": "date1"
+  }
 }
 ```
-- `200 OK`: If needsRevision = true, response includes both original and suggested message. You must call `POST api/chats/:cid/messages/confirm` to save the chosen message.
+- `200 OK`: If needsRevision = true, response includes both original and suggested message. You must call `POST api/chats/:cid/:uid/confirm` to save the chosen message.
 ```json
 {
   "needsRevision": true,
@@ -768,7 +769,7 @@
 ---
 ### 5. Confirm and Save User Message (After Revision)
 
-**Endpoint:** `POST api/chats/:cid/messages/confirm`
+**Endpoint:** `POST api/chats/:cid/:uid/confirm`
 - **Description:** Confirm and save the user's chosen message after revision suggestion.
 - **Request Body:**
   - `chosenContent`: String (required)
@@ -786,29 +787,31 @@
 {
   "message": "Message sent",
   "needsRevision": false,
-  "id": "chatid1",
-  "type": "user",
-  "people": ["userid1", "userid2"],
-  "group_id": "groupid1",
-  "about": null,
-  "messages": [
-    {
-      "senderType": "user",
-      "sender": "userid1",
-      "receiver": "userid2",
-      "content": "Hi",
-      "timestamp": "date1"
-    },
-    {
-      "senderType": "user",
-      "sender": "userid1",
-      "receiver": "userid2",
-      "content": "You could have asked for help if you needed it.",
-      "timestamp": "date2"
-    }
-  ],
-  "createdAt": "date2",
-  "updatedAt": "date2"
+  "chat": {
+    "id": "chatid1",
+    "type": "user",
+    "people": ["userid1", "userid2"],
+    "group_id": "groupid1",
+    "about": null,
+    "messages": [
+      {
+        "senderType": "user",
+        "sender": "userid1",
+        "receiver": "userid2",
+        "content": "Hi",
+        "timestamp": "date1"
+      },
+      {
+        "senderType": "user",
+        "sender": "userid1",
+        "receiver": "userid2",
+        "content": "You could have asked for help if you needed it.",
+        "timestamp": "date2"
+      }
+    ],
+    "createdAt": "date2",
+    "updatedAt": "date2"
+  }
 }
 ```
 - `500`: Server error
@@ -816,7 +819,7 @@
 ---
 ### 6. Send a Message (Nugget Chat)
 
-**Endpoint:** `POST api/chats/:cid/messages/nugget`
+**Endpoint:** `POST api/chats/:cid/:uid/nugget`
 - **Description:** Send a message in a Nugget chat. Nugget will reply with advice based on chat history.
 - **Request Body:**
   - `content`: String (required)
