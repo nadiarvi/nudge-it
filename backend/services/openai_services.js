@@ -18,6 +18,8 @@ const getAdvice = async (groupId, ownerId, aboutId, userMessage) => {
             { people: { $all: [ownerId, aboutId] } }
         ]
     })
+    .populate("people")
+    .populate("messages")
     .sort({ timestamp: -1 })
     .limit(15);
 
@@ -30,16 +32,16 @@ const getAdvice = async (groupId, ownerId, aboutId, userMessage) => {
     });
 
     // i don't think we'll need this, it will be handled by chat controllers
-    // if (!nuggetChat) {
-    //     nuggetChat = await Chat.create({
-    //         group_id: groupId,
-    //         type: "nugget",
-    //         people: [ownerId],
-    //         owner: ownerId,
-    //         about: aboutId,
-    //         messages: []
-    //     });
-    // }
+    if (!nuggetChat) {
+        nuggetChat = await Chat.create({
+            group_id: groupId,
+            type: "nugget",
+            people: [ownerId],
+            owner: ownerId,
+            about: aboutId,
+            messages: []
+        });
+    }
 
     const nuggetChatHistory = nuggetChat.messages.map(msg => ({
         role: msg.sender === "nugget" ? "assistant" : "user",
@@ -136,6 +138,7 @@ const reviseMessage = async (message) => {
             // fallback if OpenAI doesn't return the correct JSON format
             json_output = { revise: false, suggestion: "" };
         }
+        console.log("im here in openai_services");
         
         return json_output;
     } catch (err) {

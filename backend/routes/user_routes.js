@@ -9,20 +9,24 @@ const { checkAuthUser } = require("../middleware/check_auth");
 router.post(
     "/signup",
     [
-        check("first_name").notEmpty(),
-        check("last_name").notEmpty(),
-        check("email").isEmail(),
-        check("password").isLength({ min: 8 })
+        check("first_name").notEmpty().withMessage("First name is required."),
+        check("last_name").notEmpty().withMessage("Last name is required."),
+        check("email")
+        .notEmpty().withMessage("Email is required.").bail()
+        .isEmail().withMessage("Please provide a valid email address."),
+        check("password")
+        .notEmpty().withMessage("Password is required.").bail()
+        .isLength({ min: 8 }).withMessage("Password must be at least 8 characters long.")
     ],
     signup
 );
 
 router.post("/login", login);
 
-router.get("/:uid", checkAuthUser, getUser);
+router.get("/:uid", getUser);
 
-router.patch("/:uid", checkAuthUser, updateUser);
+router.patch("/:uid", updateUser);
 
-router.patch("/:uid/token", checkAuthUser, addToken);
+router.patch("/:uid/token", addToken);
 
 module.exports = router;
