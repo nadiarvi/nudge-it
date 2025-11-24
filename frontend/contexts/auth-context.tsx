@@ -1,105 +1,215 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
+import { createContext, FC, useContext, useEffect, useReducer } from 'react';
 
-interface User {
+interface IUserInfo {
+  first_name: string;
+  last_name: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
+  password?: string;
 }
 
-interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
-  logout: () => Promise<void>;
+interface IAction {
+  type: string;
+  payload: IUserInfo | null;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+interface IState {
+  first_name: string;
+  last_name: string;
+  email: string;
+  isSignIn: boolean;
+}
 
-const USER_STORAGE_KEY = '@nudge_it_user';
+interface IAuthContext extends IState {
+  signIn: (userInfo: IUserInfo) => void;
+  signOut: () => void;
+}
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
-  // Load user from storage on app start
+const initialState: IState = {
+  first_name: '',
+  last_name: '',
+  email: '',
+  isSignIn: false,
+};
+
+const reducer = (prevState: IState, action: IAction): IState => {
+  switch (action.type) {
+    case 'SIGN_IN':
+      return {
+        ...prevState,
+        first_name: (action.payload as IUserInfo).first_name,
+        last_name: (action.payload as IUserInfo).last_name,
+        email: (action.payload as IUserInfo).email,
+        isSignIn: true,
+      };
+    case 'SIGN_OUT':
+      return {
+        first_name: '',
+        last_name: '',
+        email: '',
+        isSignIn: false,
+      };
+    default:
+      return prevState;
+  };
+};
+
+// export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
+//   const [state, dispatch] = useReducer(reducer, initialState);
+
+//   useEffect(() => {
+//     checkAuth();
+//   }, []);
+
+//   const checkAuth = async (): Promise<void> => {
+//     try {
+//       const first_name = await SecureStore.getItemAsync('first_name');
+//       const last_name = await SecureStore.getItemAsync('last_name');
+//       const email = await SecureStore.getItemAsync('email');
+
+//       console.log("User: ", first_name, last_name, email);
+
+//       if (first_name && last_name && email) {
+//         dispatch({
+//           type: 'SIGN_IN',
+//           payload: {
+//             first_name,
+//             last_name,
+//             email,
+//           },
+//         });
+//       }
+//     } catch (error) {
+//       console.error('[Auth Context] Check auth error:', error);
+//       await signOut();
+//     }
+//   };
+
+//   const signIn = async (userInfo: IUserInfo) => {
+//     const { first_name, last_name, email } = userInfo;
+
+//     if (first_name && last_name && email) {
+//       await SecureStore.setItemAsync('first_name', first_name);
+//       await SecureStore.setItemAsync('last_name', last_name);
+//       await SecureStore.setItemAsync('email', email);
+
+//       dispatch({
+//         type: 'SIGN_IN',
+//         payload: {
+//           first_name,
+//           last_name,
+//           email,
+//         },
+//       });
+//     };
+//   };
+
+//   const signOut = async () => {
+//     dispatch({ type: 'SIGN_OUT', payload: null });
+
+//     await SecureStore.setItemAsync('first_name', '');
+//     await SecureStore.setItemAsync('last_name', '');
+//     await SecureStore.setItemAsync('email', '');
+//   };
+
+//   return (
+//     <AuthContext.Provider
+//       value={{
+//         isSignIn: state.isSignIn,
+//         first_name: state.first_name,
+//         last_name: state.last_name,
+//         email: state.email,
+//         signIn,
+//         signOut,
+//       }}
+//     >
+//       {children}
+//     </AuthContext.Provider>
+//   )
+// };
+
+export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
   useEffect(() => {
-    loadUser();
+    void checkAuth();
   }, []);
 
-  const loadUser = async () => {
+  const checkAuth = async (): Promise<void> => {
     try {
-      const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        console.log('[Auth Context] Loaded user from storage:', parsedUser.email);
-      } else {
-        console.log('[Auth Context] No user found in storage');
+      const first_name = await SecureStore.getItemAsync('first_name');
+      const last_name = await SecureStore.getItemAsync('last_name');
+      const email = await SecureStore.getItemAsync('email');
+
+      console.log("User: ", first_name, last_name, email);
+
+      if (first_name && last_name && email) {
+        dispatch({
+          type: 'SIGN_IN',
+          payload: {
+            first_name,
+            last_name,
+            email,
+          },
+        });
       }
     } catch (error) {
-      console.error('[Auth Context] Error loading user:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('[Auth Context] Check auth error:', error);
+      await signOut();
     }
   };
 
-  const login = async (email: string, password: string) => {
-    try {
-      // TODO: Replace with actual API call
-      console.log('[Auth Context] Login attempt:', email);
-      
-      const userData: User = { email };
-      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-      setUser(userData);
-      
-      console.log('[Auth Context] Login successful:', email);
-    } catch (error) {
-      console.error('[Auth Context] Login error:', error);
-      throw error;
-    }
+  const signIn = async (userInfo: IUserInfo): Promise<void> => {
+    const { first_name, last_name, email } = userInfo;
+
+    await SecureStore.setItemAsync('first_name', first_name ?? '');
+    await SecureStore.setItemAsync('last_name', last_name ?? '');
+    await SecureStore.setItemAsync('email', email ?? '');
+
+    dispatch({
+      type: 'SIGN_IN',
+      payload: {
+        first_name,
+        last_name,
+        email,
+      },
+    });
   };
 
-  const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
-    try {
-      // TODO: Replace with actual API call
-      console.log('[Auth Context] Sign up attempt:', email);
-      
-      const userData: User = { email, firstName, lastName };
-      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-      setUser(userData);
-      
-      console.log('[Auth Context] Sign up successful:', email);
-    } catch (error) {
-      console.error('[Auth Context] Sign up error:', error);
-      throw error;
-    }
-  };
+  const signOut = async (): Promise<void> => {
+    dispatch({ type: 'SIGN_OUT', payload: null });
 
-  const logout = async () => {
-    try {
-      console.log('[Auth Context] Logging out user:', user?.email);
-      await AsyncStorage.removeItem(USER_STORAGE_KEY);
-      setUser(null);
-      console.log('[Auth Context] Logout successful');
-    } catch (error) {
-      console.error('[Auth Context] Logout error:', error);
-      throw error;
-    }
+    await SecureStore.deleteItemAsync('first_name');
+    await SecureStore.deleteItemAsync('last_name');
+    await SecureStore.deleteItemAsync('email');
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signUp, logout }}>
+    <AuthContext.Provider
+      value={{
+        isSignIn: state.isSignIn,
+        first_name: state.first_name,
+        last_name: state.last_name,
+        email: state.email,
+        signIn,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
+
+export const useAuthStore = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) {
+    throw Error("useAuthContext can only be used inside an AuthProvider");
+  };
+
   return context;
 }
+
+export default AuthStore;

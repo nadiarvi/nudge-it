@@ -1,10 +1,10 @@
 import { TaskDetailHeader } from '@/components/ui';
-import { AuthProvider, useAuth } from '@/contexts/auth-context';
+// import { AuthProvider, useAuth } from '@/contexts/auth-context';
+import AuthStore from '@/contexts/auth-context';
 import { NudgeProvider } from '@/contexts/nudge-context';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 export const unstable_settings = {
@@ -12,12 +12,12 @@ export const unstable_settings = {
 };
 
 function RootLayoutContent() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
-  useEffect(() => {
-    // Debug: Log current user info on app load
-    console.log('[App Entry Point] Current User Email:', user?.email || 'Not logged in');
-  }, [user]);
+  // useEffect(() => {
+  //   // Debug: Log current user info on app load
+  //   console.log('[App Entry Point] Current User Email:', user?.email || 'Not logged in');
+  // }, [user]);
 
   return (
     <ThemeProvider value={DefaultTheme}>
@@ -50,8 +50,8 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
+    <AuthStore>
       <RootLayoutContent />
-    </AuthProvider>
+    </AuthStore>
   );
 }

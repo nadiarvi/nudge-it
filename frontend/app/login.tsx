@@ -1,14 +1,16 @@
 import { EyeIcon, EyeSlashIcon } from '@/components/icons';
 import { ThemedButton, ThemedText, ThemedTextInput, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuthStore } from '@/contexts/auth-context';
+import axios from "axios";
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
+
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, signUp } = useAuth();
+  const { signIn } = useAuthStore();   // <-- your AuthStore function
   const [isSignUp, setIsSignUp] = useState(false);
   
   // Login fields
@@ -25,21 +27,48 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
-      await login(loginEmail, loginPassword);
+      const res = await axios.post(
+        `${process.env.API_BASE_URL}/api/users/login`,
+        {
+          email: loginEmail,
+          password: loginPassword,
+        }
+      );
+
+      // Expect backend returns { first_name, last_name, email }
+      await signIn({
+        first_name: res.data.first_name,
+        last_name: res.data.last_name,
+        email: res.data.email,
+      });
+
       router.replace('/(tabs)');
-    } catch (error) {
-      console.error('Login failed:', error);
-      // TODO: Show error message to user
+    } catch (error: any) {
+      console.error("Login failed:", error.response?.data || error.message);
     }
   };
 
   const handleSignUp = async () => {
     try {
-      await signUp(signUpEmail, signUpPassword, firstName, lastName);
+      const res = await axios.post(
+        `${process.env.API_BASE_URL}/api/users/signup`,
+        {
+          first_name: firstName,
+          last_name: lastName,
+          email: signUpEmail,
+          password: signUpPassword,
+        }
+      );
+
+      await signIn({
+        first_name: res.data.first_name,
+        last_name: res.data.last_name,
+        email: res.data.email,
+      });
+
       router.replace('/(tabs)');
-    } catch (error) {
-      console.error('Sign up failed:', error);
-      // TODO: Show error message to user
+    } catch (error: any) {
+      console.error("Sign Up failed:", error.response?.data || error.message);
     }
   };
 
