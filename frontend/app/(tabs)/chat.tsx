@@ -1,19 +1,24 @@
-import { useState } from 'react';
-import { StyleSheet, View, TextInput, FlatList } from 'react-native';
+import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { ThemedTouchableView } from '@/components/ui/touchable-themed-view';
-import ParallaxScrollView from '@/components/ui/parallax-scroll-view'; 
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
-import { ProfileIcon } from '@/components/icons/profile-icon';
 import { NuggitIcon } from '@/components/icons/nuggit-icon';
+import { ProfileIcon } from '@/components/icons/profile-icon';
+
+const SAMPLE_LONG_MSG = `
+Hey, I just wanted to check in and see how things are going with the project.
+Let me know if you need any help or have any questions. Looking forward to hearing from you soon!
+`;
 
 const chatData = [
   { id: '1', name: 'Adel', message: 'You: How is your progress? :D' },
   { id: '2', name: 'Nadia', message: 'You: Could you check my part please?' },
   { id: '3', name: 'Chian Ye', message: 'This part is a bit ugly TT', unread: true },
-  { id: '4', name: 'Nuggit', message: 'By phrasing it like this, we can avoid any m...' },
+  { id: '4', name: 'Nuggit', message: SAMPLE_LONG_MSG },
 ];
 
 export default function ChatScreen() {
@@ -25,54 +30,58 @@ export default function ChatScreen() {
     chat.message.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-const handleChatPress = (chat: { id: string; name: string }) => {
-  router.push(`/chat1?name=${encodeURIComponent(chat.name)}`);
-};
+  const handleChatPress = (chat: { id: string; name: string }) => {
+    router.push(`/chat1?name=${encodeURIComponent(chat.name)}`);
+  };
 
+  const MAX_LENGTH = 45;
+  const displayChat = (chat: string) => {
+    return chat.length > MAX_LENGTH ? chat.substring(0, MAX_LENGTH) + "..." : chat;
+  }
 
   return (
     <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="H1">Chats</ThemedText>
       </ThemedView>
-      <ThemedView style={styles.separator} />
+      {/* <ThemedView style={styles.separator} /> */}
 
-      <TextInput
+      {/* <TextInput
         style={styles.searchInput}
         placeholder="Search chats..."
         placeholderTextColor="#888"
         value={searchQuery}
         onChangeText={setSearchQuery}
-      />
+      /> */}
 
-      <FlatList
-        data={filteredChats}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 16 }}
-        renderItem={({ item }) => (
-          <ThemedTouchableView style={styles.chatItem} onPress={() => handleChatPress(item)}>
-            
-            {item.name === 'Nuggit' ? (
-              <NuggitIcon size={40} />
-            ) : (
-              <ProfileIcon size={40} />
-            )}
+      {chatData.map((item) => (
+        <ThemedTouchableView 
+          key={item.id} 
+          style={styles.chatItem} 
+          onPress={() => handleChatPress(item)}
+        >
+          {item.name === 'Nuggit' ? (
+            <NuggitIcon size={40} />
+          ) : (
+            <ProfileIcon size={40} />
+          )}
 
-            {/* Chat Text */}
-            <View style={styles.chatTextContainer}>
-              <ThemedText type="Body1">{item.name}</ThemedText>
-              <ThemedText type="Body3" style={styles.messagePreview}>{item.message}</ThemedText>
+          {/* Chat Text */}
+          <View style={styles.chatTextContainer}>
+            <ThemedText type="Body1">{item.name}</ThemedText>
+            <ThemedText type="Body3" style={styles.messagePreview}>
+              {displayChat(item.message)}
+            </ThemedText>
+          </View>
+
+          {/* Unread Badge */}
+          {item.unread && (
+            <View style={styles.unreadBadge}>
+              <ThemedText type="Body3" style={styles.unreadText}>1</ThemedText>
             </View>
-
-            {/* Unread Badge */}
-            {item.unread && (
-              <View style={styles.unreadBadge}>
-                <ThemedText type="Body3" style={styles.unreadText}>1</ThemedText>
-              </View>
-            )}
-          </ThemedTouchableView>
-        )}
-      />
+          )}
+        </ThemedTouchableView>
+      ))}
     </ParallaxScrollView>
   );
 }

@@ -12,13 +12,6 @@ export const unstable_settings = {
 };
 
 function RootLayoutContent() {
-  // const { user } = useAuth();
-
-  // useEffect(() => {
-  //   // Debug: Log current user info on app load
-  //   console.log('[App Entry Point] Current User Email:', user?.email || 'Not logged in');
-  // }, [user]);
-
   return (
     <ThemeProvider value={DefaultTheme}>
       <NudgeProvider>
