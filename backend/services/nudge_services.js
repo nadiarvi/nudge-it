@@ -160,17 +160,17 @@ module.exports = {
 
 
 // For testing purposes
-if (require.main === module) {
-    (async () => {
-        try {
-            await sendEmailToTA(
-                "yonglin2902@gmail.com",
-                "dummyGroupId",
-                "dummyReceiverId"
-            );
-            console.log("Test email sent successfully!");
-        } catch (err) {
-            console.error("Error sending test email:", err);
-        }
-    })();
-}
+// if (require.main === module) {
+//     (async () => {
+//         try {
+//             await sendEmailToTA(
+//                 "yonglin2902@gmail.com",
+//                 "dummyGroupId",
+//                 "dummyReceiverId"
+//             );
+//             console.log("Test email sent successfully!");
+//         } catch (err) {
+//             console.error("Error sending test email:", err);
+//         }
+//     })();
+// }
