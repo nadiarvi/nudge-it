@@ -138,6 +138,7 @@ const reviseMessage = async (message) => {
             // fallback if OpenAI doesn't return the correct JSON format
             json_output = { revise: false, suggestion: "" };
         }
+        console.log("im here in openai_services");
         
         return json_output;
     } catch (err) {

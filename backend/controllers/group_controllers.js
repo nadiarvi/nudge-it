@@ -87,14 +87,17 @@ const getMembers = async (req, res, next) => {
     let existingGroup;
 
     try {
-        existingGroup = await checkGroupExists(gid);
+        existingGroup = await Group.findById(gid).populate("members");
+        if (!existingGroup) {
+            return next(new HttpError("Group not found", 404));
+        }
     } catch (err) {
         return next(err);
     }
 
     res.json({
         members: existingGroup.members
-    })
+    });
 }
 
 const addMembers = async (req, res, next) => {
