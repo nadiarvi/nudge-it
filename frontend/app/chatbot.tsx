@@ -86,6 +86,7 @@ export default function ChatbotScreen() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const getChatHistory = async () => {
     try {
@@ -116,11 +117,33 @@ export default function ChatbotScreen() {
     };
 
     // Add new message to the top (since FlatList is inverted)
-    setMessages(prev => [userMessage, ...prev]);
+    setMessages(prev => [...prev, userMessage]);
 
     // Logic for sending message to AI service and receiving response would go here.
+    setIsLoading(true);
+    
+    const getAIResponse = async () => {
+      try {
+        const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}/${uid}/nugget`, {
+          content: trimmed
+        });
+
+        if (res.data) {
+          const aiMsg: Message = res.data.chat.messages[1];
+          setMessages(prev => [...prev, aiMsg]);
+        } else {
+          console.error('No data in AI response');
+        }
+      } catch (error) {
+        console.error('Error fetching AI response:', error);
+        console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}/${uid}/nugget`);
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
     setInputText('');
+    getAIResponse();
   };
 
   const shouldShowTimeSeparator = (currentMsg: Message, previousMsg: Message | null): boolean => {
@@ -164,7 +187,7 @@ export default function ChatbotScreen() {
       <FlatList
         data={messages}
         renderItem={renderItem}
-        keyExtractor={item => item._id}
+        // keyExtractor={item => item._id}
         contentContainerStyle={styles.flatListContent}
       />
     );
