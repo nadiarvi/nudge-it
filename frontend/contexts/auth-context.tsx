@@ -20,6 +20,7 @@ interface IState {
   last_name: string;
   email: string;
   isSignIn: boolean;
+  isLoading: boolean;
 }
 
 interface IAuthContext extends IState {
@@ -35,6 +36,7 @@ const initialState: IState = {
   last_name: '',
   email: '',
   isSignIn: false,
+  isLoading: true,
 };
 
 const reducer = (prevState: IState, action: IAction): IState => {
@@ -47,6 +49,7 @@ const reducer = (prevState: IState, action: IAction): IState => {
         last_name: (action.payload as IUserInfo).last_name,
         email: (action.payload as IUserInfo).email,
         isSignIn: true,
+        isLoading: false,
       };
     case 'SIGN_OUT':
       return {
@@ -55,7 +58,13 @@ const reducer = (prevState: IState, action: IAction): IState => {
         last_name: '',
         email: '',
         isSignIn: false,
+        isLoading: false,
       };
+    case 'RESTORE_AUTH':
+      return {
+        ...prevState,
+        isLoading: false,
+      }
     default:
       return prevState;
   };
@@ -87,10 +96,13 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
             email,
           },
         });
+      } else {
+        dispatch({ type: 'RESTORE_AUTH', payload: null });
       }
     } catch (error) {
       console.error('[Auth Context] Check auth error:', error);
       await signOut();
+      dispatch({ type: 'RESTORE_AUTH', payload: null });
     }
   };
 
@@ -130,6 +142,7 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         first_name: state.first_name,
         last_name: state.last_name,
         email: state.email,
+        isLoading: state.isLoading,
         signIn,
         signOut,
       }}

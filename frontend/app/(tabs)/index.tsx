@@ -134,7 +134,12 @@ const projectSelectionModal = (isVisible: boolean, onClose: () => void, onSelect
 
 
 export default function HomeScreen() {
-  const { uid } = useAuthStore();
+  const { uid, isLoading } = useAuthStore();
+  
+  if (isLoading) {
+    return <ThemedText>Loading...</ThemedText>;
+  }
+  
   console.log('current user in home screen:', uid);
 
   const CURRENT_USER = 'Alice';
