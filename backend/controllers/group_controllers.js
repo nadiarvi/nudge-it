@@ -35,7 +35,7 @@ const getGroup = async (req, res, next) => {
     let existingGroup;
 
     try {
-        existingGroup = (await checkGroupExists(gid)).populate("members");
+        existingGroup = await checkGroupExists(gid);
     } catch (err) {
         return next(err);
     }
