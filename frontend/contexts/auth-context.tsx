@@ -7,6 +7,8 @@ interface IUserInfo {
   last_name: string;
   email: string;
   password?: string;
+  groups: string[];
+  token?: string;
 }
 
 interface IAction {
@@ -19,6 +21,7 @@ interface IState {
   first_name: string;
   last_name: string;
   email: string;
+  groups: string[];
   isSignIn: boolean;
   isLoading: boolean;
 }
@@ -35,6 +38,7 @@ const initialState: IState = {
   first_name: '',
   last_name: '',
   email: '',
+  groups: [],
   isSignIn: false,
   isLoading: true,
 };
@@ -48,6 +52,7 @@ const reducer = (prevState: IState, action: IAction): IState => {
         first_name: (action.payload as IUserInfo).first_name,
         last_name: (action.payload as IUserInfo).last_name,
         email: (action.payload as IUserInfo).email,
+        groups: (action.payload as IUserInfo).groups,
         isSignIn: true,
         isLoading: false,
       };
@@ -57,6 +62,7 @@ const reducer = (prevState: IState, action: IAction): IState => {
         first_name: '',
         last_name: '',
         email: '',
+        groups: [],
         isSignIn: false,
         isLoading: false,
       };
@@ -83,6 +89,7 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       const first_name = await SecureStore.getItemAsync('first_name');
       const last_name = await SecureStore.getItemAsync('last_name');
       const email = await SecureStore.getItemAsync('email');
+      const groups = await SecureStore.getItemAsync('groups');
 
       console.log("User: ", uid, first_name);
 
@@ -94,6 +101,7 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
             first_name,
             last_name,
             email,
+            groups: groups ? JSON.parse(groups) : [],
           },
         });
       } else {
@@ -113,6 +121,7 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
     await SecureStore.setItemAsync('first_name', first_name ?? '');
     await SecureStore.setItemAsync('last_name', last_name ?? '');
     await SecureStore.setItemAsync('email', email ?? '');
+    await SecureStore.setItemAsync('groups', JSON.stringify(userInfo.groups ?? []));
 
     dispatch({
       type: 'SIGN_IN',
@@ -121,6 +130,7 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         first_name,
         last_name,
         email,
+        groups: userInfo.groups,
       },
     });
   };
@@ -132,6 +142,7 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
     await SecureStore.deleteItemAsync('first_name');
     await SecureStore.deleteItemAsync('last_name');
     await SecureStore.deleteItemAsync('email');
+    await SecureStore.deleteItemAsync('groups');
   };
 
   return (
@@ -143,6 +154,7 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
         last_name: state.last_name,
         email: state.email,
         isLoading: state.isLoading,
+        groups: state.groups,
         signIn,
         signOut,
       }}

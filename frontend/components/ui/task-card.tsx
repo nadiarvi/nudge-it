@@ -60,6 +60,7 @@ export function TaskCard({
                             : title;
 
   useEffect(() => {
+    console.log('TaskCard assignedTo:', assignedTo, 'first_name:', first_name);
     const show = first_name === assignedTo;
     setShowNudgeButton(!show);
   }, [first_name, assignedTo]);

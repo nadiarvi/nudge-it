@@ -132,13 +132,11 @@ const projectSelectionModal = (isVisible: boolean, onClose: () => void, onSelect
 
 export default function HomeScreen() {
   const { uid, first_name, isLoading } = useAuthStore();
-  const currentUser = first_name || 'User';
-
-  console.log('home screen with uid:', uid);
-  console.log('home screen with first name:', first_name);
+  console.log(`homescreen ${uid} ${first_name}`);
+  const currentUser = first_name;
 
 
-  const CURRENT_USER = 'Alice';
+  // const CURRENT_USER = 'Alice';
   const [selectedProject, setSelectedProject] = useState('CS473 Social Computing');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [dropdownLayout, setDropdownLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });

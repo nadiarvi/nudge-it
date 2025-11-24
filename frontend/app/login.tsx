@@ -48,13 +48,16 @@ export default function LoginScreen() {
         }
       );
 
-      console.log("Login response:", res.data);
+      const data = res.data.existingUser;
+
+      console.log("Login response:", data);
 
       await signIn({
-        uid: res.data.userId,
-        first_name: res.data.first_name,
-        last_name: res.data.last_name,
-        email: res.data.email,
+        uid: data._id,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        groups: data.groups,
       });
 
       // router.replace('/(tabs)');
@@ -80,6 +83,7 @@ export default function LoginScreen() {
         first_name: res.data.first_name,
         last_name: res.data.last_name,
         email: res.data.email,
+        groups: res.data.groups,
       });
 
       // router.replace('/(tabs)');
