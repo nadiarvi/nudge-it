@@ -70,8 +70,7 @@ interface EditingFieldState {
 export default function ProfileScreen() {
   const router = useRouter();
   const { uid, signOut } = useAuthStore();
-  // DEBUG
-  console.log("ProfileScreen rendered with user:", { uid });
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingField, setEditingField] = useState<EditingFieldState | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -85,18 +84,21 @@ export default function ProfileScreen() {
 
   const fetchProfileData = async () => {
       try {
+        console.log('--- Fetching profile data for uid:', uid, '---');
         const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/users/${uid}`);
         const userData = res.data.user;
-
-        console.log("Fetched profile data:", userData);
+        const projectRes = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${userData.groups[0]}`);
+        const projectData = projectRes.data;
 
         setProfileData({
           firstName: userData.first_name,
           lastName: userData.last_name,
           email: userData.email,
-          projectName: userData.project_name,
-          nudgeLimit: userData.nudge_limit,
+          projectName: projectData.name,
+          nudgeLimit: projectData.nudge_limit.toString(),
         });
+
+        console.log('--- Done fetching profile data:', { userData, projectData }, '---');
       } catch (error) {
         console.error("Failed to fetch profile data:", error);
       }

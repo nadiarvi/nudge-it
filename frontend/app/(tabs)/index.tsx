@@ -89,12 +89,9 @@ const projectSelectionModal = (isVisible: boolean, onClose: () => void, onSelect
             dropdownLayout ? {
               position: 'absolute',
               top: dropdownLayout.y + dropdownLayout.height + 4,
-              // left: dropdownLayout.x, // Align left edge with dropdown left edge
               right: 24,
-              // minWidth: Math.max(dropdownLayout.width, 200),
               maxWidth: 320,
             } : {
-              // Fallback: center the modal if no layout is available
               position: 'absolute',
               top: '40%',
               left: '50%',
@@ -134,19 +131,12 @@ const projectSelectionModal = (isVisible: boolean, onClose: () => void, onSelect
 
 
 export default function HomeScreen() {
-  const { uid, isLoading } = useAuthStore();
-  
-  if (isLoading) {
-    return null;
-  }
+  const { uid, first_name, isLoading } = useAuthStore();
+  const currentUser = first_name || 'User';
 
-  if (uid) {
-    console.log('User is signed in with uid:', uid);
-  } else {
-    console.log('ERROR: No user is signed in.');
-  }
+  console.log('home screen with uid:', uid);
+  console.log('home screen with first name:', first_name);
 
-  console.log('current user in home screen:', uid);
 
   const CURRENT_USER = 'Alice';
   const [selectedProject, setSelectedProject] = useState('CS473 Social Computing');
@@ -181,7 +171,7 @@ export default function HomeScreen() {
         {nudgeCountComponent(<InboxIcon size={20} color={Colors.light.blackSecondary} />, 'Nudge Received', 5)}
       </ThemedView>
 
-      { MY_TASKS(CURRENT_USER).map((section) => (
+      { MY_TASKS(currentUser).map((section) => (
         renderTaskSection(section.category, section.tasks)
       )) }
 
