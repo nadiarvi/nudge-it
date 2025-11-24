@@ -129,7 +129,7 @@ export default function ChatDetailScreen() {
                       styles.messageBubble,
                       item.sender === 'user' ? styles.userBubble : styles.partnerBubble,
                     ]}
-                  >
+                  > 
                     <ThemedText
                       type="Body3"
                       style={item.sender === chatName ? { color: '#fff' } : undefined}
