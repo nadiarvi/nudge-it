@@ -94,9 +94,13 @@ export function TaskCard({
         </View>
       </ThemedView>
       <ThemedView style={styles.rightSection}>
-        <ThemedTouchableView onPress={handleNudge} style={{ marginLeft: 8 }}>
-          { showNudgeButton && <BellIcon size={24} color={Colors.light.blackSecondary} /> }
-        </ThemedTouchableView>
+        {showNudgeButton ? (
+          <ThemedTouchableView onPress={handleNudge} style={{ marginLeft: 8, backgroundColor: 'transparent' }}>
+            <BellIcon size={24} color={Colors.light.blackSecondary} />
+          </ThemedTouchableView>
+        ) : (
+          <View style={{ height: 24 }} />
+        )}
         <StatusDropdown 
           value={status}
           onValueChange={onStatusChange}
