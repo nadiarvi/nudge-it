@@ -33,7 +33,7 @@ export default function ChatScreen() {
 
   const getAllChats = async () => {
     try {
-      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/get`);
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${gid}/${uid}`);
       const chats = res.data.chats;
 
       const _chatData = chats

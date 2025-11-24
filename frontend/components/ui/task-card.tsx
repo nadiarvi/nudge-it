@@ -29,27 +29,6 @@ export function TaskCard({
   const router = useRouter();
   const { uid, first_name } = useAuthStore();
   const { showNudgeAlert } = useNudgeAlert();
-  // const [assigneeStr, setAssigneeStr] = useState(assignedTo);
-
-  // sanity check
-  console.log('sanity check task card reviewer');
-  if (reviewer) {
-    console.log(reviewer);
-  } else {
-    console.log('no reviewer assigned');
-  }
-
-  // useEffect(() => {
-  //   const getAssigneeName = async () => {
-  //     try {
-  //       const name = await getNameByUid(assignedTo);
-  //       setAssigneeStr(name);
-  //     } catch (error) {
-  //       console.error("Failed to fetch assignee name:", error);
-  //     }
-  //   }
-  //   getAssigneeName();
-  // }, [assignedTo]);
 
   const [showNudgeButton, setShowNudgeButton] = useState(false);
   const formattedDeadline = formatDate(deadline);
@@ -58,13 +37,7 @@ export function TaskCard({
     router.push({
       pathname: '/task-detail',
       params: { 
-        id: id || title, // Use id if available, otherwise fallback to title
-        title,
-        deadline: deadline ? new Date(deadline).toISOString() : '',
-        assignedTo,
-        status,
-        reviewer: reviewer || '',
-        nudgeCount,
+        tid: id
       }
     });
   };
