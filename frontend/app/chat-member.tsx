@@ -5,19 +5,81 @@ import axios from 'axios';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 
 interface Message {
   _id: string;
   content: string;
   sender: string | null;
+  receiver: string | null;
   senderType: 'user' | 'nugget';
   timestamp: string;
 }
 
+interface ChatBubbleProps {
+  content: string;
+  isNugget?: boolean;
+}
+
+interface TimeSeparatorProps {
+  timestamp: string;
+}
+
+// --- SMALLER FUNCTIONAL COMPONENTS ---
+
+const baseBubbleStyle = {
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  marginVertical: 8,
+  borderRadius: 8,
+  maxWidth: '75%',
+};
+
+const TimeSeparator = ({ timestamp }: TimeSeparatorProps) => {
+  const formattedTime = moment(timestamp).calendar(null, {
+    sameDay: '[Today]', 
+    lastDay: '[Yesterday]', 
+    lastWeek: 'MMM D', 
+    sameElse: 'MMM D' 
+  });
+
+  return (
+    // <View>
+      <View style={separatorStyles.container}>
+        <ThemedText type='Body3' style={separatorStyles.text}>{formattedTime}</ThemedText>
+      </View>
+    // </View>
+  );
+};
+
+const UserChatBubble = ({ content }: ChatBubbleProps) => (
+  <View style={[chatBubbleStyles.userContainer]}>
+    <View style={[baseBubbleStyle, chatBubbleStyles.userBubble]}>
+      <ThemedText type='Body3' style={chatBubbleStyles.userText}>{content}</ThemedText>
+    </View>
+  </View>
+);
+
+const PartnerChatBubble = ({ content, isNugget = false }: ChatBubbleProps) => (
+  <View style={[chatBubbleStyles.partnerContainer]}>
+    <View 
+      style={[
+        baseBubbleStyle, 
+        isNugget ? chatBubbleStyles.nuggetBubble : chatBubbleStyles.partnerBubble
+      ]}
+    >
+      <ThemedText type='Body3' style={chatBubbleStyles.partnerText}>
+        {isNugget ? 'AI Assistant: ' : ''}{content}
+      </ThemedText>
+    </View>
+  </View>
+);
+
+// --- MAIN SCREEN COMPONENT ---
+
 export default function ChatDetailScreen() {
   const { uid } = useAuthStore();
-  const { cid } = useLocalSearchParams();
+  const { cid, name } = useLocalSearchParams();
 
   const [messages, setMessages] = useState<Message[]>([]); 
 
@@ -50,7 +112,6 @@ export default function ChatDetailScreen() {
       return <ThemedText style={{ textAlign: 'center', marginTop: 20 }}>Start chatting now!</ThemedText>;
     }
 
-    // Use a custom render function for FlatList items
     const renderItem = ({ item, index }: { item: Message, index: number }) => {
       const previousMsg = index > 0 ? messages[index - 1] : null;
       const showSeparator = shouldShowTimeSeparator(item, previousMsg);
@@ -61,10 +122,8 @@ export default function ChatDetailScreen() {
       let chatBubble;
 
       if (isMe) {
-        // Current user's message (Right side)
         chatBubble = <UserChatBubble content={item.content} />;
       } else {
-        // Partner or Nugget message (Left side)
         chatBubble = <PartnerChatBubble content={item.content} isNugget={isNugget} />;
       }
 
@@ -80,15 +139,14 @@ export default function ChatDetailScreen() {
       <FlatList
         data={messages}
         renderItem={renderItem}
-        keyExtractor={item => item._id} 
-        contentContainerStyle={{ paddingVertical: 10 }}
+        keyExtractor={item => item._id}
       />
     );
   };
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Chat Member' }} />
+      <Stack.Screen options={{ title: name }} />
       <ThemedView style={styles.container}>
         { renderChatHistory(messages) } 
       </ThemedView>
@@ -99,58 +157,24 @@ export default function ChatDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 32,
+    paddingHorizontal: 24,
+    paddingTop: 12,
   }
 });
 
-const TimeSeparator = ({ timestamp }) => {
-  const formattedTime = moment(timestamp).format('LLL');
-  return (
-    <View style={separatorStyles.container}>
-      <Text style={separatorStyles.text}>{formattedTime}</Text>
-    </View>
-  );
-};
-
-const baseBubbleStyle = {
-  paddingVertical: 8,
-  paddingHorizontal: 12,
-  marginVertical: 8,
-  borderRadius: 8,
-  maxWidth: '75%',
-};
-
-const UserChatBubble = ({ content }) => (
-  <View style={[chatBubbleStyles.userContainer]}>
-    <View style={[baseBubbleStyle, chatBubbleStyles.userBubble]}>
-      <ThemedText type='Body3' style={chatBubbleStyles.userText}>{content}</ThemedText>
-    </View>
-  </View>
-);
-
-const PartnerChatBubble = ({ content, isNugget = false }) => (
-  <View style={[chatBubbleStyles.partnerContainer]}>
-    <View 
-      style={[
-        baseBubbleStyle, 
-        isNugget ? chatBubbleStyles.nuggetBubble : chatBubbleStyles.partnerBubble
-      ]}
-    >
-      <ThemedText type='Body3' style={chatBubbleStyles.partnerText}>
-        {isNugget ? 'AI Assistant: ' : ''}{content}
-      </ThemedText>
-    </View>
-  </View>
-);
-
 const separatorStyles = StyleSheet.create({
   container: {
+    backgroundColor: Colors.light.blackSecondary,
     alignItems: 'center',
-    marginVertical: 16,
+    alignSelf: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    marginBottom: 12,
   },
   text: {
-    fontSize: 12,
-    color: '#999',
+    fontSize: 16,
+    color: Colors.light.background,
   },
 });
 
