@@ -57,9 +57,19 @@ export default function ChatScreen() {
   //   chat.message.toLowerCase().includes(searchQuery.toLowerCase())
   // );
 
+  // const handleChatPress = (chat: { id: string; name: string }) => {
+  //   router.push(`/chat-member?name=${encodeURIComponent(chat.name)}`);
+  // };
+
   const handleChatPress = (chat: { id: string; name: string }) => {
-    router.push(`/chat-member?name=${encodeURIComponent(chat.name)}`);
-  };
+    router.push({
+      pathname: '/chat-member', 
+      params: { 
+        cid: chat.id,
+        name: chat.name,
+      }
+    });
+};
 
   const MAX_LENGTH = 400;
   const displayChat = (chat: string) => {

@@ -1,325 +1,179 @@
-import React, { useState, useEffect } from 'react';
-import { BlurView } from 'expo-blur';
-import {
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Image,
-  FlatList,
-  View,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedView } from '@/components/ui/themed-view';
+import { ThemedText, ThemedView } from '@/components/ui';
+import { Colors } from '@/constants/theme';
+import { useAuthStore } from '@/contexts/auth-context';
+import axios from 'axios';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import moment from 'moment';
+import { useEffect, useState } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 
-type Message = {
-  id: string;
-  sender: 'user' | string;
-  text: string;
-  timestamp?: string;
-};
+interface Message {
+  _id: string;
+  content: string;
+  sender: string | null;
+  senderType: 'user' | 'nugget';
+  timestamp: string;
+}
 
 export default function ChatDetailScreen() {
-  const { name, preset } = useLocalSearchParams(); // ✅ FIXED
-  const chatName = (name as string) ?? 'Unknown';
-  const presetKey = preset as string;
-  const router = useRouter();
+  const { uid } = useAuthStore();
+  const { cid } = useLocalSearchParams();
 
-  const [messages, setMessages] = useState<Message[]>([
-    { id: '1', sender: chatName, text: 'We will have a meeting today in the lib', timestamp: '10/3/2025' },
-    { id: '2', sender: 'user', text: 'r u coming?' },
-    { id: '3', sender: chatName, text: 'I cannot make it T T' },
-    { id: '4', sender: chatName, text: 'Could you guys just tell me what to do' },
-    { id: '5', sender: 'user', text: 'Okie, check your page! We assigned your task!' },
-    { id: '6', sender: 'user', text: 'How is your progress? :D', timestamp: 'Yesterday' },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]); 
 
-  const [inputText, setInputText] = useState('');
-  const [suggestionVisible, setSuggestionVisible] = useState(false);
-  const [followUpVisible, setFollowUpVisible] = useState(false);
+  const getChatHistory = async () => {
+    try {
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}`);
+      if (res.data?.existingChat?.messages) {
+        setMessages(res.data.existingChat.messages); 
+      }
+    } catch (error) {
+      console.error('Error fetching chat history:', error);
+    }
+  };
 
   useEffect(() => {
-    if (presetKey === 'adel-task-reminder') {
-      const presetMessage: Message = {
-        id: Date.now().toString(),
-        sender: 'user',
-        text: 'Hello, I noticed that you haven’t done your part. As the date is coming soon, could you please check it out?',
-        timestamp: new Date().toLocaleDateString(),
-      };
-      const adelReplies: Message[] = [
-        { id: 'reply1', sender: chatName, text: 'I don’t think I can do it in time' },
-        { id: 'reply2', sender: chatName, text: 'Could you do my part?' },
-      ];
-      setMessages(prev => [...prev, presetMessage, ...adelReplies]);
+    getChatHistory();
+  }, [uid, cid]);
+
+  const shouldShowTimeSeparator = (currentMsg: Message, previousMsg: Message | null): boolean => {
+    if (!previousMsg) return true;
+
+    const currentDay = moment(currentMsg.timestamp).startOf('day');
+    const previousDay = moment(previousMsg.timestamp).startOf('day');
+
+    return !currentDay.isSame(previousDay);
+  };
+  
+  const renderChatHistory = (messages: Message[]) => {
+    if (!messages || messages.length === 0) {
+      return <ThemedText style={{ textAlign: 'center', marginTop: 20 }}>Start chatting now!</ThemedText>;
     }
-  }, []);
 
-  const handleSend = () => {
-  if (!inputText.trim()) return;
+    // Use a custom render function for FlatList items
+    const renderItem = ({ item, index }: { item: Message, index: number }) => {
+      const previousMsg = index > 0 ? messages[index - 1] : null;
+      const showSeparator = shouldShowTimeSeparator(item, previousMsg);
+      
+      const isMe = item.sender === uid;
+      const isNugget = item.senderType === 'nugget';
 
-  const newMessage: Message = {
-    id: Date.now().toString(),
-    sender: 'user',
-    text: inputText.trim(),
-    timestamp: new Date().toLocaleTimeString(),
+      let chatBubble;
+
+      if (isMe) {
+        // Current user's message (Right side)
+        chatBubble = <UserChatBubble content={item.content} />;
+      } else {
+        // Partner or Nugget message (Left side)
+        chatBubble = <PartnerChatBubble content={item.content} isNugget={isNugget} />;
+      }
+
+      return (
+        <View>
+          {showSeparator && <TimeSeparator timestamp={item.timestamp} />}
+          {chatBubble}
+        </View>
+      );
+    };
+
+    return (
+      <FlatList
+        data={messages}
+        renderItem={renderItem}
+        keyExtractor={item => item._id} 
+        contentContainerStyle={{ paddingVertical: 10 }}
+      />
+    );
   };
-
-  setMessages(prev => [...prev, newMessage]);
-
-  // ✅ Check if it's the final suggestion message
-  if (
-    inputText.trim() ===
-    "I won’t do it for you but I can help you with it! Let’s do it together now or by today at the very least!"
-  ) {
-    // Add hardcoded reply after a short delay
-    setTimeout(() => {
-      const reply: Message = {
-        id: Date.now().toString() + '-reply',
-        sender: chatName,
-        text: 'Ok, TTI! Does 9pm work?',
-        timestamp: new Date().toLocaleTimeString(),
-      };
-      setMessages(prev => [...prev, reply]);
-    }, 1000); // 1 second delay
-  }
-
-  setInputText('');
-  setSuggestionVisible(false);
-  setFollowUpVisible(false);
-};
-
-  const handleNuggitPress = () => {
-    router.push('/chatbot');
-  };
-
-  const headerLightColor = '#1E90FF';
-  const headerDarkColor = '#63B3FF';
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={80}
-    >
-      <BlurView
-  intensity={suggestionVisible || followUpVisible ? 80 : 50}
-  tint="light"
-  style={{ flex: 1 }}
->
-        <ParallaxScrollView paddingTop={24}>
-          <ThemedText type="H2" lightColor={headerLightColor} darkColor={headerDarkColor}>
-            {chatName}
-          </ThemedText>
-
-          <FlatList
-            data={messages}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingBottom: 16 }}
-            renderItem={({ item }) => (
-              <>
-                {item.timestamp && (
-                  <ThemedText type="Body2" style={styles.timestamp}>
-                    {item.timestamp}
-                  </ThemedText>
-                )}
-                <ThemedView
-                  style={[
-                    styles.messageBubble,
-                    item.sender === 'user' ? styles.userBubble : styles.partnerBubble,
-                  ]}
-                >
-                  <ThemedText
-                    type="Body3"
-                    style={item.sender === chatName ? { color: '#fff' } : undefined}
-                  >
-                    {item.text}
-                  </ThemedText>
-                </ThemedView>
-              </>
-            )}
-          />
-
-          <View style={styles.stickerContainer}>
-            <ThemedText type="Body3" style={styles.clickMeText}>
-              Don’t know what to say? Click me
-            </ThemedText>
-            <TouchableOpacity onPress={handleNuggitPress}>
-              <Image
-                source={require('@/assets/images/nuggit-icon.png')}
-                style={styles.sticker}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-          </View>
-
-          {/* ✅ First suggestion — stays until OK is pressed */}
-{suggestionVisible && (
-  <ThemedView style={styles.suggestionBox}>
-    <ThemedText type="Body2" style={styles.suggestionText}>
-      We should foster a friendlier tone before escalating the problem. Let’s try confronting in another way!
-    </ThemedText>
-  </ThemedView>
-)}
-
-{/* ✅ Second suggestion — appears below with buttons */}
-{followUpVisible && (
-  <ThemedView style={styles.suggestionBox}>
-    <ThemedText type="Body2" style={styles.suggestionText}>
-      I won’t do it for you but I can help you with it! Let’s do it together now or by today at the very least!
-    </ThemedText>
-    <View style={styles.suggestionActions}>
-      <TouchableOpacity
-        onPress={() => {
-          const suggestionText =
-            "I won’t do it for you but I can help you with it! Let’s do it together now or by today at the very least!";
-          setInputText(suggestionText);
-          setSuggestionVisible(false); // ✅ Hide first suggestion
-          setFollowUpVisible(false);   // ✅ Hide second suggestion box
-        }}
-      >
-        <ThemedText type="Body2" style={styles.useButton}>OK!</ThemedText>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={() => {
-          setFollowUpVisible(false); // ✅ Only hide second suggestion
-        }}
-      >
-        <ThemedText type="Body2" style={styles.ignoreButton}>Ignore</ThemedText>
-      </TouchableOpacity>
-    </View>
-  </ThemedView>
-)}
-
-        </ParallaxScrollView>
-
-        {/* Input Field */}
-        <ThemedView style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Type a message..."
-            value={inputText}
-            onChangeText={(text) => {
-              const cleaned = text
-                .toLowerCase()
-                .replace(/’/g, "'")
-                .replace(/\s+/g, ' ');
-
-              setInputText(text);
-              const trigger = cleaned.includes("shouldn't you have started already, that's so irresponsible what the hell");
-              setSuggestionVisible(trigger);
-              setFollowUpVisible(false);
-
-              if (trigger) {
-                setTimeout(() => {
-                  setFollowUpVisible(true);
-                }, 10000);
-              }
-            }}
-            placeholderTextColor="#888"
-          />
-          <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
-            <ThemedText type="Body2" style={{ fontWeight: '600', color: '#fff' }}>
-              Send
-            </ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-      </BlurView>
-    </KeyboardAvoidingView>
-  );
+    <>
+      <Stack.Screen options={{ title: 'Chat Member' }} />
+      <ThemedView style={styles.container}>
+        { renderChatHistory(messages) } 
+      </ThemedView>
+    </>
+  )
 }
 
 const styles = StyleSheet.create({
-  timestamp: {
-    alignSelf: 'center',
-    marginVertical: 8,
-    fontWeight: '600',
+  container: {
+    flex: 1,
+    paddingHorizontal: 32,
+  }
+});
+
+const TimeSeparator = ({ timestamp }) => {
+  const formattedTime = moment(timestamp).format('LLL');
+  return (
+    <View style={separatorStyles.container}>
+      <Text style={separatorStyles.text}>{formattedTime}</Text>
+    </View>
+  );
+};
+
+const baseBubbleStyle = {
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  marginVertical: 8,
+  borderRadius: 8,
+  maxWidth: '75%',
+};
+
+const UserChatBubble = ({ content }) => (
+  <View style={[chatBubbleStyles.userContainer]}>
+    <View style={[baseBubbleStyle, chatBubbleStyles.userBubble]}>
+      <ThemedText type='Body3' style={chatBubbleStyles.userText}>{content}</ThemedText>
+    </View>
+  </View>
+);
+
+const PartnerChatBubble = ({ content, isNugget = false }) => (
+  <View style={[chatBubbleStyles.partnerContainer]}>
+    <View 
+      style={[
+        baseBubbleStyle, 
+        isNugget ? chatBubbleStyles.nuggetBubble : chatBubbleStyles.partnerBubble
+      ]}
+    >
+      <ThemedText type='Body3' style={chatBubbleStyles.partnerText}>
+        {isNugget ? 'AI Assistant: ' : ''}{content}
+      </ThemedText>
+    </View>
+  </View>
+);
+
+const separatorStyles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    marginVertical: 16,
   },
-  messageBubble: {
-    padding: 12,
-    borderRadius: 12,
-    maxWidth: '80%',
-    marginVertical: 4,
+  text: {
+    fontSize: 12,
+    color: '#999',
+  },
+});
+
+const chatBubbleStyles = StyleSheet.create({
+  userContainer: {
+    alignItems: 'flex-end',
+  },
+  partnerContainer: {
+    alignItems: 'flex-start',
   },
   userBubble: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#D9D9D9',
+    backgroundColor: Colors.light.cardBorder,
   },
   partnerBubble: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#3B82F6',
+    backgroundColor: Colors.light.tint,
   },
-  stickerContainer: {
-    alignItems: 'flex-end',
-    paddingRight: 12,
-    paddingBottom: 12,
-    marginTop: 8,
+  nuggetBubble: {
+    backgroundColor: Colors.light.red,
   },
-  sticker: {
-    width: 48,
-    height: 48,
-    marginTop: 4,
+  userText: {
+    color: Colors.light.text,
   },
-  clickMeText: {
-    fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '600',
-    marginBottom: 4,
-    textAlign: 'right',
+  partnerText: {
+    color: Colors.light.background,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    padding: 12,
-    borderTopWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
-    alignItems: 'center',
-  },
-  input: {
-    flex: 1,
-    height: 40,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-  },
-  sendButton: {
-    marginLeft: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#007AFF',
-    borderRadius: 20,
-  },
-
-  suggestionBox: {
-  backgroundColor: '#fff',
-  padding: 12,
-  marginHorizontal: 12,
-  marginTop: 12,
-  borderRadius: 12,
-  shadowColor: '#000',
-  shadowOpacity: 0.1,
-  shadowRadius: 6,
-  alignSelf: 'flex-end',
-  maxWidth: '80%',
-},
-
-suggestionText: {
-  fontSize: 14,
-  marginBottom: 8,
-  color: '#555',
-},
-suggestionActions: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-},
-useButton: {
-  color: '#007AFF',
-  fontWeight: '600',
-},
-ignoreButton: {
-  color: '#888',
-},
 });
