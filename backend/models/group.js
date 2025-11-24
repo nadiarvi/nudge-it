@@ -13,7 +13,7 @@ const GroupSchema = new mongoose.Schema({
         }
     },
     tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],     // array of task id
-    chats: { type: String } // TODO: update later
+    chats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chat' }]      // array of chat id
 })
 
 module.exports = mongoose.model('Group', GroupSchema);
