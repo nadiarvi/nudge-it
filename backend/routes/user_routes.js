@@ -16,7 +16,7 @@ router.post(
         .isEmail().withMessage("Please provide a valid email address."),
         check("password")
         .notEmpty().withMessage("Password is required.").bail()
-        .isLength({ min: 8 }.withMessage("Password must be at least 8 characters long."))
+        .isLength({ min: 8 }).withMessage("Password must be at least 8 characters long.")
     ],
     signup
 );
