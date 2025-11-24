@@ -1,4 +1,4 @@
-import { ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui';
+import { ThemedButton, ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui'; // Added ThemedButton
 import { ThemedTextInput } from '@/components/ui/themed-text-input';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
@@ -6,7 +6,9 @@ import axios from 'axios';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import { FlatList, Image, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Image, KeyboardAvoidingView, Modal, Platform, StyleSheet, TouchableOpacity, View } from 'react-native'; // Added Modal, Alert
+
+// --- INTERFACES ---
 
 interface Message {
   _id: string;
@@ -25,6 +27,14 @@ interface ChatBubbleProps {
 interface TimeSeparatorProps {
   timestamp: string;
 }
+
+// ✨ NEW: Interface for Revision Data
+interface RevisionData {
+  original: string;
+  suggestion: string;
+  tempId: string; // Temporary ID for tracking and rollback
+}
+
 
 // --- SMALLER FUNCTIONAL COMPONENTS ---
 
@@ -83,11 +93,17 @@ export default function ChatDetailScreen() {
 
   const [messages, setMessages] = useState<Message[]>([]); 
   const [currentMsg, setCurrentMsg] = useState<string>('');
+  
+  // ✨ NEW: State for Revision Modal
+  const [showRevisionModal, setShowRevisionModal] = useState(false);
+  const [revisionData, setRevisionData] = useState<RevisionData | null>(null);
+
 
   const getChatHistory = async () => {
     try {
       const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}`);
       if (res.data?.existingChat?.messages) {
+        // NOTE: MIND THE ORDER RETURNED BY BE
         setMessages(res.data.existingChat.messages); 
       }
     } catch (error) {
@@ -99,36 +115,57 @@ export default function ChatDetailScreen() {
     getChatHistory();
   }, [uid, cid]);
 
-  const sendMessage = async () => {
-    if (!currentMsg.trim()) return;
+  const handleSend = async () => {
+    const trimmed = currentMsg.trim();
+    if (!trimmed || !uid || !cid) return;
 
-    const newMessage: Message = {
-      _id: Date.now().toString(),
-      content: currentMsg.trim(),
-      sender: uid,
-      receiver: 'partner-id', // Placeholder, you need the partner's UID
-      senderType: 'user',
-      timestamp: moment().toISOString(),
-    };
-    
-    // Add the new message to the top of the list (since FlatList is inverted)
-    setMessages(prev => [...prev, newMessage]); 
-
-    // 2. Clear input field
     setCurrentMsg('');
 
-    // 3. API Call to Send Message (Placeholder for actual API call)
+    const tempId = Date.now().toString(); 
+
     try {
-      console.log("Sending message:", newMessage.content);
-      // await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}/message`, {
-      //   content: newMessage.content,
-      //   // Add other required fields like receiver ID
-      // });
+      const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}/${uid}/user`, {
+        content: trimmed,
+      });
+
+      const data = res.data;
+      console.log(data);
+
+      if (data.needsRevision === true) {
+        setRevisionData({
+          original: data.original,
+          suggestion: data.suggestion,
+          tempId: tempId,
+        });
+        setShowRevisionModal(true); 
+      } else {
+        const sentMessage = data.chat.messages[data.chat.messages.length - 1]; 
+
+        const finalMessage: Message = {
+          _id: sentMessage._id,
+          sender: sentMessage.sender,
+          content: sentMessage.content,
+          timestamp: sentMessage.timestamp,
+          senderType: sentMessage.senderType,
+          receiver: sentMessage.receiver,
+        };
+        
+        setMessages(prev => [...prev, finalMessage]);
+      }
     } catch (error) {
       console.error('Error sending message:', error);
-      // Rollback UI change if API fails
-      setMessages(prev => prev.filter(msg => msg._id !== newMessage._id)); 
+      setCurrentMsg(trimmed); 
+      Alert.alert("Error", "Could not send message due to a server error.");
     }
+  };
+
+  const handleSendOriginal = async () => {
+    console.log('sending anyway: ', revisionData?.original);
+  }
+
+  const handleChooseSuggestion = () => {
+    setShowRevisionModal(false);
+    setCurrentMsg(revisionData?.suggestion ?? '');
   };
 
   const handleNuggitPress = () => {
@@ -200,6 +237,7 @@ export default function ChatDetailScreen() {
           { renderChatHistory(messages) } 
         </ThemedView>
 
+        {/* Floating Nuggit Button (Sticker) */}
         <TouchableOpacity onPress={handleNuggitPress}>
           <Image
             source={require('@/assets/images/nuggit-icon.png')}
@@ -218,7 +256,7 @@ export default function ChatDetailScreen() {
             multiline
           />
           <ThemedTouchableView 
-            onPress={sendMessage}
+            onPress={handleSend} // Changed back to handleSend
             style={styles.sendButton}
             disabled={!currentMsg.trim()}
           >
@@ -226,6 +264,45 @@ export default function ChatDetailScreen() {
           </ThemedTouchableView>
         </ThemedView>
       </KeyboardAvoidingView>
+      
+      {/* ✨ NEW: Revision Modal Component */}
+      <Modal visible={showRevisionModal} transparent animationType="slide">
+        <View style={revisionModalStyles.overlay}>
+          <View style={revisionModalStyles.box}>
+            <ThemedText type="H3" style={revisionModalStyles.title}>Tone Suggestion</ThemedText>
+            
+            {revisionData && (
+              <View>
+                <ThemedText type="Body2" style={revisionModalStyles.label}>Your original message:</ThemedText>
+                <ThemedText style={revisionModalStyles.originalText}>"{revisionData.original}"</ThemedText>
+
+                <ThemedText type="Body2" style={revisionModalStyles.label}>Suggested revision:</ThemedText>
+                <ThemedText style={revisionModalStyles.suggestionText}>"{revisionData.suggestion}"</ThemedText>
+                
+                <View style={revisionModalStyles.buttonRow}>
+                  {/* Use Original */}
+                  <ThemedButton 
+                    variant="secondary" 
+                    onPress={handleSendOriginal}
+                    style={revisionModalStyles.button}
+                  >
+                    Send Original
+                  </ThemedButton>
+                  
+                  {/* Use Suggestion */}
+                  <ThemedButton 
+                    variant="primary" 
+                    onPress={handleChooseSuggestion}
+                    style={revisionModalStyles.button}
+                  >
+                    Send Suggestion
+                  </ThemedButton>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
     </>
   )
 }
@@ -320,5 +397,52 @@ const chatBubbleStyles = StyleSheet.create({
   },
   partnerText: {
     color: Colors.light.background,
+  },
+});
+
+// ✨ NEW: Revision Modal Styles
+const revisionModalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'flex-end',
+  },
+  box: {
+    backgroundColor: Colors.light.background,
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  title: {
+    marginBottom: 15,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Colors.light.cardBorder,
+    paddingBottom: 10,
+  },
+  label: {
+    fontWeight: 'bold',
+    marginTop: 15,
+    marginBottom: 5,
+    color: Colors.light.blackSecondary,
+  },
+  originalText: {
+    backgroundColor: Colors.light.red + '10', 
+    padding: 10,
+    borderRadius: 8,
+  },
+  suggestionText: {
+    backgroundColor: Colors.light.tint + '10', 
+    padding: 10,
+    borderRadius: 8,
+    fontWeight: '600',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 5,
   },
 });

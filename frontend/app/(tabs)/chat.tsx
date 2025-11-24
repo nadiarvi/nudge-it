@@ -2,8 +2,9 @@ import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { ThemedTouchableView } from '@/components/ui/touchable-themed-view';
+import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { NuggitIcon } from '@/components/icons/nuggit-icon';
@@ -21,45 +22,41 @@ export default function ChatScreen() {
 
   const [chatData, setChatData] = useState([]);
 
-  const getAllChats = async () => {
+  const getAllChats = useCallback(async () => {
     try {
       const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${gid}/${uid}`);
       const chats = res.data.chats;
       
-
       const _chatData = chats
                           .filter((chat: any) => chat.type === "user")
                           .map((chat: any) => {
+                            const partner = chat.people.find((person: User) => person._id !== uid);
+                            const latestMessage = chat.messages[chat.messages.length - 1]?.content || "No messages yet";
+
                             return {
                               id: chat._id,
-                              name: chat.people.filter((person: User) => person._id !== uid)[0].first_name,
-                              message: chat.messages[0].content,
+                              name: partner?.first_name || 'Unknown User',
+                              message: latestMessage,
                             };
                           });
 
       setChatData(_chatData);
+      console.log(`Successfully fetched ${chats.length} chats.`);
     } catch (error) {
       console.error('Error fetching chats:', error);
-      console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/get`);
+      console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${gid}/${uid}`);
     }
-  }
+  }, [uid, gid]);
 
-  useEffect(() => {
-    getAllChats();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getAllChats();
+      return () => {};
+    }, [getAllChats])
+  );
 
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
-
-
-  // const filteredChats = chatData.filter(chat =>
-  //   chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //   chat.message.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
-
-  // const handleChatPress = (chat: { id: string; name: string }) => {
-  //   router.push(`/chat-member?name=${encodeURIComponent(chat.name)}`);
-  // };
 
   const handleChatPress = (chat: { id: string; name: string }) => {
     router.push({
