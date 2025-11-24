@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { createContext, FC, useContext, useEffect, useReducer } from 'react';
 
 interface IUserInfo {
+  uid: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -14,6 +15,7 @@ interface IAction {
 }
 
 interface IState {
+  uid: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -28,6 +30,7 @@ interface IAuthContext extends IState {
 export const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
 const initialState: IState = {
+  uid: '',
   first_name: '',
   last_name: '',
   email: '',
@@ -39,6 +42,7 @@ const reducer = (prevState: IState, action: IAction): IState => {
     case 'SIGN_IN':
       return {
         ...prevState,
+        uid: (action.payload as IUserInfo).uid,
         first_name: (action.payload as IUserInfo).first_name,
         last_name: (action.payload as IUserInfo).last_name,
         email: (action.payload as IUserInfo).email,
@@ -46,6 +50,7 @@ const reducer = (prevState: IState, action: IAction): IState => {
       };
     case 'SIGN_OUT':
       return {
+        uid: '',
         first_name: '',
         last_name: '',
         email: '',
@@ -56,80 +61,6 @@ const reducer = (prevState: IState, action: IAction): IState => {
   };
 };
 
-// export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
-//   const [state, dispatch] = useReducer(reducer, initialState);
-
-//   useEffect(() => {
-//     checkAuth();
-//   }, []);
-
-//   const checkAuth = async (): Promise<void> => {
-//     try {
-//       const first_name = await SecureStore.getItemAsync('first_name');
-//       const last_name = await SecureStore.getItemAsync('last_name');
-//       const email = await SecureStore.getItemAsync('email');
-
-//       console.log("User: ", first_name, last_name, email);
-
-//       if (first_name && last_name && email) {
-//         dispatch({
-//           type: 'SIGN_IN',
-//           payload: {
-//             first_name,
-//             last_name,
-//             email,
-//           },
-//         });
-//       }
-//     } catch (error) {
-//       console.error('[Auth Context] Check auth error:', error);
-//       await signOut();
-//     }
-//   };
-
-//   const signIn = async (userInfo: IUserInfo) => {
-//     const { first_name, last_name, email } = userInfo;
-
-//     if (first_name && last_name && email) {
-//       await SecureStore.setItemAsync('first_name', first_name);
-//       await SecureStore.setItemAsync('last_name', last_name);
-//       await SecureStore.setItemAsync('email', email);
-
-//       dispatch({
-//         type: 'SIGN_IN',
-//         payload: {
-//           first_name,
-//           last_name,
-//           email,
-//         },
-//       });
-//     };
-//   };
-
-//   const signOut = async () => {
-//     dispatch({ type: 'SIGN_OUT', payload: null });
-
-//     await SecureStore.setItemAsync('first_name', '');
-//     await SecureStore.setItemAsync('last_name', '');
-//     await SecureStore.setItemAsync('email', '');
-//   };
-
-//   return (
-//     <AuthContext.Provider
-//       value={{
-//         isSignIn: state.isSignIn,
-//         first_name: state.first_name,
-//         last_name: state.last_name,
-//         email: state.email,
-//         signIn,
-//         signOut,
-//       }}
-//     >
-//       {children}
-//     </AuthContext.Provider>
-//   )
-// };
-
 export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -139,16 +70,18 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const checkAuth = async (): Promise<void> => {
     try {
+      const uid = await SecureStore.getItemAsync('uid');
       const first_name = await SecureStore.getItemAsync('first_name');
       const last_name = await SecureStore.getItemAsync('last_name');
       const email = await SecureStore.getItemAsync('email');
 
-      console.log("User: ", first_name, last_name, email);
+      console.log("User: ", uid, first_name);
 
-      if (first_name && last_name && email) {
+      if (uid && first_name && last_name && email) {
         dispatch({
           type: 'SIGN_IN',
           payload: {
+            uid,
             first_name,
             last_name,
             email,
@@ -162,8 +95,9 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   const signIn = async (userInfo: IUserInfo): Promise<void> => {
-    const { first_name, last_name, email } = userInfo;
+    const { uid, first_name, last_name, email } = userInfo;
 
+    await SecureStore.setItemAsync('uid', uid ?? '');
     await SecureStore.setItemAsync('first_name', first_name ?? '');
     await SecureStore.setItemAsync('last_name', last_name ?? '');
     await SecureStore.setItemAsync('email', email ?? '');
@@ -171,6 +105,7 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
     dispatch({
       type: 'SIGN_IN',
       payload: {
+        uid,
         first_name,
         last_name,
         email,
@@ -180,7 +115,8 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const signOut = async (): Promise<void> => {
     dispatch({ type: 'SIGN_OUT', payload: null });
-
+    
+    await SecureStore.deleteItemAsync('uid');
     await SecureStore.deleteItemAsync('first_name');
     await SecureStore.deleteItemAsync('last_name');
     await SecureStore.deleteItemAsync('email');
@@ -190,6 +126,7 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
     <AuthContext.Provider
       value={{
         isSignIn: state.isSignIn,
+        uid: state.uid,
         first_name: state.first_name,
         last_name: state.last_name,
         email: state.email,

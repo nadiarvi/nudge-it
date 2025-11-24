@@ -27,7 +27,6 @@ export default function LoginScreen() {
 
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
-
   const handleLogin = async () => {
     try {
       console.log('sending login request to', `${API_BASE_URL}/api/users/login`);
@@ -45,6 +44,7 @@ export default function LoginScreen() {
       );
 
       await signIn({
+        uid: res.data.uid,
         first_name: res.data.first_name,
         last_name: res.data.last_name,
         email: res.data.email,
@@ -69,6 +69,7 @@ export default function LoginScreen() {
       );
 
       await signIn({
+        uid: res.data.uid,
         first_name: res.data.first_name,
         last_name: res.data.last_name,
         email: res.data.email,

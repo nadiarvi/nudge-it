@@ -134,9 +134,8 @@ const projectSelectionModal = (isVisible: boolean, onClose: () => void, onSelect
 
 
 export default function HomeScreen() {
-  const { first_name } = useAuthStore();
-  console.log('index touched, current user:', first_name);
-  console.log('current user: ', first_name);
+  const { uid } = useAuthStore();
+  console.log('current user in home screen:', uid);
 
   const CURRENT_USER = 'Alice';
   const [selectedProject, setSelectedProject] = useState('CS473 Social Computing');
