@@ -59,14 +59,16 @@
 **Endpoint:** `POST api/users/signup`
 - **Description:** Register a new user
 - **Request Body:**
-  - `name`: String (required)
+  - `first_name`: String (required)
+  - `last_name` : String (required)
   - `email`: String (required, must be valid email)
   - `password`: String (required, min 8 chars)
 
 **Request Example:**
 ```json
 {
-  "name": "Nugget",
+  "first_name": "Nugget",
+  "last_name": "Mister",
   "email": "nugget@email.com",
   "password": "password123"
 }
@@ -108,7 +110,8 @@
 **Endpoint:** `PATCH api/users/:uid`
 - **Description:** Update user details
 - **Request Body:**
-  - `name`: String (optional)
+  - `first_name`: String (optional)
+  - `last_name`: String (optional)
   - `email`: String (optional)
 
 **Responses:**
