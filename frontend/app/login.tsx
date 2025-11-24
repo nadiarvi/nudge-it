@@ -8,6 +8,10 @@ import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
 
+// const dotenv = require('dotenv');
+// dotenv.config();
+
+
 export default function LoginScreen() {
   const router = useRouter();
   const { signIn } = useAuthStore();
@@ -25,7 +29,8 @@ export default function LoginScreen() {
   const [lastName, setLastName] = useState('');
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
-  const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+  // const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+  const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
   const handleLogin = async () => {
     try {
@@ -43,8 +48,10 @@ export default function LoginScreen() {
         }
       );
 
+      console.log("Login response:", res.data);
+
       await signIn({
-        uid: res.data.uid,
+        uid: res.data.userId,
         first_name: res.data.first_name,
         last_name: res.data.last_name,
         email: res.data.email,

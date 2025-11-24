@@ -1,6 +1,8 @@
 import { ParallaxScrollView, ThemedButton, ThemedText, ThemedTextInput, ThemedTouchableView, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
+import axios from 'axios';
+
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Modal, StyleSheet, TouchableOpacity } from 'react-native';
@@ -67,9 +69,9 @@ interface EditingFieldState {
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { first_name, last_name, email, signOut } = useAuthStore();
+  const { uid, signOut } = useAuthStore();
   // DEBUG
-  console.log("ProfileScreen rendered with user:", { first_name, last_name, email });
+  console.log("ProfileScreen rendered with user:", { uid });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingField, setEditingField] = useState<EditingFieldState | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -77,19 +79,32 @@ export default function ProfileScreen() {
     firstName: '',
     lastName: '',
     email: '',
-    projectName: 'CS473 Social Computing',
-    nudgeLimit: '1',
+    projectName: '',
+    nudgeLimit: '',
   });
 
-  useEffect(() => {
-    setProfileData({
-      firstName: first_name,
-      lastName: last_name,
-      email: email,
-      projectName: 'CS473 Social Computing',
-      nudgeLimit: '1',
-    });
-  }, [first_name, last_name, email]);
+  const fetchProfileData = async () => {
+      try {
+        const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/users/${uid}`);
+        const userData = res.data.user;
+
+        console.log("Fetched profile data:", userData);
+
+        setProfileData({
+          firstName: userData.first_name,
+          lastName: userData.last_name,
+          email: userData.email,
+          projectName: userData.project_name,
+          nudgeLimit: userData.nudge_limit,
+        });
+      } catch (error) {
+        console.error("Failed to fetch profile data:", error);
+      }
+    }
+
+  useEffect(() => {    
+    fetchProfileData();
+  }, [uid]);
 
   const handleFieldPress = (label: string, key: keyof ProfileData, currentValue: string) => {
     setEditingField({ label, key });
