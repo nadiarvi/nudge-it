@@ -369,6 +369,20 @@
 
 **Responses:**
 - `201 OK`: Task created
+```json
+{
+  "_id" : "taskid",
+  "groupid": "groupid",
+  "title": "do this",
+  "deadline": "date1",
+  "assignee": "userId1",
+  "status": "To Do",
+  "comments": [], //empty on creation, comment schema is userid(author), content, createdAt
+  "nudges": [],  // array of nudgeid
+  "createdAt": "date2",
+  "updatedAt": "date2" 
+}
+```
 - `422`: Invalid request
 - `500`: Server error
 
@@ -380,6 +394,20 @@
 
 **Responses:**
 - `200 OK`: Returns task object
+```json
+{
+  "_id" : "taskid",
+  "groupid": "groupid",
+  "title": "do this",
+  "deadline": "date1",
+  "assignee": "userId1",
+  "status": "To Do",
+  "comments": [],
+  "nudges": [],
+  "createdAt": "date2",
+  "updatedAt": "date2" 
+}
+```
 - `400`: Task does not exist
 - `500`: Server error
 
@@ -391,6 +419,35 @@
 
 **Responses:**
 - `200 OK`: Returns array of tasks and total count
+```json
+{
+  "tasks": [
+    {
+      "id": "taskid1",
+      "group_id": "grpid1",
+      "title": "do this",
+      "deadline": "date1",
+      "status": "To Do",
+      "comments": [],
+      "nudges": [],
+      "createdAt": "date2",
+      "updatedAt": "date2" 
+    },
+    {
+      "id": "taskid2",
+      "group_id": "grpid1",
+      "title": "do that",
+      "deadline": "date3",
+      "status": "Revise",
+      "comments": [],
+      "nudges": [],
+      "createdAt": "date4",
+      "updatedAt": "date4" 
+    }
+  ],
+  "total_tasks": 2
+}
+```
 - `500`: Server error
 
 ---
@@ -401,6 +458,12 @@
 
 **Responses:**
 - `200 OK`: Task deleted
+```json
+{
+  "message": "Task deleted",
+  "_id" : "taskid"
+}
+```
 - `400`: Task does not exist
 - `500`: Server error
 
@@ -525,6 +588,30 @@
 
 **Responses:**
 - `201 OK`: Chat created
+```json
+// for type = user
+{
+    "id": "chatid1",
+    "type": "user",
+    "people": ["userid1", "userid2"],
+    "group_id": "groupid1",
+    "about": null,
+    "messages": [],
+    "createdAt": "date1",
+    "updatedAt": "date2"
+}
+// for type = nugget
+{
+    "id": "chatid1",
+    "type": "user",
+    "people": ["userid1"],
+    "group_id": "groupid1",
+    "about": "userid2",
+    "messages": [],
+    "createdAt": "date3",
+    "updatedAt": "date4"
+}
+```
 - `200 OK`: Existing chat returned
 - `422`: Invalid request
 - `500`: Server error
@@ -537,6 +624,40 @@
 
 **Responses:**
 - `200 OK`: Returns array of chats
+```json
+{
+  "chats": [
+    {
+      "id": "chatid1",
+      "type": "user",
+      "people": ["userid1", "userid2"],
+      "group_id": "groupid1",
+      "about": null,
+      "messages": [
+        {
+          "senderType": "user",
+          "sender": "userid1",
+          "receiver": "userid2",
+          "content": "Hi",
+          "timestamp": "date1"
+        }
+      ],
+      "createdAt": "date1",
+      "updatedAt": "date1"
+    },
+    {
+      "id": "chatid2",
+      "type": "nugget",
+      "people": ["userid1"],
+      "group_id": "groupid1",
+      "about": "userid2",
+      "messages": [],
+      "createdAt": "date3",
+      "updatedAt": "date3"
+    }
+  ]
+}
+```
 - `500`: Server error
 
 ---
@@ -547,6 +668,26 @@
 
 **Responses:**
 - `200 OK`: Returns chat object
+```json
+{
+  "id": "chatid1",
+  "type": "user",
+  "people": ["userid1", "userid2"],
+  "group_id": "groupid1",
+  "about": null,
+  "messages": [
+    {
+      "senderType": "user",
+      "sender": "userid1",
+      "receiver": "userid2",
+      "content": "Hi",
+      "timestamp": "date1"
+    }
+  ],
+  "createdAt": "date1",
+  "updatedAt": "date1"
+}
+```
 - `404`: Chat not found
 - `500`: Server error
 
@@ -567,7 +708,37 @@
 
 **Responses:**
 - `201 OK`: Message sent (if no revision needed)
+```json
+{
+  "message": "Message sent",
+  "needsRevision": false,
+  "id": "chatid1",
+  "type": "user",
+  "people": ["userid1", "userid2"],
+  "group_id": "groupid1",
+  "about": null,
+  "messages": [
+    {
+      "senderType": "user",
+      "sender": "userid1",
+      "receiver": "userid2",
+      "content": "Hey, why didn't you finish your part?",
+      "timestamp": "date1"
+    }
+  ],
+  "createdAt": "date1",
+  "updatedAt": "date1"
+}
+```
 - `200 OK`: If needsRevision = true, response includes both original and suggested message. You must call `POST api/chats/:cid/messages/confirm` to save the chosen message.
+```json
+{
+  "needsRevision": true,
+  "original": "Your idea is stupid.",
+  "suggestion": "I'm not sure this idea will work well. Can we think about another approach?"
+}
+
+```
 - `500`: Server error
 
 **Note:**
@@ -590,6 +761,35 @@
 
 **Responses:**
 - `201 OK`: Message saved
+```json
+{
+  "message": "Message sent",
+  "needsRevision": false,
+  "id": "chatid1",
+  "type": "user",
+  "people": ["userid1", "userid2"],
+  "group_id": "groupid1",
+  "about": null,
+  "messages": [
+    {
+      "senderType": "user",
+      "sender": "userid1",
+      "receiver": "userid2",
+      "content": "Hi",
+      "timestamp": "date1"
+    },
+    {
+      "senderType": "user",
+      "sender": "userid1",
+      "receiver": "userid2",
+      "content": "You could have asked for help if you needed it.",
+      "timestamp": "date2"
+    }
+  ],
+  "createdAt": "date2",
+  "updatedAt": "date2"
+}
+```
 - `500`: Server error
 
 ---
@@ -609,6 +809,32 @@
 
 **Responses:**
 - `201 OK`: Message sent and Nugget reply added
+```json
+{
+  "id": "chatid2",
+  "type": "nugget",
+  "people": ["userid1"],
+  "group_id": "groupid1",
+  "about": "userid2",
+  "messages": [
+    {
+      "senderType": "nugget",
+      "sender": "userid1",
+      "receiver": null,
+      "content": "I'm frustrated with my teammate. What should I do?",
+      "timestamp": "date1"
+    },
+    {
+      "senderType": "nugget",
+      "sender": null,
+      "receiver": "userid1",
+      "content": "Try starting with how you feel and focus on the shared goal of finishing the project!",
+      "timestamp": "date2"
+    }],
+  "createdAt": "date3",
+  "updatedAt": "date3"
+}
+```
 - `500`: Server error
 
 ---
@@ -638,6 +864,30 @@
 
 **Responses:**
 - `201 OK`: Nudge created and notification sent
+```json
+// non-TA related
+{
+  "message": "Nudge created",
+  "type": "reminder",
+  "group_id": "groupId1",
+  "task_id": "taskId1",
+  "sender": "userId1",
+  "receiver": "userId2",
+  "ta_email": null,
+  "createdAt": "date"
+}
+// TA related
+{
+  "message": "Nudge created",
+  "type": "email_ta",
+  "group_id": "groupId1",
+  "task_id": "taskId1",
+  "sender": "userId1",
+  "receiver": "userId2",
+  "ta_email": "ta@gmail.com",
+  "createdAt": "date"
+}
+```
 - `422`: Invalid request
 - `500`: Server error
 
@@ -649,6 +899,33 @@
 
 **Responses:**
 - `200 OK`: Returns array of nudges and totalNudge
+```json
+{
+  "nudges": [
+    {
+      "_id": "nudgeid1",
+      "type": "reminder",
+      "group_id": "groupid1",
+      "task_id": "taskid1",
+      "sender": "userid1",
+      "receiver": "userid2",
+      "ta_email": null,
+      "createdAt": "date1"
+    },
+    {
+      "_id": "nudgeid2",
+      "type": "phone_call",
+      "group_id": "groupid1",
+      "task_id": "taskid2",
+      "sender": "userid3",
+      "receiver": "userid2",
+      "ta_email": null,
+      "createdAt": "date2"
+    }
+  ],
+  "totalNudge": 2
+}
+```
 - `500`: Server error
 
 ---
@@ -659,6 +936,33 @@
 
 **Responses:**
 - `200 OK`: Returns array of nudges and totalNudge
+```json
+{
+  "nudges": [
+    {
+      "_id": "nudgeid1",
+      "type": "reminder",
+      "group_id": "groupid1",
+      "task_id": "taskid1",
+      "sender": "userid1",
+      "receiver": "userid2",
+      "ta_email": null,
+      "createdAt": "date1"
+    },
+    {
+      "_id": "nudgeid2",
+      "type": "reminder",
+      "group_id": "groupid1",
+      "task_id": "taskid1",
+      "sender": "userid1",
+      "receiver": "userid3",
+      "ta_email": null,
+      "createdAt": "date2"
+    }
+  ],
+  "totalNudge": 2
+}
+```
 - `500`: Server error
 
 ---
@@ -669,4 +973,31 @@
 
 **Responses:**
 - `200 OK`: Returns array of nudges and totalNudge
+```json
+{
+  "nudges": [
+    {
+      "_id": "nudgeid1",
+      "type": "reminder",
+      "group_id": "groupid1",
+      "task_id": "taskid1",
+      "sender": "userid1",
+      "receiver": "userid2",
+      "ta_email": null,
+      "createdAt": "date1"
+    },
+    {
+      "_id": "nudgeid2",
+      "type": "phone_call",
+      "group_id": "groupid1",
+      "task_id": "taskid1",
+      "sender": "userid3",
+      "receiver": "userid2",
+      "ta_email": null,
+      "createdAt": "date2"
+    }
+  ],
+  "totalNudge": 2
+}
+```
 - `500`: Server error
