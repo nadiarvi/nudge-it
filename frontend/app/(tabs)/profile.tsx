@@ -69,43 +69,36 @@ interface EditingFieldState {
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { uid, signOut } = useAuthStore();
+  const { uid, signOut, first_name, last_name, email, groups } = useAuthStore();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingField, setEditingField] = useState<EditingFieldState | null>(null);
   const [editValue, setEditValue] = useState('');
   const [profileData, setProfileData] = useState<ProfileData>({
-    firstName: '',
-    lastName: '',
-    email: '',
+    firstName: first_name,
+    lastName: last_name,
+    email: email,
     projectName: '',
     nudgeLimit: '',
   });
 
-  const fetchProfileData = async () => {
-      try {
-        console.log('--- Fetching profile data for uid:', uid, '---');
-        const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/users/${uid}`);
-        const userData = res.data.user;
-        const projectRes = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${userData.groups[0]}`);
-        const projectData = projectRes.data;
+  const getGroupInfo = async () => {
+    try {
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${groups[0]}`);
+      const projectData = res.data;
 
-        setProfileData({
-          firstName: userData.first_name,
-          lastName: userData.last_name,
-          email: userData.email,
-          projectName: projectData.name,
-          nudgeLimit: projectData.nudge_limit.toString(),
-        });
-
-        console.log('--- Done fetching profile data:', { userData, projectData }, '---');
-      } catch (error) {
-        console.error("Failed to fetch profile data:", error);
-      }
+      setProfileData(prev => ({
+        ...prev,
+        projectName: projectData.name,
+        nudgeLimit: projectData.nudge_limit.toString(),
+      }));
+    } catch (error) {
+      console.error("Failed to fetch group info:", error);
     }
+  }
 
   useEffect(() => {    
-    fetchProfileData();
+    getGroupInfo();
   }, [uid]);
 
   const handleFieldPress = (label: string, key: keyof ProfileData, currentValue: string) => {
