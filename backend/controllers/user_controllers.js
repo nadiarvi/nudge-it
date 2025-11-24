@@ -45,13 +45,14 @@ const login = async (req, res, next) => {
     const { email, password } = req.body;
 
     let existingUser;
+    let token;
     try {
         existingUser = await User.findOne({ email });
         if (!existingUser || existingUser.password !== password) {
             return next(new HttpError("Invalid credentials.", 401));
         }
 
-        const token = jwt.sign(
+        token = jwt.sign(
             { id: existingUser.id },
             process.env.JWT_SECRET,
             { expiresIn: "30d" }
@@ -60,7 +61,7 @@ const login = async (req, res, next) => {
         return next(new HttpError("Login failed, please try again later.", 500));
     }
 
-    res.json({ message: "Login successful", userId: existingUser.id });
+    res.json({ message: "Login successful", existingUser, token  });    
 };
 
 const getUser = async (req, res, next) => {

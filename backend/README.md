@@ -76,6 +76,15 @@
 
 **Responses:**
 - `201 OK`: User created
+```json
+{
+  "userId": "userid",
+  "first_name": "Nugget",
+  "last_name": "Mister",
+  "email": "nugget@email.com",
+  "password": "password123"
+}
+```
 - `422`: Invalid request
 - `500`: Server error
 
@@ -90,6 +99,18 @@
 
 **Responses:**
 - `200 OK`: Login successful
+```json
+{
+  "message": "Login successful",
+  "_id": "userid",
+  "email": "dummy@example.com",
+  "password": "12345678",
+  "first_name": "Nugget",
+  "last_name": "Mister",
+  "groups": ["groupid1", "groupid2"]
+  "token"
+}
+```
 - `401`: Invalid credentials
 - `500`: Server error
 
@@ -100,7 +121,16 @@
 - **Description:** Get user details by user ID
 
 **Responses:**
-- `200 OK`: Returns user object
+- `200 OK`: Returns user object without password
+```json
+{
+  "_id": "userid",
+  "email": "dummy@example.com",
+  "first_name": "Nugget",
+  "last_name": "Mister",
+  "groups": ["groupid1", "groupid2"]
+}
+```
 - `404`: User not found
 - `500`: Server error
 
@@ -116,6 +146,17 @@
 
 **Responses:**
 - `200 OK`: User updated
+```json
+{
+  "message":"User updated",
+  "_id": "userid",
+  "email": "dummy@example.com",
+  "password": "12345678",
+  "first_name": "Nugget",
+  "last_name": "Mister",
+  "groups": ["groupid1", "groupid2"]
+}
+```
 - `404`: User not found
 - `500`: Server error
 
@@ -144,6 +185,16 @@
 
 **Responses:**
 - `201 OK`: Group created successfully
+```json
+{
+  "groupId" : "groupid",
+  "name": "CS473",
+  "members": ["userId1", "userId2"],
+  "ta_email": "ta@gmail.com",
+  "tasks": [], //array of task ids, empty on creation
+  "chats": [] //array of chat ids, empty on creation
+}
+```
 - `422`: Invalid request
 - `500`: Server error
 
@@ -155,6 +206,16 @@
 
 **Responses:**
 - `200 OK`: Returns group object
+```json
+{
+  "_Id" : "groupid",
+  "name": "CS473",
+  "members": ["userId1", "userId2"],
+  "ta_email": "ta@gmail.com",
+  "tasks": ["taskId1", "taskId2"], 
+  "chats": ["chatId1"] 
+}
+```
 - `404`: Group does not exist
 - `500`: Server error
 
@@ -166,6 +227,12 @@
 
 **Responses:**
 - `200 OK`: Group deleted
+```json
+{
+  "message" : "Group deleted",
+  "groupId" : "groupid",
+}
+```
 - `404`: Group does not exist
 - `500`: Server error
 
@@ -176,6 +243,7 @@
 - **Description:** Update group details (name, tasks, chats, ta_email, nudge_limit)
 - **Request Body:**
   - `name`: String (optional)
+  - `ta_email`: String (optional)
   - `tasks`: Array of task IDs (optional)
   - `chats`: Array of chat IDs (optional)
   - `ta_email`: String (optional)
@@ -191,6 +259,16 @@
 
 **Responses:**
 - `200 OK`: Group updated
+```json
+{
+  "_Id" : "groupid",
+  "name": "CS473",
+  "members": ["userId1", "userId2"],
+  "ta_email": "ta@gmail.com",
+  "tasks": ["taskId1", "taskId2"], 
+  "chats": ["chatId1"] 
+}
+```
 - `404`: Group does not exist
 - `500`: Server error
 
@@ -202,6 +280,11 @@
 
 **Responses:**
 - `200 OK`: Returns array of user IDs
+```json
+{
+  "members": ["userId1", "userId2"]
+}
+```
 - `404`: Group does not exist
 - `500`: Server error
 
@@ -222,6 +305,17 @@
 
 **Responses:**
 - `200 OK`: Members added
+```json
+{
+  "message": "Member added to the group",
+  "_Id": "groupid",
+  "name": "CS473",
+  "members": ["userId1", "userId2", "userId3", "userId4"],
+  "ta_email": "ta@gmail.com",
+  "tasks": ["taskId1", "taskId2"], 
+  "chats": ["chatId1"] 
+}
+```
 - `404`: Group or user does not exist
 - `500`: Server error
 
@@ -242,6 +336,16 @@
 
 **Responses:**
 - `200 OK`: Members removed
+```json
+{
+  "_Id" : "groupid",
+  "name": "CS473",
+  "members": ["userId1", "userId3", "userId4"],
+  "ta_email": "ta@gmail.com",
+  "tasks": ["taskId1", "taskId2"], 
+  "chats": ["chatId1"] 
+}
+```
 - `404`: Group does not exist
 - `500`: Server error
 
