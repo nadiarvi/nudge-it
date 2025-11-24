@@ -3,7 +3,7 @@ export type TaskStatus = 'To Do' | 'In Review' | 'Revise' | 'Done';
 export interface Task {
   id?: string;
   title: string;
-  deadline: string;
+  deadline: Date;
   assignedTo: string;
   status: TaskStatus;
   reviewer?: string | null;

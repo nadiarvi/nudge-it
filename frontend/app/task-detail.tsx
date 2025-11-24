@@ -5,17 +5,17 @@ import { Colors } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskStatus } from '@/types/task';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ReactElement, useEffect, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { Alert, Platform, StyleSheet, View } from 'react-native';
 
-const formatTimestamp = (timestamp: string) => {
+const formatTimestamp = (timestamp: Date) => {
     //  return is MM.DD HH:MM
-    const date = new Date(timestamp);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
+    const day = timestamp.getDate().toString().padStart(2, '0');
+    const hours = timestamp.getHours().toString().padStart(2, '0');
+    const minutes = timestamp.getMinutes().toString().padStart(2, '0');
     return `${month}.${day}`;
 };
 
@@ -35,7 +35,7 @@ const taskDetailItem = (icon: ReactElement, name: string, content: string | Reac
     )
 }
 
-const commentItem = (comment: {id: string, user: string, text: string, timestamp: string}) => {
+const commentItem = (comment: {id: string, user: string, text: string, timestamp: Date}) => {
     return (
         <ThemedView key={comment.id} style={styles.commentItem}>
             <ThemedText type='Body2' style={styles.commentUser}>
@@ -74,6 +74,9 @@ export default function TaskDetailPage() {
   const [comments, setComments] = useState(SAMPLE_COMMENTS);
   const { user } = useAuth();
   const [ allowNudge, setAllowNudge ] = useState(false);
+
+  const [modalCalendar, setModalCalendar] = useState(false);
+  const [currentDeadline, setCurrentDeadline] = useState<Date>(new Date(deadline as string));
 
   useEffect(() => {
     const show = user?.firstName === assignedTo;
@@ -137,12 +140,34 @@ export default function TaskDetailPage() {
     }
     router.replace('/chat');
   }
+
+
+
+  const DatePicker = () => {
+    return (
+        <DateTimePicker
+            mode="date"
+            display="compact"
+            value={currentDeadline}
+            onChange={(event, selectedDate) => {
+                if (selectedDate) {
+                    setCurrentDeadline(selectedDate);
+                    console.log('Deadline changed to:', selectedDate);
+                }
+            }}
+            style={{
+                marginLeft: Platform.OS === "ios" ? -16 : 0,
+            }}
+        />
+    )
+  }
   
   return (
     <ParallaxScrollView paddingTop={0}>
         <ThemedView style={styles.taskDetails}>
             <ThemedText type='H1'>{title as string || 'Task Details'}</ThemedText>
-            {taskDetailItem(<CalendarIcon size={20}/>, 'Deadline', deadline as string || 'No deadline set')} 
+            {/* {taskDetailItem(<CalendarIcon size={20}/>, 'Deadline', deadline as string || 'No deadline set')}  */}
+            {taskDetailItem(<CalendarIcon size={20}/>, 'Deadline', <DatePicker />)}
             {taskDetailItem(<UserCircleIcon size={20}/>, 'Assigned To', memberDropdownComponent(MEMBER_LISTS, currentAssignedTo, setCurrentAssignedTo, 'Select Member'))}
             {taskDetailItem(<StatusIcon size={20}/>, 'Status', statusComponent(currentStatus))}
             {taskDetailItem(<SearchIcon size={20}/>, 'Reviewer', memberDropdownComponent(MEMBER_LISTS, currentReviewer, setCurrentReviewer, 'Select Reviewer'))}
@@ -194,7 +219,7 @@ const styles = StyleSheet.create({
     taskDetailItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 32,
+        gap: 36,
         marginTop: 14,
     },
     buttonSection: {
@@ -234,5 +259,9 @@ const styles = StyleSheet.create({
     commentText: {
         flex: 1,
         color: Colors.light.text,
+    },
+    datePickerContainer: {
+        // marginHorizontal: -22,
+        backgroundColor: Colors.light.background,
     }
 });

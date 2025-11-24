@@ -8,6 +8,7 @@ import { Colors, StatusColors } from '@/constants/theme';
 import { useAuth } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskCardProps } from '@/types/task';
+import { formatDate } from '@/utils/date-formatter';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -29,6 +30,7 @@ export function TaskCard({
   const { showNudgeAlert } = useNudgeAlert();
 
   const [showNudgeButton, setShowNudgeButton] = useState(false);
+  const formattedDeadline = formatDate(deadline);
 
   const handlePress = () => {
     // Navigate to task detail page with parameters
@@ -37,7 +39,7 @@ export function TaskCard({
       params: { 
         id: id || title, // Use id if available, otherwise fallback to title
         title,
-        deadline,
+        deadline: deadline.toISOString(),
         assignedTo,
         status,
         reviewer: reviewer || '',
@@ -76,7 +78,7 @@ export function TaskCard({
             </View>
           )}
         </View>
-        <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>{deadline}</ThemedText>
+        <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>{formattedDeadline}</ThemedText>
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
           <UserCircleIcon size={12} color={Colors.light.tint} />
           <ThemedText type="Body3" style={{color: Colors.light.tint}}>{assignedTo}</ThemedText>
