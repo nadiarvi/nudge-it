@@ -4,6 +4,14 @@ const DATE_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
   year: 'numeric',
 };
 
-export const formatDate = (date: Date): string => {
+export const formatDate = (dateInput: Date | string): string => {
+  const date = typeof dateInput === 'string' 
+    ? new Date(dateInput) 
+    : dateInput;
+
+  if (isNaN(date.getTime())) {
+    return "Invalid Date";
+  }
+
   return date.toLocaleDateString('en-US', DATE_FORMAT_OPTIONS);
 };

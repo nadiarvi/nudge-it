@@ -1,13 +1,15 @@
 import { FilterIcon, PlusIcon, SortIcon } from '@/components/icons';
 import { FilterModal, ParallaxScrollView, SortModal, TaskCard, ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui';
-import { ALL_TASKS, MEMBER_LISTS } from '@/constants/dataPlaceholder';
+import { MEMBER_LISTS } from '@/constants/dataPlaceholder';
 import { Colors } from '@/constants/theme';
+import { useAuthStore } from '@/contexts/auth-context';
 import { TaskStatus } from '@/types/task';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
-const taskLists = ALL_TASKS("Alice");
+// const taskLists = ALL_TASKS("Alice");
 
 const FILTER_OPTIONS = [
   {
@@ -39,8 +41,41 @@ const SORT_OPTIONS = [
   { field: 'Nudge Count', condition: 'desc' },
 ];
 
+interface TaskItem {
+  group_id: string;
+  title: string;
+  deadline: Date;
+  assignee: string[];
+  reviewer?: string;
+  status: string;
+  comments: [];
+  nudges: [];
+}
+
 export default function TasksScreen() {
   const router = useRouter();
+  const { uid, first_name, groups } = useAuthStore();
+  const gid = groups[0];
+  console.log(`task screen ${uid} - ${first_name} - ${gid}`);
+
+  const [taskList, setTaskList] = useState<TaskItem[]>([]);
+
+  const fetchTasks = async () => {
+    try {
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
+      console.log('Fetched tasks:', res.data.tasks);
+      console.log('deadline of first task:', res.data.tasks[0]?.deadline);
+      setTaskList(res.data.tasks);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  // State for filters and sorts
   const [filters, setFilters] = useState<{ [key: string]: string | null }>({
     status: null,
     assignedTo: null,
@@ -56,19 +91,19 @@ export default function TasksScreen() {
   const [isSortModalVisible, setIsSortModalVisible] = useState(false);
 
   const filteredAndSortedTasks = useMemo(() => {
-    let tasks = taskLists.filter(task => {
+    let tasks = taskList.filter(task => {
       // Check status filter
       if (filters.status && task.status !== filters.status) {
         return false;
       }
 
       // Check assignedTo filter
-      if (filters.assignedTo && task.user !== filters.assignedTo) {
+      if (filters.assignedTo && !task.assignee.includes(filters.assignedTo)) {
         return false;
       }
 
       // Check reviewer filter
-      if (filters.reviewer && task.reviewer !== filters.reviewer) {
+      if (filters.reviewer && !task.reviewer.includes(filters.reviewer)) {
         return false;
       }
 
@@ -196,15 +231,15 @@ export default function TasksScreen() {
 
       <ThemedView style={{ gap: 8 }}>
       
-      {filteredAndSortedTasks.map((task, index) => (
+      {taskList.map((task, index) => (
         <TaskCard
           key={index}
           title={task.title}
           deadline={task.deadline}
-          assignedTo={task.user}
+          assignedTo={task.assignee[0]}
           status={task.status as TaskStatus}
           reviewer={task.reviewer ?? null}
-          nudgeCount={task.nudgeCount}
+          nudgeCount={task.nudges.length}
           onStatusChange={(newStatus) => {
             // Handle status change here
             console.log(`Task "${task.title}" status changed to: ${newStatus}`);

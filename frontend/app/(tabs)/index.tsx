@@ -131,12 +131,30 @@ const projectSelectionModal = (isVisible: boolean, onClose: () => void, onSelect
 
 
 export default function HomeScreen() {
-  const { uid, first_name, isLoading } = useAuthStore();
+  const { uid, first_name, groups, isLoading } = useAuthStore();
   console.log(`homescreen ${uid} ${first_name}`);
+  console.log('uid:', uid);
+  console.log('groups:', groups);
+  
+
   const currentUser = first_name;
+  const gid = groups[0];
+  const [taskList, setTaskList] = useState(MY_TASKS(currentUser));
 
+  // const retrieveTasks = async () => {
+  //   try {
+  //     console.log('Retrieving tasks for user:', { uid, gid });
+  //     const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${uid}`);
+  //     console.log('Retrieved tasks:', res.data);
+  //   } catch (error) {
+  //     console.error('Error retrieving tasks:', error);
+  //   }
+  // }
 
-  // const CURRENT_USER = 'Alice';
+  // useEffect(() => {
+  //   retrieveTasks();
+  // }, []);
+
   const [selectedProject, setSelectedProject] = useState('CS473 Social Computing');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [dropdownLayout, setDropdownLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
@@ -169,7 +187,7 @@ export default function HomeScreen() {
         {nudgeCountComponent(<InboxIcon size={20} color={Colors.light.blackSecondary} />, 'Nudge Received', 5)}
       </ThemedView>
 
-      { MY_TASKS(currentUser).map((section) => (
+      { taskList.map((section) => (
         renderTaskSection(section.category, section.tasks)
       )) }
 

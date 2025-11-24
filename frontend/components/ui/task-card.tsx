@@ -10,6 +10,7 @@ import { useAuthStore } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskCardProps } from '@/types/task';
 import { formatDate } from '@/utils/date-formatter';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -27,20 +28,33 @@ export function TaskCard({
   onStatusChange = () => {},
 }: TaskCardProps) {
   const router = useRouter();
-  const { first_name } = useAuthStore();
+  const { uid, first_name } = useAuthStore();
   const { showNudgeAlert } = useNudgeAlert();
+
+  const [assigneeStr, setAssigneeStr] = useState();
+
+  useEffect(() => {
+    const getAssigneeName = async () => {
+      try {
+        const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/users/${assignedTo}`);
+        setAssigneeStr(res.data.user.first_name);
+      } catch (error) {
+        console.error("Failed to fetch assignee name:", error);
+      }
+    }
+    getAssigneeName();
+  }, [assignedTo]);
 
   const [showNudgeButton, setShowNudgeButton] = useState(false);
   const formattedDeadline = formatDate(deadline);
 
   const handlePress = () => {
-    // Navigate to task detail page with parameters
     router.push({
       pathname: '/task-detail',
       params: { 
         id: id || title, // Use id if available, otherwise fallback to title
         title,
-        deadline: deadline.toISOString(),
+        deadline: deadline ? new Date(deadline).toISOString() : '',
         assignedTo,
         status,
         reviewer: reviewer || '',
@@ -60,10 +74,9 @@ export function TaskCard({
                             : title;
 
   useEffect(() => {
-    console.log('TaskCard assignedTo:', assignedTo, 'first_name:', first_name);
-    const show = first_name === assignedTo;
+    const show = uid === assignedTo;
     setShowNudgeButton(!show);
-  }, [first_name, assignedTo]);
+  }, [uid, assignedTo]);
 
   return (
     <ThemedTouchableView style={styles.taskCard} onPress={handlePress}>
@@ -83,8 +96,8 @@ export function TaskCard({
         <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>{formattedDeadline}</ThemedText>
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
           <UserCircleIcon size={12} color={Colors.light.tint} />
-          <ThemedText type="Body3" style={{color: Colors.light.tint}}>{assignedTo}</ThemedText>
-          { status !== "To Do" && (
+          <ThemedText type="Body3" style={{color: Colors.light.tint}}>{assigneeStr}</ThemedText>
+          { status !== "To-Do" && (
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>
                 |

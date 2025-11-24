@@ -2,10 +2,11 @@ import { CalendarIcon, SearchIcon, StatusIcon, UserCircleIcon } from '@/componen
 import { MemberDropdown, ParallaxScrollView, StatusDropdown, ThemedButton, ThemedText, ThemedTextInput, ThemedView } from '@/components/ui';
 import { MEMBER_LISTS, SAMPLE_COMMENTS } from '@/constants/dataPlaceholder';
 import { Colors } from '@/constants/theme';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuthStore } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskStatus } from '@/types/task';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import axios from 'axios';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ReactElement, useEffect, useState } from 'react';
 import { Alert, Platform, StyleSheet, View } from 'react-native';
@@ -52,6 +53,22 @@ const commentItem = (comment: {id: string, user: string, text: string, timestamp
 }
 
 export default function TaskDetailPage() {
+    const { uid, groups } = useAuthStore();
+    const [groupMemberIDs, setGroupMembers] = useState<string[]>([]);
+
+    const fetchGroupMemberIDs = async () => {
+        try {
+            const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${groups[0]}/members`)
+            console.log(res.data);
+        } catch (error) {
+            console.log('Error: ', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchGroupMemberIDs();
+    }, []);
+    
   // Retrieve parameters passed from the calling page
   const params = useLocalSearchParams();
   const {
@@ -72,16 +89,16 @@ export default function TaskDetailPage() {
   const [currentAssignedTo, setCurrentAssignedTo] = useState<string>(assignedTo as string || '');
   const [currentReviewer, setCurrentReviewer] = useState<string>((reviewer && reviewer !== '') ? reviewer as string : '');
   const [comments, setComments] = useState(SAMPLE_COMMENTS);
-  const { user } = useAuth();
+//   const { user } = useAuth();
   const [ allowNudge, setAllowNudge ] = useState(false);
 
   const [modalCalendar, setModalCalendar] = useState(false);
   const [currentDeadline, setCurrentDeadline] = useState<Date>(new Date(deadline as string));
 
   useEffect(() => {
-    const show = user?.firstName === assignedTo;
+    const show = uid === assignedTo;
     setAllowNudge(!show);
-  }, [user, assignedTo]);
+  }, [uid, assignedTo]);
   
   
   // Get nudge alert hook and router
@@ -141,8 +158,6 @@ export default function TaskDetailPage() {
     router.replace('/chat');
   }
 
-
-
   const DatePicker = () => {
     return (
         <DateTimePicker
@@ -166,11 +181,10 @@ export default function TaskDetailPage() {
     <ParallaxScrollView paddingTop={0}>
         <ThemedView style={styles.taskDetails}>
             <ThemedText type='H1'>{title as string || 'Task Details'}</ThemedText>
-            {/* {taskDetailItem(<CalendarIcon size={20}/>, 'Deadline', deadline as string || 'No deadline set')}  */}
             {taskDetailItem(<CalendarIcon size={20}/>, 'Deadline', <DatePicker />)}
             {taskDetailItem(<UserCircleIcon size={20}/>, 'Assigned To', memberDropdownComponent(MEMBER_LISTS, currentAssignedTo, setCurrentAssignedTo, 'Select Member'))}
             {taskDetailItem(<StatusIcon size={20}/>, 'Status', statusComponent(currentStatus))}
-            {taskDetailItem(<SearchIcon size={20}/>, 'Reviewer', memberDropdownComponent(MEMBER_LISTS, currentReviewer, setCurrentReviewer, 'Select Reviewer'))}
+            {taskDetailItem(<SearchIcon size={20}/>, 'Reviewer', memberDropdownComponent(groupMemberIDs, currentReviewer, setCurrentReviewer, 'Select Reviewer'))}
         </ThemedView>
 
         <ThemedView style={styles.buttonSection}>
