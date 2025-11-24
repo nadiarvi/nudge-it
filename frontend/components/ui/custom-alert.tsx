@@ -152,7 +152,6 @@ export function NudgeConfirmationModal({
       case 'Report to TA':
         return <FlagIcon size={ICON_SIZE} strokeWidth={STROKE_WIDTH} color={Colors.light.red} />;
       default:
-        console.log('DEBUG: Falling back to default BellIcon');
         return <BellIcon size={ICON_SIZE} color={Colors.light.tint} />;
     }
   };

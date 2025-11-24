@@ -129,6 +129,25 @@ const projectSelectionModal = (isVisible: boolean, onClose: () => void, onSelect
   );
 }
 
+interface User {
+  uid: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  groups: string[];
+  
+}
+interface TaskSection {
+  category: string;
+  tasks: {
+    id: string;
+    title: string;
+    deadline: Date;
+    assignee: [User];
+    reviewer?: [User];
+    nudges: [];
+  }
+}
 
 export default function HomeScreen() {
   const { uid, first_name, groups, isLoading } = useAuthStore();
@@ -150,10 +169,7 @@ export default function HomeScreen() {
 
   const retrieveTasks = async () => {
     try {
-      console.log('Retrieving tasks for user:', { uid, gid });
-      console.log(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/user/${uid}`);
       const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/user/${uid}`);
-      console.log('Retrieved tasks:', res.data.result);
       setTaskList(res.data.result);
     } catch (error) {
       console.error('Error retrieving tasks:', error);

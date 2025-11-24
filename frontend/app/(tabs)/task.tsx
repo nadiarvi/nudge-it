@@ -1,4 +1,4 @@
-import { FilterIcon, PlusIcon, SortIcon } from '@/components/icons';
+import { PlusIcon } from '@/components/icons';
 import { FilterModal, ParallaxScrollView, SortModal, TaskCard, ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui';
 import { MEMBER_LISTS } from '@/constants/dataPlaceholder';
 import { Colors } from '@/constants/theme';
@@ -68,6 +68,7 @@ export default function TasksScreen() {
       setTaskList(res.data.tasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
+      console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
     }
   };
 
@@ -208,7 +209,7 @@ export default function TasksScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="H1" style={{ flex: 1 }}>Tasks</ThemedText>
         <ThemedView style={styles.actionContainer}>
-          <ThemedTouchableView onPress={handleFilter}>
+          {/* <ThemedTouchableView onPress={handleFilter}>
             <FilterIcon 
               size={22} 
               color={hasActiveFilters ? Colors.light.tint : Colors.light.blackSecondary}
@@ -221,7 +222,7 @@ export default function TasksScreen() {
               color={hasActiveSort ? Colors.light.tint : Colors.light.blackSecondary}
               strokeWidth={hasActiveSort ? 2 : 1.5}
             />
-          </ThemedTouchableView>
+          </ThemedTouchableView> */}
           <ThemedTouchableView onPress={handleAddTask}>
             <PlusIcon size={22} color={Colors.light.blackSecondary}/>
           </ThemedTouchableView>

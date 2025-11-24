@@ -3,11 +3,14 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { ThemedTouchableView } from '@/components/ui/touchable-themed-view';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { NuggitIcon } from '@/components/icons/nuggit-icon';
 import { ProfileIcon } from '@/components/icons/profile-icon';
+
+import { useAuthStore } from '@/contexts/auth-context';
+import axios from 'axios';
 
 const SAMPLE_LONG_MSG = `
 Hey, I just wanted to check in and see how things are going with the project.
@@ -22,8 +25,40 @@ const chatData = [
 ];
 
 export default function ChatScreen() {
+  const { uid, groups } = useAuthStore();
+  const gid = groups[0];
+  console.log(`chat screen ${uid} - ${gid}`);
+
+  const [chatData, setChatData] = useState([]);
+
+  const getAllChats = async () => {
+    try {
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/get`);
+      const chats = res.data.chats;
+
+      const _chatData = chats
+                          .filter((chat: any) => chat.type === "user")
+                          .map((chat: any) => {
+                            const entry = {
+                              id: chat.id,
+                              name: chat.people.filter((person: string) => person !== uid)[0],
+                              message: chat.messages[0]
+                            }
+                          })
+      console.log('Fetched chats:', _chatData);
+    } catch (error) {
+      console.error('Error fetching chats:', error);
+      console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/get`);
+    }
+  }
+
+  useEffect(() => {
+    getAllChats();
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+
 
   const filteredChats = chatData.filter(chat =>
     chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -10,7 +10,6 @@ import { useAuthStore } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskCardProps } from '@/types/task';
 import { formatDate } from '@/utils/date-formatter';
-import { getNameByUid } from '@/utils/uid-to-name';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -30,19 +29,23 @@ export function TaskCard({
   const router = useRouter();
   const { uid, first_name } = useAuthStore();
   const { showNudgeAlert } = useNudgeAlert();
-  const [assigneeStr, setAssigneeStr] = useState(assignedTo);
+  // const [assigneeStr, setAssigneeStr] = useState(assignedTo);
 
-  useEffect(() => {
-    const getAssigneeName = async () => {
-      try {
-        const name = await getNameByUid(assignedTo);
-        setAssigneeStr(name);
-      } catch (error) {
-        console.error("Failed to fetch assignee name:", error);
-      }
-    }
-    getAssigneeName();
-  }, [assignedTo]);
+  // sanity check
+  console.log('sanity check task card');
+  console.log(assignedTo);
+
+  // useEffect(() => {
+  //   const getAssigneeName = async () => {
+  //     try {
+  //       const name = await getNameByUid(assignedTo);
+  //       setAssigneeStr(name);
+  //     } catch (error) {
+  //       console.error("Failed to fetch assignee name:", error);
+  //     }
+  //   }
+  //   getAssigneeName();
+  // }, [assignedTo]);
 
   const [showNudgeButton, setShowNudgeButton] = useState(false);
   const formattedDeadline = formatDate(deadline);
@@ -73,7 +76,8 @@ export function TaskCard({
                             : title;
 
   useEffect(() => {
-    const show = uid === assignedTo;
+    console.log(`assignedTo in TaskCard: ${assignedTo._id}, ${assignedTo.first_name}`);
+    const show = uid === assignedTo._id;
     setShowNudgeButton(!show);
   }, [uid, assignedTo]);
 
@@ -95,7 +99,7 @@ export function TaskCard({
         <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>{formattedDeadline}</ThemedText>
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
           <UserCircleIcon size={12} color={Colors.light.tint} />
-          <ThemedText type="Body3" style={{color: Colors.light.tint}}>{assigneeStr}</ThemedText>
+          <ThemedText type="Body3" style={{color: Colors.light.tint}}>{assignedTo.first_name}</ThemedText>
           { status !== "To-Do" && (
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>
@@ -103,7 +107,7 @@ export function TaskCard({
               </ThemedText>
               <SearchIcon size={12} color={reviewer === "Not Assigned" ? StatusColors.inReview : Colors.light.blackSecondary} />
               <ThemedText type="Body3" style={{color: reviewer === "Not Assigned" ? StatusColors.inReview : Colors.light.blackSecondary}}>
-                {reviewer === "Not Assigned" ? "Not Assigned" : `${reviewer}`}
+                {reviewer ? "Not Assigned" : `${reviewer.first_name}`}
               </ThemedText>
             </View>
           )}
