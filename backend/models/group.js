@@ -13,7 +13,8 @@ const GroupSchema = new mongoose.Schema({
         }
     },
     tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],     // array of task id
-    chats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chat' }]      // array of chat id
+    chats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chat' }],
+    nudge_limit: { type: Number, default: 1 }
 })
 
 module.exports = mongoose.model('Group', GroupSchema);

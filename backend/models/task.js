@@ -14,6 +14,7 @@ const TaskSchema = new mongoose.Schema({
     title: { type: String },
     deadline: { type: Date, default: Date.now },
     assignee: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    reviewer: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     status: { type: String, enum: TASK_STATUS.ALL, default: TASK_STATUS.TODO },
     comments: [CommentSchema],
     nudges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Nudge' }],

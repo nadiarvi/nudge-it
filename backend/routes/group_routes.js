@@ -7,7 +7,8 @@ const { createGroup, getGroup, deleteGroup, updateGroup, getMembers, addMembers,
 
 router.post("/create",
     [
-        check("name").notEmpty()
+        check("name").notEmpty(),
+        check("nudge_limit").optional().isInt({ min: 1 })
     ],
     createGroup
 );
@@ -16,7 +17,12 @@ router.get("/:gid", getGroup);
 
 router.delete("/:gid", deleteGroup);
 
-router.patch("/:gid", updateGroup);
+router.patch("/:gid",
+    [
+        check("nudge_limit").optional().isInt({ min: 1 })
+    ],
+    updateGroup
+);
 
 router.get("/:gid/members", getMembers);
 

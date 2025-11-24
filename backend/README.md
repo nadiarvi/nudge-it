@@ -22,6 +22,8 @@
     - [2. Get a Task by ID](#2-get-a-task-by-id)
     - [3. Get All Tasks in a Group](#3-get-all-tasks-in-a-group)
     - [4. Delete a Task](#4-delete-a-task)
+    - [5. Get All Tasks Related to a User in a Group](#5-get-all-tasks-related-to-a-user-in-a-group)
+    - [6. Update a Task](#6-update-a-task)
   - [💬 Chat API](#-chat-api)
     - [1. Create or Get a Chat](#1-create-or-get-a-chat)
     - [2. Get All Chats for Current User](#2-get-all-chats-for-current-user)
@@ -170,13 +172,16 @@
 - **Request Body:**
   - `name`: String (required)
   - `members`: Array of user IDs (optional)
+  - `ta_email`: String (optional)
+  - `nudge_limit`: Integer (optional, default: 1)
 
 **Request Example:**
 ```json
 {
   "name": "CS473",
   "members": ["userId1", "userId2"],
-  "ta_email": "ta@gmail.com"
+  "ta_email": "ta@email.com",
+  "nudge_limit": 2
 }
 ```
 
@@ -184,12 +189,15 @@
 - `201 OK`: Group created successfully
 ```json
 {
-  "groupId" : "groupid",
-  "name": "CS473",
-  "members": ["userId1", "userId2"],
-  "ta_email": "ta@gmail.com",
-  "tasks": [], //array of task ids, empty on creation
-  "chats": [] //array of chat ids, empty on creation
+  "groupId": "groupid",
+  "group": {
+    "_id": "groupid",
+    "name": "CS473",
+    "nudge_limit": 2,
+    "members": [],
+    "chats": [],
+    "tasks": []
+  }
 }
 ```
 - `422`: Invalid request
@@ -205,8 +213,9 @@
 - `200 OK`: Returns group object
 ```json
 {
-  "_Id" : "groupid",
+  "_id": "groupid",
   "name": "CS473",
+  "nudge_limit": 2,
   "members": ["userId1", "userId2"],
   "ta_email": "ta@gmail.com",
   "tasks": ["taskId1", "taskId2"], 
@@ -226,8 +235,8 @@
 - `200 OK`: Group deleted
 ```json
 {
-  "message" : "Group deleted",
-  "groupId" : "groupid",
+  "message": "Group deleted",
+  "groupId": "groupid"
 }
 ```
 - `404`: Group does not exist
@@ -237,23 +246,31 @@
 ### 4. Update a Group Information
 
 **Endpoint:** `PATCH api/groups/:gid`
-- **Description:** Update group details (name, tasks, chats)
+- **Description:** Update group details (name, tasks, chats, ta_email, nudge_limit)
 - **Request Body:**
   - `name`: String (optional)
-  - `ta_email`: String (optional)
-  - `tasks`: Array of task IDs (optional)
-  - `chats`: Array of chat IDs (optional)
+  - `nudge_limit`: Integer (optional)
+
+**Request Example:**
+```json
+{
+  "name": "CS473 Updated",
+  "nudge_limit": 3
+}
+```
 
 **Responses:**
 - `200 OK`: Group updated
 ```json
 {
-  "_Id" : "groupid",
-  "name": "CS473",
-  "members": ["userId1", "userId2"],
-  "ta_email": "ta@gmail.com",
-  "tasks": ["taskId1", "taskId2"], 
-  "chats": ["chatId1"] 
+  "group": {
+    "_id": "groupid",
+    "name": "CS473",
+    "nudge_limit": 3,
+    "members": ["userId1", "userId2"],
+    "chats": ["chatId1"],
+    "tasks": ["taskId1"]
+  }
 }
 ```
 - `404`: Group does not exist
@@ -295,12 +312,13 @@
 ```json
 {
   "message": "Member added to the group",
-  "_Id": "groupid",
-  "name": "CS473",
-  "members": ["userId1", "userId2", "userId3", "userId4"],
-  "ta_email": "ta@gmail.com",
-  "tasks": ["taskId1", "taskId2"], 
-  "chats": ["chatId1"] 
+  "existingGroup": {
+    "_id": "groupid",
+    "name": "CS473",
+    "members": ["userId1", "userId2", "userId3", "userId4"],
+    "chats": ["chatId1"],
+    "tasks": ["taskId1"]
+  }
 }
 ```
 - `404`: Group or user does not exist
@@ -352,20 +370,34 @@
   - `comments`: Array of Comments (optional)
   - `nudges`: Array (optional)
 
+**Request Example:**
+```json
+{
+  "group_id": "groupid",
+  "title": "Design Landing Page",
+  "deadline": "2025-12-01T00:00:00Z",
+  "assignee": ["userId1"],
+  "reviewer": ["userId2"],
+  "status": "To-Do"
+}
+```
+
 **Responses:**
 - `201 OK`: Task created
 ```json
 {
-  "_id" : "taskid",
-  "groupid": "groupid",
-  "title": "do this",
-  "deadline": "date1",
-  "assignee": "userId1",
-  "status": "To Do",
-  "comments": [], //empty on creation, comment schema is userid(author), content, createdAt
-  "nudges": [],  // array of nudgeid
-  "createdAt": "date2",
-  "updatedAt": "date2" 
+  "taskId": "taskid",
+  "task": {
+    "_id": "taskid",
+    "group_id": "groupid",
+    "title": "Design Landing Page",
+    "deadline": "2025-12-01T00:00:00Z",
+    "assignee": ["userId1"],
+    "reviewer": ["userId2"],
+    "status": "To-Do",
+    "comments": [],
+    "nudges": []
+  }
 }
 ```
 - `422`: Invalid request
@@ -381,12 +413,13 @@
 - `200 OK`: Returns task object
 ```json
 {
-  "_id" : "taskid",
-  "groupid": "groupid",
-  "title": "do this",
-  "deadline": "date1",
-  "assignee": "userId1",
-  "status": "To Do",
+  "_id": "taskid",
+  "group_id": "groupid",
+  "title": "Design Landing Page",
+  "deadline": "2025-12-01T00:00:00Z",
+  "assignee": ["userId1"],
+  "reviewer": ["userId2"],
+  "status": "To-Do",
   "comments": [],
   "nudges": [],
   "createdAt": "date2",
@@ -412,6 +445,8 @@
       "group_id": "grpid1",
       "title": "do this",
       "deadline": "date1",
+      "assignee": ["userId1"],
+      "reviewer": ["userId2"],
       "status": "To Do",
       "comments": [],
       "nudges": [],
@@ -419,11 +454,12 @@
       "updatedAt": "date2" 
     },
     {
-      "id": "taskid2",
-      "group_id": "grpid1",
-      "title": "do that",
+      "_id": "taskid2",
+      "title": "Write Documentation",
       "deadline": "date3",
-      "status": "Revise",
+      "assignee": ["userId3"],
+      "reviewer": ["userId4"],
+      "status": "In Review",
       "comments": [],
       "nudges": [],
       "createdAt": "date4",
@@ -446,7 +482,105 @@
 ```json
 {
   "message": "Task deleted",
-  "_id" : "taskid"
+  "taskId": "taskid"
+}
+```
+- `400`: Task does not exist
+- `500`: Server error
+
+---
+### 5. Get All Tasks Related to a User in a Group
+
+**Endpoint:** `GET api/tasks/:gid/user/:uid`
+- **Description:** Get all tasks assigned to or reviewed by a user in a group, grouped by category (To Do, To Review, Pending for Review)
+
+**Responses:**
+- `200 OK`: Returns result array, each with category name and list of tasks
+```json
+{
+  "result": [
+    {
+      "category": "To Do",
+      "tasks": [
+        {
+          "id": "taskid1",
+          "title": "Design Landing Page",
+          "deadline": "2025-12-01T00:00:00Z",
+          "assignee": ["userId1"],
+          "status": "To-Do",
+          "reviewer": ["userId2"],
+          "nudges": []
+        }
+      ]
+    },
+    {
+      "category": "To Review",
+      "tasks": [
+        {
+          "id": "taskid2",
+          "title": "Write Documentation",
+          "deadline": "2025-12-02T00:00:00Z",
+          "assignee": ["userId2"],
+          "status": "In Review",
+          "reviewer": ["userId1"],
+          "nudges": []
+        }
+      ]
+    },
+    {
+      "category": "Pending for Review",
+      "tasks": [
+        {
+          "id": "task-3",
+          "title": "Design Landing Page",
+          "deadline": "2024-09-15T00:00:00.000Z",
+          "assignee": ["userId1"],
+          "status": "In Review",
+          "reviewer": ["userId2"],
+          "nudges": []
+        }
+      ]
+    }
+  ]
+}
+```
+- `500`: Server error
+
+---
+### 6. Update a Task
+
+**Endpoint:** `PATCH api/tasks/:gid/:tid`
+- **Description:** Update a task by its ID and group ID
+- **Request Body:**
+  - `title`: String (optional)
+  - `deadline`: Date (optional)
+  - `assignee`: Array of User ID ([String], optional)
+  - `reviewer`: Array of User ID ([String], optional)
+  - `status`: String (optional)
+  - `comments`: Array of Comments (optional)
+  - `nudges`: Array (optional)
+
+**Request Example:**
+```json
+{
+  "title": "Update Landing Page",
+  "reviewer": ["userId3"],
+  "status": "In Review"
+}
+```
+
+**Responses:**
+- `200 OK`: Task updated
+```json
+{
+  "message": "Task updated",
+  "task": {
+    "_id": "taskid",
+    "title": "Update Landing Page",
+    "reviewer": ["userId3"],
+    "status": "In Review"
+    // ...other fields
+  }
 }
 ```
 - `400`: Task does not exist

@@ -81,12 +81,12 @@ const getUser = async (req, res, next) => {
 };
 
 const updateUser = async (req, res, next) => {
-    const { id } = req.userData;
+    const { uid } = req.params;
     const { first_name, last_name, email, password } = req.body;
 
     let user;
     try {
-        user = await User.findById(id);
+        user = await User.findById(uid);
         if (!user) {
             return next(new HttpError("User not found.", 404));
         }
@@ -103,7 +103,7 @@ const updateUser = async (req, res, next) => {
 };
 
 const addToken = async (req, res, next) => {
-    const { id } = req.userData;
+    const { uid } = req.params;
     const { pushToken } = req.body;
     let existingUser;
 
