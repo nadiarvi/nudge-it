@@ -78,7 +78,7 @@ export default function TaskDetailPage() {
     const [taskDetail, setTaskDetail] = useState<TaskDetail | undefined>(undefined); 
     const [members, setMembers] = useState<User[]>([]);
 
-    const [currentStatus, setCurrentStatus] = useState<TaskStatus>('To Do');
+    const [currentStatus, setCurrentStatus] = useState<TaskStatus>('To-Do');
     const [currentAssignedTo, setCurrentAssignedTo] = useState<string>(''); // Will hold the assignee ID
     const [currentReviewer, setCurrentReviewer] = useState<string>(''); // Will hold the reviewer ID
     const [currentDeadline, setCurrentDeadline] = useState<Date>(new Date());
@@ -115,12 +115,14 @@ export default function TaskDetailPage() {
 
     useEffect(() => {
         if (taskDetail) {
-            setCurrentStatus(taskDetail.status || 'To Do');
+            setCurrentStatus(taskDetail.status || 'To-Do');
 
-            const assignedId = taskDetail.assignee?.[0]?._id || '';
+            const assignedId = taskDetail.assignee[0];
+            console.log('Setting currentAssignedTo to:', assignedId);
             setCurrentAssignedTo(assignedId);
             
-            const reviewerId = taskDetail.reviewer?.[0]?._id || '';
+            const reviewerId = taskDetail.reviewer[0];
+            console.log('Setting currentReviewer to:', reviewerId);
             setCurrentReviewer(reviewerId);
 
             if (taskDetail.deadline) {
@@ -168,7 +170,7 @@ export default function TaskDetailPage() {
     if (taskDetail === null) {
          return (
             <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ThemedText type='H2'>Task Not Found or Failed to Load</ThemedText>
+                <ThemedText type='H2' style={{ color: Colors.light.red }}>Task Not Found or Failed to Load</ThemedText>
             </ThemedView>
         );
     }
