@@ -43,7 +43,7 @@ export function TaskCard({
   };
 
   const handleNudge = () => {
-    showNudgeAlert(title, assignedTo, nudgeCount);
+    showNudgeAlert(id, title, assignedTo, nudgeCount);
   };
 
   const MAX_TITLE_LENGTH = 23;

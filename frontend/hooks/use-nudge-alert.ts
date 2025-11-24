@@ -22,11 +22,11 @@ export function useNudgeAlert() {
     options: {},
   });
 
-  const showNudgeAlert = (taskTitle: string, options: NudgeOptions = {}) => {
+  const showNudgeAlert = (task: any, options: NudgeOptions = {}) => {
     setModalState({
       showSelection: true,
       showConfirmation: false,
-      taskTitle,
+      taskTitle: task.title,
       selectedNudgeType: '',
       options,
     });
