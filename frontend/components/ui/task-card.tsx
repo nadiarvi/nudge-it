@@ -5,7 +5,8 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { ThemedTouchableView } from '@/components/ui/touchable-themed-view';
 import { Colors, StatusColors } from '@/constants/theme';
-import { useAuth } from '@/contexts/auth-context';
+// import { useAuth } from '@/contexts/auth-context';
+import { useAuthStore } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskCardProps } from '@/types/task';
 import { formatDate } from '@/utils/date-formatter';
@@ -26,7 +27,7 @@ export function TaskCard({
   onStatusChange = () => {},
 }: TaskCardProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { first_name } = useAuthStore();
   const { showNudgeAlert } = useNudgeAlert();
 
   const [showNudgeButton, setShowNudgeButton] = useState(false);
@@ -59,9 +60,9 @@ export function TaskCard({
                             : title;
 
   useEffect(() => {
-    const show = user?.firstName === assignedTo;
+    const show = first_name === assignedTo;
     setShowNudgeButton(!show);
-  }, [user, assignedTo]);
+  }, [first_name, assignedTo]);
 
   return (
     <ThemedTouchableView style={styles.taskCard} onPress={handlePress}>

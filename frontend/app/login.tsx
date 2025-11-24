@@ -10,7 +10,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacit
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { signIn } = useAuthStore();   // <-- your AuthStore function
+  const { signIn } = useAuthStore();
   const [isSignUp, setIsSignUp] = useState(false);
   
   // Login fields
@@ -25,17 +25,25 @@ export default function LoginScreen() {
   const [lastName, setLastName] = useState('');
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
+  const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
+
   const handleLogin = async () => {
     try {
+      console.log('sending login request to', `${API_BASE_URL}/api/users/login`);
+      console.log('requestbody: ', {
+        email: loginEmail,
+        password: loginPassword
+      });
+
       const res = await axios.post(
-        `${process.env.API_BASE_URL}/api/users/login`,
+        `${API_BASE_URL}/api/users/login`,
         {
           email: loginEmail,
           password: loginPassword,
         }
       );
 
-      // Expect backend returns { first_name, last_name, email }
       await signIn({
         first_name: res.data.first_name,
         last_name: res.data.last_name,
@@ -51,7 +59,7 @@ export default function LoginScreen() {
   const handleSignUp = async () => {
     try {
       const res = await axios.post(
-        `${process.env.API_BASE_URL}/api/users/signup`,
+        `${API_BASE_URL}/api/users/signup`,
         {
           first_name: firstName,
           last_name: lastName,

@@ -2,6 +2,7 @@ import { ArrowIcon, CheckIcon, ClockIcon, DropdownIcon, InboxIcon, SendIcon, Tod
 import { ParallaxScrollView, TaskCard, ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui';
 import { MY_TASKS } from '@/constants/dataPlaceholder';
 import { Colors } from '@/constants/theme';
+import { useAuthStore } from '@/contexts/auth-context';
 import React, { ReactElement, useRef, useState } from 'react';
 import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -133,6 +134,10 @@ const projectSelectionModal = (isVisible: boolean, onClose: () => void, onSelect
 
 
 export default function HomeScreen() {
+  const { first_name } = useAuthStore();
+  console.log('index touched, current user:', first_name);
+  console.log('current user: ', first_name);
+
   const CURRENT_USER = 'Alice';
   const [selectedProject, setSelectedProject] = useState('CS473 Social Computing');
   const [isModalVisible, setIsModalVisible] = useState(false);

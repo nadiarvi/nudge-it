@@ -1,8 +1,8 @@
 import { ParallaxScrollView, ThemedButton, ThemedText, ThemedTextInput, ThemedTouchableView, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuthStore } from '@/contexts/auth-context';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 
 interface ProfileSectionProps {
@@ -67,17 +67,29 @@ interface EditingFieldState {
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { first_name, last_name, email, signOut } = useAuthStore();
+  // DEBUG
+  console.log("ProfileScreen rendered with user:", { first_name, last_name, email });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingField, setEditingField] = useState<EditingFieldState | null>(null);
   const [editValue, setEditValue] = useState('');
   const [profileData, setProfileData] = useState<ProfileData>({
-    firstName: user?.firstName || 'First',
-    lastName: user?.lastName || 'Last',
-    email: user?.email || 'user@example.com',
+    firstName: '',
+    lastName: '',
+    email: '',
     projectName: 'CS473 Social Computing',
     nudgeLimit: '1',
   });
+
+  useEffect(() => {
+    setProfileData({
+      firstName: first_name,
+      lastName: last_name,
+      email: email,
+      projectName: 'CS473 Social Computing',
+      nudgeLimit: '1',
+    });
+  }, [first_name, last_name, email]);
 
   const handleFieldPress = (label: string, key: keyof ProfileData, currentValue: string) => {
     setEditingField({ label, key });
@@ -101,11 +113,10 @@ export default function ProfileScreen() {
     setEditingField(null);
     setEditValue('');
   };
+  
   const handleConfirmLogout = async () => {
     try {
-      await logout();
-      console.log("User logged out");
-      // Navigate to login screen and reset navigation stack
+      await signOut();
       router.replace('/login');
     } catch (error) {
       console.error('Logout failed:', error);
