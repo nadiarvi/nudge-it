@@ -137,9 +137,15 @@ export default function HomeScreen() {
   const { uid, isLoading } = useAuthStore();
   
   if (isLoading) {
-    return <ThemedText>Loading...</ThemedText>;
+    return null;
   }
-  
+
+  if (uid) {
+    console.log('User is signed in with uid:', uid);
+  } else {
+    console.log('ERROR: No user is signed in.');
+  }
+
   console.log('current user in home screen:', uid);
 
   const CURRENT_USER = 'Alice';

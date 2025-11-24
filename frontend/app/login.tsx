@@ -50,7 +50,7 @@ export default function LoginScreen() {
         email: res.data.email,
       });
 
-      router.replace('/(tabs)');
+      // router.replace('/(tabs)');
     } catch (error: any) {
       console.error("Login failed:", error.response?.data || error.message);
     }
@@ -75,7 +75,7 @@ export default function LoginScreen() {
         email: res.data.email,
       });
 
-      router.replace('/(tabs)');
+      // router.replace('/(tabs)');
     } catch (error: any) {
       console.error("Sign Up failed:", error.response?.data || error.message);
     }
