@@ -74,7 +74,7 @@ const getTasks = async (req, res, next) => {
     let results;
 
     try {
-        tasks = await Task.find({ group_id: gid }).populate("asignee").populate("reviewer");
+        tasks = await Task.find({ group_id: gid }).populate("assignee").populate("reviewer");
         totalTasks = await Task.countDocuments({ group_id: gid });
 
         results = {
