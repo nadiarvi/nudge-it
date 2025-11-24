@@ -129,12 +129,16 @@
 - **Request Body:**
   - `name`: String (required)
   - `members`: Array of user IDs (optional)
+  - `ta_email`: String (optional)
+  - `nudge_limit`: Integer (optional, default: 1)
 
 **Request Example:**
 ```json
 {
   "name": "CS473",
-  "members": ["userId1", "userId2"]
+  "members": ["userId1", "userId2"],
+  "ta_email": "ta@email.com",
+  "nudge_limit": 2
 }
 ```
 
@@ -169,11 +173,21 @@
 ### 4. Update a Group Information
 
 **Endpoint:** `PATCH api/groups/:gid`
-- **Description:** Update group details (name, tasks, chats)
+- **Description:** Update group details (name, tasks, chats, ta_email, nudge_limit)
 - **Request Body:**
   - `name`: String (optional)
   - `tasks`: Array of task IDs (optional)
   - `chats`: Array of chat IDs (optional)
+  - `ta_email`: String (optional)
+  - `nudge_limit`: Integer (optional)
+
+**Request Example:**
+```json
+{
+  "name": "CS473 Updated",
+  "nudge_limit": 3
+}
+```
 
 **Responses:**
 - `200 OK`: Group updated
