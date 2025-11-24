@@ -163,7 +163,7 @@ export default function HomeScreen() {
     tasks: any[];
   };
   const [taskList, setTaskList] = useState<TaskSection[]>([]);
-  const [prjName, setPrjName] = useState('');
+  const [prjName, setPrjName] = useState('XXX');
   const [nudgeSent, setNudgeSent] = useState(99);
   const [nudgeReceived, setNudgeReceived] = useState(99);
 
@@ -197,6 +197,7 @@ export default function HomeScreen() {
   const fetchProjectName = async () => {
     try {
       const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${gid}`);
+      console.log('Fetched project name:', res.data.name);
       setPrjName(res.data.name);
     } catch (error) {
       console.error('Error fetching project name:', error);
@@ -209,7 +210,7 @@ export default function HomeScreen() {
     fetchNudgeReceived();
     fetchProjectName();
   }, [uid]);
-
+  
   const [selectedProject, setSelectedProject] = useState(prjName);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [dropdownLayout, setDropdownLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });

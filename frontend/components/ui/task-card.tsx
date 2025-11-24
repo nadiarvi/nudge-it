@@ -32,8 +32,12 @@ export function TaskCard({
   // const [assigneeStr, setAssigneeStr] = useState(assignedTo);
 
   // sanity check
-  console.log('sanity check task card');
-  console.log(assignedTo);
+  console.log('sanity check task card reviewer');
+  if (reviewer) {
+    console.log(reviewer);
+  } else {
+    console.log('no reviewer assigned');
+  }
 
   // useEffect(() => {
   //   const getAssigneeName = async () => {
@@ -105,9 +109,9 @@ export function TaskCard({
               <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>
                 |
               </ThemedText>
-              <SearchIcon size={12} color={reviewer === "Not Assigned" ? StatusColors.inReview : Colors.light.blackSecondary} />
-              <ThemedText type="Body3" style={{color: reviewer === "Not Assigned" ? StatusColors.inReview : Colors.light.blackSecondary}}>
-                {reviewer ? "Not Assigned" : `${reviewer.first_name}`}
+              <SearchIcon size={12} color={ reviewer ? StatusColors.inReview : Colors.light.blackSecondary} />
+              <ThemedText type="Body3" style={{color: reviewer ? StatusColors.inReview : Colors.light.blackSecondary}}>
+                {reviewer ? `${reviewer[0].first_name}` : "Not Assigned"}
               </ThemedText>
             </View>
           )}
