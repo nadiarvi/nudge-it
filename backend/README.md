@@ -189,12 +189,15 @@
 - `201 OK`: Group created successfully
 ```json
 {
-  "groupId" : "groupid",
-  "name": "CS473",
-  "members": ["userId1", "userId2"],
-  "ta_email": "ta@gmail.com",
-  "tasks": [], //array of task ids, empty on creation
-  "chats": [] //array of chat ids, empty on creation
+  "groupId": "groupid",
+  "group": {
+    "_id": "groupid",
+    "name": "CS473",
+    "nudge_limit": 2,
+    "members": [],
+    "chats": [],
+    "tasks": []
+  }
 }
 ```
 - `422`: Invalid request
@@ -210,8 +213,9 @@
 - `200 OK`: Returns group object
 ```json
 {
-  "_Id" : "groupid",
+  "_id": "groupid",
   "name": "CS473",
+  "nudge_limit": 2,
   "members": ["userId1", "userId2"],
   "ta_email": "ta@gmail.com",
   "tasks": ["taskId1", "taskId2"], 
@@ -231,8 +235,8 @@
 - `200 OK`: Group deleted
 ```json
 {
-  "message" : "Group deleted",
-  "groupId" : "groupid",
+  "message": "Group deleted",
+  "groupId": "groupid"
 }
 ```
 - `404`: Group does not exist
@@ -245,10 +249,6 @@
 - **Description:** Update group details (name, tasks, chats, ta_email, nudge_limit)
 - **Request Body:**
   - `name`: String (optional)
-  - `ta_email`: String (optional)
-  - `tasks`: Array of task IDs (optional)
-  - `chats`: Array of chat IDs (optional)
-  - `ta_email`: String (optional)
   - `nudge_limit`: Integer (optional)
 
 **Request Example:**
@@ -263,12 +263,14 @@
 - `200 OK`: Group updated
 ```json
 {
-  "_Id" : "groupid",
-  "name": "CS473",
-  "members": ["userId1", "userId2"],
-  "ta_email": "ta@gmail.com",
-  "tasks": ["taskId1", "taskId2"], 
-  "chats": ["chatId1"] 
+  "group": {
+    "_id": "groupid",
+    "name": "CS473",
+    "nudge_limit": 3,
+    "members": ["userId1", "userId2"],
+    "chats": ["chatId1"],
+    "tasks": ["taskId1"]
+  }
 }
 ```
 - `404`: Group does not exist
@@ -310,12 +312,13 @@
 ```json
 {
   "message": "Member added to the group",
-  "_Id": "groupid",
-  "name": "CS473",
-  "members": ["userId1", "userId2", "userId3", "userId4"],
-  "ta_email": "ta@gmail.com",
-  "tasks": ["taskId1", "taskId2"], 
-  "chats": ["chatId1"] 
+  "existingGroup": {
+    "_id": "groupid",
+    "name": "CS473",
+    "members": ["userId1", "userId2", "userId3", "userId4"],
+    "chats": ["chatId1"],
+    "tasks": ["taskId1"]
+  }
 }
 ```
 - `404`: Group or user does not exist
@@ -367,20 +370,34 @@
   - `comments`: Array of Comments (optional)
   - `nudges`: Array (optional)
 
+**Request Example:**
+```json
+{
+  "group_id": "groupid",
+  "title": "Design Landing Page",
+  "deadline": "2025-12-01T00:00:00Z",
+  "assignee": ["userId1"],
+  "reviewer": ["userId2"],
+  "status": "To-Do"
+}
+```
+
 **Responses:**
 - `201 OK`: Task created
 ```json
 {
-  "_id" : "taskid",
-  "groupid": "groupid",
-  "title": "do this",
-  "deadline": "date1",
-  "assignee": "userId1",
-  "status": "To Do",
-  "comments": [], //empty on creation, comment schema is userid(author), content, createdAt
-  "nudges": [],  // array of nudgeid
-  "createdAt": "date2",
-  "updatedAt": "date2" 
+  "taskId": "taskid",
+  "task": {
+    "_id": "taskid",
+    "group_id": "groupid",
+    "title": "Design Landing Page",
+    "deadline": "2025-12-01T00:00:00Z",
+    "assignee": ["userId1"],
+    "reviewer": ["userId2"],
+    "status": "To-Do",
+    "comments": [],
+    "nudges": []
+  }
 }
 ```
 - `422`: Invalid request
@@ -396,12 +413,13 @@
 - `200 OK`: Returns task object
 ```json
 {
-  "_id" : "taskid",
-  "groupid": "groupid",
-  "title": "do this",
-  "deadline": "date1",
-  "assignee": "userId1",
-  "status": "To Do",
+  "_id": "taskid",
+  "group_id": "groupid",
+  "title": "Design Landing Page",
+  "deadline": "2025-12-01T00:00:00Z",
+  "assignee": ["userId1"],
+  "reviewer": ["userId2"],
+  "status": "To-Do",
   "comments": [],
   "nudges": [],
   "createdAt": "date2",
@@ -427,6 +445,8 @@
       "group_id": "grpid1",
       "title": "do this",
       "deadline": "date1",
+      "assignee": ["userId1"],
+      "reviewer": ["userId2"],
       "status": "To Do",
       "comments": [],
       "nudges": [],
@@ -434,11 +454,12 @@
       "updatedAt": "date2" 
     },
     {
-      "id": "taskid2",
-      "group_id": "grpid1",
-      "title": "do that",
+      "_id": "taskid2",
+      "title": "Write Documentation",
       "deadline": "date3",
-      "status": "Revise",
+      "assignee": ["userId3"],
+      "reviewer": ["userId4"],
+      "status": "In Review",
       "comments": [],
       "nudges": [],
       "createdAt": "date4",
@@ -461,7 +482,7 @@
 ```json
 {
   "message": "Task deleted",
-  "_id" : "taskid"
+  "taskId": "taskid"
 }
 ```
 - `400`: Task does not exist
@@ -482,13 +503,13 @@
       "category": "To Do",
       "tasks": [
         {
-          "id": "task-1",
+          "id": "taskid1",
           "title": "Design Landing Page",
-          "deadline": "2024-09-15T00:00:00.000Z",
-          "assignedTo": "userId1",
-          "status": "To Do",
-          "reviewer": "Not Assigned",
-          "nudgeCount": 1
+          "deadline": "2025-12-01T00:00:00Z",
+          "assignee": ["userId1"],
+          "status": "To-Do",
+          "reviewer": ["userId2"],
+          "nudges": []
         }
       ]
     },
@@ -496,13 +517,13 @@
       "category": "To Review",
       "tasks": [
         {
-          "id": "task-2",
-          "title": "Task 2 Title",
-          "deadline": "2024-09-15T00:00:00.000Z",
-          "assignedTo": "Bob",
+          "id": "taskid2",
+          "title": "Write Documentation",
+          "deadline": "2025-12-02T00:00:00Z",
+          "assignee": ["userId2"],
           "status": "In Review",
-          "reviewer": "userId1",
-          "nudgeCount": 2
+          "reviewer": ["userId1"],
+          "nudges": []
         }
       ]
     },
@@ -513,10 +534,10 @@
           "id": "task-3",
           "title": "Design Landing Page",
           "deadline": "2024-09-15T00:00:00.000Z",
-          "assignedTo": "userId1",
+          "assignee": ["userId1"],
           "status": "In Review",
-          "reviewer": "Charlie",
-          "nudgeCount": 0
+          "reviewer": ["userId2"],
+          "nudges": []
         }
       ]
     }

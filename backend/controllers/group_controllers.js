@@ -144,7 +144,7 @@ const deleteMembers = async (req, res, next) => {
         const error = new HttpError("Deleting member failed, please try again later.", 500);
         return next(error);
     }
-    res.status(200).json({ group: existingGroup });
+    res.status(200).json({ existingGroup });
 }
 
 module.exports = {
