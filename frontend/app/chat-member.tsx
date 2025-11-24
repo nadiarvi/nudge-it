@@ -140,7 +140,6 @@ export default function ChatDetailScreen() {
     });
   }
 
-  
 
   const shouldShowTimeSeparator = (currentMsg: Message, previousMsg: Message | null): boolean => {
     if (!previousMsg) return true;
