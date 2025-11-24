@@ -23,10 +23,10 @@ router.post(
 
 router.post("/login", login);
 
-router.get("/:uid", checkAuthUser, getUser);
+router.get("/:uid", getUser);
 
-router.patch("/:uid", checkAuthUser, updateUser);
+router.patch("/:uid", updateUser);
 
-router.patch("/:uid/token", checkAuthUser, addToken);
+router.patch("/:uid/token", addToken);
 
 module.exports = router;
