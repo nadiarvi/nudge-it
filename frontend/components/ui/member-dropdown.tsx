@@ -1,154 +1,3 @@
-// import { Colors } from '@/constants/theme';
-// import React, { useRef, useState } from 'react';
-// import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-// import { ThemedText } from './themed-text';
-
-// export type Member = User;
-
-// interface MemberDropdownProps {
-//   value: Member;
-//   onValueChange: (member: Member) => void;
-//   members?: Member[];
-//   placeholder?: string;
-// }
-
-// interface User {
-//     _id: string;
-//     first_name: string;
-//     last_name: string;
-//     email: string;
-// }
-
-// const defaultMembers: Member[] = [
-//   { _id: '1', first_name: 'Member1', last_name: 'Last1', email: 'member1@example.com' },
-//   { _id: '2', first_name: 'Member2', last_name: 'Last2', email: 'member2@example.com' },
-//   { _id: '3', first_name: 'Member3', last_name: 'Last3', email: 'member3@example.com' }
-// ];
-
-// export function MemberDropdown({ 
-//   value, 
-//   onValueChange, 
-//   members = defaultMembers,
-//   placeholder = 'Select Member'
-// }: MemberDropdownProps) {
-//   const [isOpen, setIsOpen] = useState(false);
-//   const [dropdownLayout, setDropdownLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
-//   const dropdownRef = useRef<View>(null);
-
-//   // DEBUG
-//   console.log('check member');
-//   console.log(members);
-
-//   const handleSelect = (member: Member) => {
-//     onValueChange(member);
-//     setIsOpen(false);
-//   };
-
-//   const openDropdown = () => {
-//     dropdownRef.current?.measureInWindow((x: number, y: number, width: number, height: number) => {
-//       setDropdownLayout({ x, y, width, height });
-//       setIsOpen(true);
-//     });
-//   };
-//   return (
-//     <View>
-//       <TouchableOpacity 
-//         ref={dropdownRef}
-//         style={styles.dropdown}
-//         onPress={openDropdown}
-//       >
-//         <ThemedText 
-//           type='Body2'
-//           style={{
-//             color: value ? Colors.light.text : Colors.light.blackSecondary
-//           }}
-//         >
-//           {/* {value.first_name ? value.first_name : value || placeholder} */}
-//           {typeof value === 'object' && value !== null && 'first_name' in value
-//             ? value.first_name
-//             : value || placeholder}
-//         </ThemedText>
-//       </TouchableOpacity>
-
-//       <Modal
-//         visible={isOpen}
-//         transparent
-//         animationType="fade"
-//         onRequestClose={() => setIsOpen(false)}
-//       >
-//         <TouchableOpacity 
-//           style={styles.overlay}
-//           onPress={() => setIsOpen(false)}
-//           activeOpacity={1}
-//         >
-//           <View 
-//             style={[
-//               styles.optionsContainer,
-//               {
-//                 position: 'absolute',
-//                 top: dropdownLayout.y + dropdownLayout.height + 4,
-//                 left: dropdownLayout.x,
-//                 minWidth: dropdownLayout.width,
-//               }
-//             ]}
-//           >
-//             {members.map((member, index) => (
-//               <TouchableOpacity
-//                 key={member}
-//                 style={[
-//                   styles.option,
-//                   index === members.length - 1 && { borderBottomWidth: 0 }
-//                 ]}
-//                 onPress={() => handleSelect(member)}
-//               >
-//                 <Text style={[styles.optionText, { color: Colors.light.text }]}>{member}</Text>
-//               </TouchableOpacity>
-//             ))}
-//           </View>
-//         </TouchableOpacity>
-//       </Modal>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   dropdown: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     justifyContent: 'space-between',
-//   },
-//   arrow: {
-//     fontSize: 8,
-//     marginLeft: 4,
-//   },
-//   overlay: {
-//     flex: 1,
-//   },
-//   optionsContainer: {
-//     backgroundColor: 'white',
-//     borderRadius: 0,
-//     minWidth: 120,
-//     borderColor: Colors.light.cardBorder,
-//     borderWidth: 0.5,
-//     elevation: 5,
-//   },
-//   option: {
-//     paddingVertical: 8,
-//     borderBottomWidth: 0.5,
-//     borderColor: Colors.light.cardBorder,
-//     marginVertical: 0,
-//     minWidth: 100,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-//   optionText: {
-//     color: Colors.light.text,
-//     fontSize: 14,
-//     fontWeight: '500',
-//     textAlign: 'center',
-//   },
-// });
-
 import { Colors } from '@/constants/theme';
 import React, { useRef, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -179,8 +28,8 @@ const defaultMembers: Member[] = [
 
 // Helper to display member name
 const getMemberDisplayName = (member: Member) => {
-  console.log('member for rendering name:');
-  console.log(member);
+  // console.log('member for rendering name:');
+  // console.log(member);
     return member.first_name || 'Unknown Member';
 };
 
@@ -191,8 +40,8 @@ export function MemberDropdown({
   placeholder = 'Select Member'
 }: MemberDropdownProps) {
   // DEBUG
-  console.log('check value');
-  console.log(value);
+  // console.log('check value');
+  // console.log(value);
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownLayout, setDropdownLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const dropdownRef = useRef<View>(null);
