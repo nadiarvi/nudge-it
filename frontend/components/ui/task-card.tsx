@@ -10,6 +10,7 @@ import { useAuthStore } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskCardProps } from '@/types/task';
 import { formatDate } from '@/utils/date-formatter';
+import { formatDisplayName } from '@/utils/name-formatter';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -78,7 +79,7 @@ export function TaskCard({
         <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>{formattedDeadline}</ThemedText>
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
           <UserCircleIcon size={12} color={Colors.light.tint} />
-          <ThemedText type="Body3" style={{color: Colors.light.tint}}>{assignedTo.first_name}</ThemedText>
+          <ThemedText type="Body3" style={{color: Colors.light.tint}}>{formatDisplayName(assignedTo.first_name)}</ThemedText>
           { status !== "To-Do" && (
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>
@@ -88,7 +89,7 @@ export function TaskCard({
               <ThemedText type="Body3" style={{color: reviewer ? StatusColors.inReview : Colors.light.blackSecondary}}>
                 {/* {reviewer ? `${reviewer[0].first_name}` : "Not Assigned"} */}
                 { reviewer && reviewer.length > 0
-                    ? `${reviewer[0].first_name}` 
+                    ? `${formatDisplayName(reviewer[0].first_name)}` 
                     : "Not Assigned"
                 }
               </ThemedText>

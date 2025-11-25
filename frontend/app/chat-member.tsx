@@ -3,6 +3,7 @@ import { ThemedTextInput } from '@/components/ui/themed-text-input';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
 import { User } from '@/types/user';
+import { formatDisplayName } from '@/utils/name-formatter';
 import axios from 'axios';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import moment from 'moment';
@@ -312,7 +313,7 @@ export default function ChatDetailScreen() {
   
   return (
     <>
-      <Stack.Screen options={{ title: name }} />
+      <Stack.Screen options={{ title: formatDisplayName(name) }} />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.fullScreen}

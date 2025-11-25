@@ -15,6 +15,8 @@ import axios from 'axios';
 
 import { User } from '@/types/user';
 
+import { formatDisplayName } from '@/utils/name-formatter';
+
 export default function ChatScreen() {
   const { uid, groups } = useAuthStore();
   const gid = groups[0];
@@ -93,7 +95,7 @@ export default function ChatScreen() {
 
           {/* Chat Text */}
           <View style={styles.chatTextContainer}>
-            <ThemedText type="H3">{item.name}</ThemedText>
+            <ThemedText type="H3">{formatDisplayName(item.name)}</ThemedText>
             <ThemedText type="Body3" style={styles.messagePreview} numberOfLines={1}>
               {/* {displayChat(item.message)} */}
               {item.message}

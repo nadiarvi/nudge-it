@@ -7,6 +7,8 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Modal, StyleSheet, TouchableOpacity } from 'react-native';
 
+import { formatDisplayName } from '@/utils/name-formatter';
+
 interface ProfileSectionProps {
   children: React.ReactNode;
   sectionTitle?: string;
@@ -37,10 +39,13 @@ const ProfileSection = ({ children, sectionTitle }: ProfileSectionProps) => {
 }
 
 const FieldItem = ({ label, value, style, onPress }: FieldItemProps) => {
+  const formattedFields = ['First Name', 'Last Name']
+  const displayedValue = formattedFields.includes(label) ? formatDisplayName(value) : value;
+
   return (
     <TouchableOpacity style={[styles.fieldItem, style]} onPress={onPress}>
       <ThemedText type="Body2" style={{ color: Colors.light.blackSecondary }}>{label}</ThemedText>
-      <ThemedText type="Body2">{value}</ThemedText>
+      <ThemedText type="Body2">{displayedValue}</ThemedText>
     </TouchableOpacity>
   )
 }
