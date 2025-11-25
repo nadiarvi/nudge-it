@@ -16,11 +16,12 @@ const createNudge = async (req, res, next) => {
         );
     }
 
-    const { type, group_id, tid, sender, receiver } = req.body;
+    const { type, group_id, task_id, sender, receiver } = req.body;
     let existingGroup, newNudge;
 
     try {
         existingGroup = await checkGroupExists(group_id);
+        console.log("existingGroup:", existingGroup);
     } catch (err) {
         return next(err);
     }
@@ -31,7 +32,7 @@ const createNudge = async (req, res, next) => {
         newNudge = new Nudge({
             type,
             group_id,
-            task_id: tid,
+            task_id,
             sender,
             receiver,
             ta_email
@@ -40,11 +41,11 @@ const createNudge = async (req, res, next) => {
         await newNudge.save();
 
         // send actual action (push notification / call / email)
-        await handleNudgeDelivery(type, receiver, group_id, tid, ta_email);
+        await handleNudgeDelivery(type, receiver, group_id, task_id, ta_email);
 
         // Add nudge to task
-        if (tid) {
-            await Task.findByIdAndUpdate(tid, { $push: { nudges: newNudge._id } });
+        if (task_id) {
+            await Task.findByIdAndUpdate(task_id, { $push: { nudges: newNudge._id } });
         }
     } catch (err) {
         console.error(err);

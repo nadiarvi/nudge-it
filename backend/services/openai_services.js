@@ -27,7 +27,7 @@ const getAdvice = async (groupId, ownerId, aboutId, userMessage) => {
     let nuggetChat = await Chat.findOne({
         group_id: groupId,
         type: "nugget",
-        owner: ownerId,
+        people: ownerId,
         about: aboutId
     });
 
@@ -37,7 +37,6 @@ const getAdvice = async (groupId, ownerId, aboutId, userMessage) => {
             group_id: groupId,
             type: "nugget",
             people: [ownerId],
-            owner: ownerId,
             about: aboutId,
             messages: []
         });
@@ -48,39 +47,46 @@ const getAdvice = async (groupId, ownerId, aboutId, userMessage) => {
         content: msg.content
     }));
 
-    const contextText = userChatHistory
+    const contextText = userChatHistory[0].messages
         .reverse()
         .map(msg => `${msg.sender === ownerId ? "You" : "Them"}: ${msg.content}`)
         .join("\n");
 
-        const system_prompt = `
-            You are a Nugget, a friendly conflict-resolution coach for students who are working on a team project.
-            Keep responses short, practical, emotionally intelligent, and supportive.
-            Your goal is to help them improve teamwork, foster a healthy communication, not blaming anyone.
+    const system_prompt = `
+        You are a Nugget, a friendly conflict-resolution coach for students who are working on a team project.
+        Keep responses short, practical, emotionally intelligent, and supportive.
+        Your goal is to help them improve teamwork, foster a healthy communication, not blaming anyone.
 
-            Rules:
-            - Don't give a response that is too long, pretend that you're in a personal chat with this person.
-            - Avoid robotic structure, don't give response that is too AI.
-        `
+        Rules:
+        - Don't give a response that is too long, pretend that you're in a personal chat with this person.
+        - Avoid robotic structure, don't give response that is too AI.
+    `
 
-        const messages = [
-            { role: "system", content: system_prompt },
-            { role: "system", content: `Recent conversation:\n${contextText}` },
-            ...nuggetChatHistory,
-            { role: "user", content: userMessage }
-        ]
+    const messages = [
+        { role: "system", content: system_prompt },
+        { role: "system", content: `Recent conversation:\n${contextText}` },
+        ...nuggetChatHistory,
+        { role: "user", content: userMessage }
+    ]
 
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages
-        });
+    const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages
+    });
 
-        const botReply = response.choices[0].message.content;
+    const botReply = response.choices[0].message.content;
 
-        return botReply;
+    return botReply;
 }
 
-const reviseMessage = async (message) => {
+const reviseMessage = async (chatId, senderId, userMessage) => {
+    // load chat history between owner (user A) and about (user B) for context
+    const userChatHistory = await Chat.findById(chatId)
+        .populate("people")
+        .populate("messages")
+        .sort({ timestamp: -1 })
+        .limit(15);
+
     try {
         const system_prompt = `
             You are a tone-analysis assistant in a student group project setting.
@@ -120,12 +126,20 @@ const reviseMessage = async (message) => {
                 }
         `;
 
+        const contextText = userChatHistory.messages
+            .reverse()
+            .map(msg => `${msg.sender === senderId ? "You" : "Them"}: ${msg.content}`)
+            .join("\n");
+
+        const messages = [
+            { role: "system", content: system_prompt },
+            { role: "system", content: `Recent conversation:\n${contextText}` },
+            { role: "user", content: userMessage }
+        ]
+
         const response = await openai.chat.completions.create({
             model: "gpt-4o-mini",
-            messages: [
-                { role: "system", content: system_prompt },
-                { role: "user", content: message }
-            ]
+            messages
         });
 
         const raw_output = response.choices[0].message.content;
@@ -138,7 +152,6 @@ const reviseMessage = async (message) => {
             // fallback if OpenAI doesn't return the correct JSON format
             json_output = { revise: false, suggestion: "" };
         }
-        console.log("im here in openai_services");
         
         return json_output;
     } catch (err) {
