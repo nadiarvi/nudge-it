@@ -46,7 +46,7 @@ interface TaskItem {
   deadline: Date;
   // FIX: Change from string[] to User[]
   assignee: User[]; 
-  reviewer?: User; // NOTE: If reviewer is an ID string, change this to 'User' as well.
+  reviewer?: User[]; // NOTE: If reviewer is an ID string, change this to 'User' as well.
   status: string;
   comments: [];
   nudges: [];
@@ -241,33 +241,12 @@ export default function TasksScreen() {
       <ThemedView style={{ gap: 8 }}>
       
       {taskList.map((task, index) => (
-        // <TaskCard
-        //   // key={index}
-        //   // title={task.title}
-        //   // deadline={task.deadline}
-        //   // assignedTo={task.assignee[0]}
-        //   // status={task.status as TaskStatus}
-        //   // reviewer={task.reviewer ?? null}
-        //   // nudgeCount={task.nudges.length}
-        //   onStatusChange={(newStatus) => {
-        //     // Handle status change here
-        //     console.log(`Task "${task.title}" status changed to: ${newStatus}`);
-        //   }}
-        //   key={task.id}
-        //   id={task.id}
-        //   title={task.title}
-        //   deadline={task.deadline}
-        //   assignedTo={task.assignee}
-        //   status={task.status}
-        //   reviewer={task.reviewer}
-        //   nudgeCount={task.nudgeCount}
-        // />
         <TaskCard
             key={task.id}
             id={task.id}
             title={task.title}
             deadline={task.deadline}
-            assignedTo={task.assignee}
+            assignedTo={task.assignee[0]}
             status={task.status}
             reviewer={task.reviewer}
             nudgeCount={task.nudgeCount}
