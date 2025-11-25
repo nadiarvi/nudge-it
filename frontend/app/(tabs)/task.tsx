@@ -64,15 +64,12 @@ export default function TasksScreen() {
   const router = useRouter();
   const { uid, first_name, groups } = useAuthStore();
   const gid = groups[0];
-  console.log(`task screen ${uid} - ${first_name} - ${gid}`);
 
   const [taskList, setTaskList] = useState<TaskItem[]>([]);
 
   const fetchTasks = async () => {
     try {
       const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
-      console.log('Fetched tasks:', res.data.tasks);
-      console.log('deadline of first task:', res.data.tasks[0]?.deadline);
       setTaskList(res.data.tasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);

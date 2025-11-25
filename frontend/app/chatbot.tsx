@@ -88,9 +88,9 @@ export default function ChatbotScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [botCid, setBotCid] = useState<string | null>(null);
 
-  console.log('chatbot screen - checking people');
-  console.log(people);
+  const [isWaitAI, setIsWaitAI] = useState(false);
 
   const getTargetUserId = (peopleList) => {
     let list = peopleList;
@@ -119,7 +119,6 @@ export default function ChatbotScreen() {
       return null;
   };
 
-
   const getChatHistory = async () => {
     try {
       const resBody = {
@@ -132,6 +131,7 @@ export default function ChatbotScreen() {
       const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${uid}`, resBody);
       if (res.data?.existingChat?.messages) {
         setMessages(res.data.existingChat.messages); 
+        setBotCid(res.data.existingChat._id);
       }
     } catch (error) {
       console.error('Error fetching chat history:', error);
@@ -142,6 +142,62 @@ export default function ChatbotScreen() {
   useEffect(() => {
     getChatHistory();
   }, [uid, cid]);
+
+  // const handleSend = () => {
+  //   const trimmed = inputText.trim();
+  //   if (!trimmed) return;
+
+  //   const userMessage: Message = {
+  //     _id: Date.now().toString(),
+  //     sender: uid,
+  //     content: trimmed,
+  //     timestamp: moment().toISOString(),
+  //     senderType: 'user',
+  //     type: 'normal',
+  //   };
+    
+  //   setMessages(prev => [...prev, userMessage]);
+
+  //   setIsLoading(true);
+    
+  //   const getAIResponse = async () => {
+  //     try {
+  //       // DEBUG
+  //       console.log(`Sending to AI: cid=${botCid}, uid=${uid}, content=${trimmed}`);
+  //       setIsWaitAI(true);
+  //       const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${botCid}/${uid}/nugget`, {
+  //         content: trimmed
+  //       });
+        
+  //       const waitingMsg: Message = {
+  //         _id: 'waiting-' + Date.now().toString(),
+  //         sender: 'nugget',
+  //         content: 'Nugget is typing...',
+  //         timestamp: moment().toISOString(),
+  //         senderType: 'nugget',
+  //         type: 'normal',
+  //       }
+
+  //       setMessages(prev => [...prev, waitingMsg]);
+
+  //       if (res.data) {
+  //         const aiMsg: Message = res.data.chat.messages[1];
+  //         setMessages(prev => [...prev.filter(msg => !msg._id.startsWith('waiting-')), aiMsg]);
+  //         setIsWaitAI(false);
+  //       } else {
+  //         console.error('No data in AI response');
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching AI response:', error);
+  //       console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${botCid}/${uid}/nugget`);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }
+
+  //   setInputText('');
+  //   getAIResponse();
+  // };
 
   const handleSend = () => {
     const trimmed = inputText.trim();
@@ -156,36 +212,62 @@ export default function ChatbotScreen() {
       type: 'normal',
     };
     
-    setMessages(prev => [...prev, userMessage]);
+    const waitingMsg: Message = {
+        _id: 'waiting-' + Date.now().toString(),
+        sender: 'nugget',
+        content: 'Nugget is typing...',
+        timestamp: moment().toISOString(),
+        senderType: 'nugget',
+        type: 'normal',
+    };
 
-    setIsLoading(true);
+    setMessages(prev => [...prev, userMessage, waitingMsg]);
     
+    setInputText('');
+    setIsLoading(true);
+
     const getAIResponse = async () => {
       try {
-        // DEBUG
-        console.log(`Sending to AI: cid=${cid}, uid=${uid}, content=${trimmed}`);
-        const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}/${uid}/nugget`, {
+        const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${botCid}/${uid}/nugget`, {
           content: trimmed
         });
+        
+        if (res.data && res.data.chat && res.data.chat.messages) {
+          const aiMsg = res.data.chat.messages[res.data.chat.messages.length - 1]; 
+          
+          setMessages(prev => {
+            const filteredPrev = prev.filter(msg => 
+                !msg._id.startsWith('waiting-') && msg._id !== userMessage._id
+            );
 
-        if (res.data) {
-          const aiMsg: Message = res.data.chat.messages[1];
-          setMessages(prev => [...prev, aiMsg]);
+            const serverUserMsg = res.data.chat.messages[1];
+            const serverAiMsg = res.data.chat.messages[0];
+
+            return [
+                ...filteredPrev, 
+                serverUserMsg,
+                serverAiMsg 
+            ];
+          });
+          
         } else {
-          console.error('No data in AI response');
+          console.error('No valid data in AI response');
         }
       } catch (error) {
         console.error('Error fetching AI response:', error);
-        console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}/${uid}/nugget`);
+        console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${botCid}/${uid}/nugget`);
+        
+        setMessages(prev => prev.filter(msg => 
+            !msg._id.startsWith('waiting-') && msg._id !== userMessage._id
+        ));
       } finally {
         setIsLoading(false);
       }
     }
 
-    setInputText('');
     getAIResponse();
   };
-
+  
   const shouldShowTimeSeparator = (currentMsg: Message, previousMsg: Message | null): boolean => {
     if (!previousMsg) return true;
 
