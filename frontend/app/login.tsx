@@ -106,7 +106,7 @@ export default function LoginScreen() {
                 </ThemedText>
                 <ThemedTextInput
                   style={styles.input}
-                  placeholder="Enter your email"
+                  // placeholder="Enter your email"
                   value={loginEmail}
                   onChangeText={setLoginEmail}
                   keyboardType="email-address"
@@ -122,7 +122,7 @@ export default function LoginScreen() {
                 <ThemedView style={styles.passwordContainer}>
                   <ThemedTextInput
                     style={styles.passwordInput}
-                    placeholder="Enter your password"
+                    // placeholder="Enter your password"
                     value={loginPassword}
                     onChangeText={setLoginPassword}
                     secureTextEntry={!showLoginPassword}

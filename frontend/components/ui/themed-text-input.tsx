@@ -45,22 +45,22 @@ export function ThemedTextInput({
 const styles = StyleSheet.create({
   default: {
     fontSize: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
     paddingHorizontal: 0,
   },
   body1: {
     fontSize: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
     paddingHorizontal: 0,
   },
   body2: {
     fontSize: 14,
-    paddingVertical: 7,
+    paddingVertical: 11,
     paddingHorizontal: 0,
   },
   body3: {
     fontSize: 12,
-    paddingVertical: 7,
+    paddingVertical: 9,
     paddingHorizontal: 0,
   },
 });
