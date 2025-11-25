@@ -1,15 +1,38 @@
 import { Colors } from '@/constants/theme';
-import { router } from 'expo-router';
+import { useAuthStore } from '@/contexts/auth-context';
+import axios from 'axios';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, TouchableOpacity } from 'react-native';
 import { TrashIcon } from '../icons/trash-icon';
 
-export function TaskDetailHeader() {
-  const handleDeleteTask = () => {
-    console.log('Delete task confirmed');
-    // TODO: Implement actual delete task logic here
-    
-    // Navigate back to the calling screen
+interface TaskDetailHeaderProps {
+  tid: string; // The task ID passed from the screen
+  gid?: string; // The group ID passed from the screen
+}
+
+export function TaskDetailHeader({ tid }: TaskDetailHeaderProps) {
+  const router = useRouter();
+  const { uid, groups } = useAuthStore();
+  const gid = groups[0];
+  
+  // const { tid } = useLocalSearchParams();
+  
+  const handleDeleteTask = async () => {
+    console.assert(gid, 'Group ID is required to delete a task');
+    console.assert(tid, 'Task ID is required to delete a task');
+
+    try {
+      const res = await axios.delete(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${tid}`);
+      const data = res.data;
+      console.log(data.message);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      // console.error('Failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${tid}`);
+      Alert.alert('Error', 'Failed to delete the task. Please try again.');
+      return;
+    }
+
     router.back();
   };
 

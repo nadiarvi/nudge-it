@@ -1,13 +1,13 @@
 import { CalendarIcon, SearchIcon, StatusIcon, UserCircleIcon } from '@/components/icons';
-import { MemberDropdown, ParallaxScrollView, StatusDropdown, ThemedButton, ThemedText, ThemedView } from '@/components/ui';
+import { MemberDropdown, ParallaxScrollView, StatusDropdown, TaskDetailHeader, ThemedButton, ThemedText, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskStatus } from '@/types/task';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ReactElement, useEffect, useState } from 'react';
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { ReactElement, useEffect, useLayoutEffect, useState } from 'react';
 import { Alert, Platform, StyleSheet, View } from 'react-native';
 
 const formatTimestamp = (timestamp: Date) => {
@@ -71,9 +71,9 @@ interface TaskDetail {
 }
 
 export default function TaskDetailPage() {
+    const navigation = useNavigation();
     const { uid, groups } = useAuthStore();
     const { tid } = useLocalSearchParams();
-    ////console.log(`TaskDetailPage params - tid: ${tid}, uid: ${uid}, groups: ${groups}`);
     const gid = groups[0];
     
     const [taskDetail, setTaskDetail] = useState<TaskDetail | undefined>(undefined); 
@@ -167,6 +167,14 @@ export default function TaskDetailPage() {
             setAllowNudge(!show);
         }
     }, [taskDetail, uid]);
+
+    useLayoutEffect(() => { // Use useLayoutEffect for synchronous update
+        if (tid) {
+             navigation.setOptions({
+                headerRight: () => <TaskDetailHeader tid={tid as string} gid={gid} />,
+            });
+        }
+    }, [navigation, tid, gid]);
 
 //   const initialStatus = taskDetail.status;
 //   const [currentStatus, setCurrentStatus] = useState<TaskStatus>(initialStatus);
