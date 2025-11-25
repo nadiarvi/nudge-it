@@ -3,16 +3,35 @@ import React, { useRef, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './themed-text';
 
-export type Member = string;
+export type Member = User;
+
+interface User {
+    _id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+}
 
 interface MemberDropdownProps {
-  value: Member;
+  // value is now definitely a Member object or null/undefined
+  value: Member | null | undefined; 
   onValueChange: (member: Member) => void;
   members?: Member[];
   placeholder?: string;
 }
 
-const defaultMembers: Member[] = ['Member1', 'Member2', 'Member3'];
+const defaultMembers: Member[] = [
+  { _id: '1', first_name: 'Member1', last_name: 'Last1', email: 'member1@example.com' },
+  { _id: '2', first_name: 'Member2', last_name: 'Last2', email: 'member2@example.com' },
+  { _id: '3', first_name: 'Member3', last_name: 'Last3', email: 'member3@example.com' }
+];
+
+// Helper to display member name
+const getMemberDisplayName = (member: Member) => {
+  // console.log('member for rendering name:');
+  // console.log(member);
+    return member.first_name || 'Unknown Member';
+};
 
 export function MemberDropdown({ 
   value, 
@@ -20,6 +39,9 @@ export function MemberDropdown({
   members = defaultMembers,
   placeholder = 'Select Member'
 }: MemberDropdownProps) {
+  // DEBUG
+  // console.log('check value');
+  // console.log(value);
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownLayout, setDropdownLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const dropdownRef = useRef<View>(null);
@@ -35,6 +57,9 @@ export function MemberDropdown({
       setIsOpen(true);
     });
   };
+
+  const currentMemberDisplayName = value ? getMemberDisplayName(value) : placeholder;
+
   return (
     <View>
       <TouchableOpacity 
@@ -45,10 +70,12 @@ export function MemberDropdown({
         <ThemedText 
           type='Body2'
           style={{
+            // Check if value exists to determine text color
             color: value ? Colors.light.text : Colors.light.blackSecondary
           }}
         >
-          {value || placeholder}
+          {/* Renders the name of the selected member or the placeholder */}
+          {currentMemberDisplayName}
         </ThemedText>
       </TouchableOpacity>
 
@@ -76,14 +103,16 @@ export function MemberDropdown({
           >
             {members.map((member, index) => (
               <TouchableOpacity
-                key={member}
+                // Use a unique string from the object for the key
+                key={member._id} 
                 style={[
                   styles.option,
                   index === members.length - 1 && { borderBottomWidth: 0 }
                 ]}
                 onPress={() => handleSelect(member)}
               >
-                <Text style={[styles.optionText, { color: Colors.light.text }]}>{member}</Text>
+                {/* Render the display name from the object */}
+                <Text style={[styles.optionText, { color: Colors.light.text }]}>{getMemberDisplayName(member)}</Text>
               </TouchableOpacity>
             ))}
           </View>

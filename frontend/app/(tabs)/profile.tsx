@@ -1,14 +1,12 @@
-import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
-import { ThemedButton } from '@/components/ui/themed-button';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedTextInput } from '@/components/ui/themed-text-input';
-import { ThemedView } from '@/components/ui/themed-view';
-import { ThemedTouchableView } from '@/components/ui/touchable-themed-view';
+import { ParallaxScrollView, ThemedButton, ThemedText, ThemedTextInput, ThemedTouchableView, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuthStore } from '@/contexts/auth-context';
+import axios from 'axios';
+
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Modal, StyleSheet, TouchableOpacity } from 'react-native';
+
 interface ProfileSectionProps {
   children: React.ReactNode;
   sectionTitle?: string;
@@ -57,7 +55,8 @@ const ActionItem = ({ label, labelStyle, icon, onPress, style }: ActionItemProps
 }
 
 interface ProfileData {
-  username: string;
+  firstName: string;
+  lastName: string;
   email: string;
   projectName: string;
   nudgeLimit: string;
@@ -70,16 +69,37 @@ interface EditingFieldState {
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { uid, signOut, first_name, last_name, email, groups } = useAuthStore();
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingField, setEditingField] = useState<EditingFieldState | null>(null);
   const [editValue, setEditValue] = useState('');
   const [profileData, setProfileData] = useState<ProfileData>({
-    username: user?.firstName && user?.lastName ? `${user.firstName}_${user.lastName}`.toLowerCase() : 'user',
-    email: user?.email || 'user@example.com',
-    projectName: 'CS473 Social Computing',
-    nudgeLimit: '1',
+    firstName: first_name,
+    lastName: last_name,
+    email: email,
+    projectName: '',
+    nudgeLimit: '',
   });
+
+  const getGroupInfo = async () => {
+    try {
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${groups[0]}`);
+      const projectData = res.data;
+
+      setProfileData(prev => ({
+        ...prev,
+        projectName: projectData.name,
+        nudgeLimit: projectData.nudge_limit.toString(),
+      }));
+    } catch (error) {
+      console.error("Failed to fetch group info:", error);
+    }
+  }
+
+  useEffect(() => {    
+    getGroupInfo();
+  }, [uid]);
 
   const handleFieldPress = (label: string, key: keyof ProfileData, currentValue: string) => {
     setEditingField({ label, key });
@@ -103,11 +123,10 @@ export default function ProfileScreen() {
     setEditingField(null);
     setEditValue('');
   };
+  
   const handleConfirmLogout = async () => {
     try {
-      await logout();
-      console.log("User logged out");
-      // Navigate to login screen and reset navigation stack
+      await signOut();
       router.replace('/login');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -144,9 +163,14 @@ export default function ProfileScreen() {
 
       <ProfileSection sectionTitle="Account Info">
         <FieldItem 
-          label="Username" 
-          value={profileData.username} 
-          onPress={() => handleFieldPress('Username', 'username', profileData.username)}
+          label="First Name" 
+          value={profileData.firstName} 
+          onPress={() => handleFieldPress('First Name', 'firstName', profileData.firstName)}
+        />
+        <FieldItem 
+          label="Last Name" 
+          value={profileData.lastName} 
+          onPress={() => handleFieldPress('Last Name', 'lastName', profileData.lastName)}
         />
         <FieldItem 
           label="Email" 

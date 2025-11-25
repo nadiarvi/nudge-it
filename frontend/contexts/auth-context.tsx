@@ -1,105 +1,177 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
+import { createContext, FC, useContext, useEffect, useReducer } from 'react';
 
-interface User {
+interface IUserInfo {
+  uid: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
+  password?: string;
+  groups: string[];
+  token?: string;
 }
 
-interface AuthContextType {
-  user: User | null;
+interface IAction {
+  type: string;
+  payload: IUserInfo | null;
+}
+
+interface IState {
+  uid: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  groups: string[];
+  isSignIn: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
-  logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+interface IAuthContext extends IState {
+  signIn: (userInfo: IUserInfo) => void;
+  signOut: () => void;
+}
 
-const USER_STORAGE_KEY = '@nudge_it_user';
+export const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+const initialState: IState = {
+  uid: '',
+  first_name: '',
+  last_name: '',
+  email: '',
+  groups: [],
+  isSignIn: false,
+  isLoading: true,
+};
 
-  // Load user from storage on app start
+const reducer = (prevState: IState, action: IAction): IState => {
+  switch (action.type) {
+    case 'SIGN_IN':
+      return {
+        ...prevState,
+        uid: (action.payload as IUserInfo).uid,
+        first_name: (action.payload as IUserInfo).first_name,
+        last_name: (action.payload as IUserInfo).last_name,
+        email: (action.payload as IUserInfo).email,
+        groups: (action.payload as IUserInfo).groups,
+        isSignIn: true,
+        isLoading: false,
+      };
+    case 'SIGN_OUT':
+      return {
+        uid: '',
+        first_name: '',
+        last_name: '',
+        email: '',
+        groups: [],
+        isSignIn: false,
+        isLoading: false,
+      };
+    case 'RESTORE_AUTH':
+      return {
+        ...prevState,
+        isLoading: false,
+      }
+    default:
+      return prevState;
+  };
+};
+
+export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
   useEffect(() => {
-    loadUser();
+    void checkAuth();
   }, []);
 
-  const loadUser = async () => {
+  const checkAuth = async (): Promise<void> => {
     try {
-      const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        console.log('[Auth Context] Loaded user from storage:', parsedUser.email);
+      const uid = await SecureStore.getItemAsync('uid');
+      const first_name = await SecureStore.getItemAsync('first_name');
+      const last_name = await SecureStore.getItemAsync('last_name');
+      const email = await SecureStore.getItemAsync('email');
+      const groups = await SecureStore.getItemAsync('groups');
+
+      console.log("User: ", uid, first_name);
+
+      if (uid && first_name && last_name && email) {
+        dispatch({
+          type: 'SIGN_IN',
+          payload: {
+            uid,
+            first_name,
+            last_name,
+            email,
+            groups: groups ? JSON.parse(groups) : [],
+          },
+        });
       } else {
-        console.log('[Auth Context] No user found in storage');
+        dispatch({ type: 'RESTORE_AUTH', payload: null });
       }
     } catch (error) {
-      console.error('[Auth Context] Error loading user:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('[Auth Context] Check auth error:', error);
+      await signOut();
+      dispatch({ type: 'RESTORE_AUTH', payload: null });
     }
   };
 
-  const login = async (email: string, password: string) => {
-    try {
-      // TODO: Replace with actual API call
-      console.log('[Auth Context] Login attempt:', email);
-      
-      const userData: User = { email };
-      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-      setUser(userData);
-      
-      console.log('[Auth Context] Login successful:', email);
-    } catch (error) {
-      console.error('[Auth Context] Login error:', error);
-      throw error;
-    }
+  const signIn = async (userInfo: IUserInfo): Promise<void> => {
+    const { uid, first_name, last_name, email } = userInfo;
+
+    await SecureStore.setItemAsync('uid', uid ?? '');
+    await SecureStore.setItemAsync('first_name', first_name ?? '');
+    await SecureStore.setItemAsync('last_name', last_name ?? '');
+    await SecureStore.setItemAsync('email', email ?? '');
+    await SecureStore.setItemAsync('groups', JSON.stringify(userInfo.groups ?? []));
+
+    dispatch({
+      type: 'SIGN_IN',
+      payload: {
+        uid,
+        first_name,
+        last_name,
+        email,
+        groups: userInfo.groups,
+      },
+    });
   };
 
-  const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
-    try {
-      // TODO: Replace with actual API call
-      console.log('[Auth Context] Sign up attempt:', email);
-      
-      const userData: User = { email, firstName, lastName };
-      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-      setUser(userData);
-      
-      console.log('[Auth Context] Sign up successful:', email);
-    } catch (error) {
-      console.error('[Auth Context] Sign up error:', error);
-      throw error;
-    }
-  };
-
-  const logout = async () => {
-    try {
-      console.log('[Auth Context] Logging out user:', user?.email);
-      await AsyncStorage.removeItem(USER_STORAGE_KEY);
-      setUser(null);
-      console.log('[Auth Context] Logout successful');
-    } catch (error) {
-      console.error('[Auth Context] Logout error:', error);
-      throw error;
-    }
+  const signOut = async (): Promise<void> => {
+    dispatch({ type: 'SIGN_OUT', payload: null });
+    
+    await SecureStore.deleteItemAsync('uid');
+    await SecureStore.deleteItemAsync('first_name');
+    await SecureStore.deleteItemAsync('last_name');
+    await SecureStore.deleteItemAsync('email');
+    await SecureStore.deleteItemAsync('groups');
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signUp, logout }}>
+    <AuthContext.Provider
+      value={{
+        isSignIn: state.isSignIn,
+        uid: state.uid,
+        first_name: state.first_name,
+        last_name: state.last_name,
+        email: state.email,
+        isLoading: state.isLoading,
+        groups: state.groups,
+        signIn,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
+
+export const useAuthStore = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) {
+    throw Error("useAuthContext can only be used inside an AuthProvider");
+  };
+
   return context;
 }
+
+export default AuthStore;

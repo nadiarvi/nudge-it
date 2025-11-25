@@ -5,9 +5,13 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { ThemedTouchableView } from '@/components/ui/touchable-themed-view';
 import { Colors, StatusColors } from '@/constants/theme';
+// import { useAuth } from '@/contexts/auth-context';
+import { useAuthStore } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskCardProps } from '@/types/task';
+import { formatDate } from '@/utils/date-formatter';
 import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { FlagIcon } from '../icons/flag-icon';
 import { SearchIcon } from '../icons/search-icon';
@@ -21,35 +25,40 @@ export function TaskCard({
   reviewer = null,
   nudgeCount = 0,
   onStatusChange = () => {},
+  onNudgeSent = () => {},
 }: TaskCardProps) {
   const router = useRouter();
+  const { uid, first_name } = useAuthStore();
   const { showNudgeAlert } = useNudgeAlert();
 
+  const [showNudgeButton, setShowNudgeButton] = useState(false);
+  const formattedDeadline = formatDate(deadline);
+
   const handlePress = () => {
-    // Navigate to task detail page with parameters
     router.push({
       pathname: '/task-detail',
       params: { 
-        id: id || title, // Use id if available, otherwise fallback to title
-        title,
-        deadline,
-        assignedTo,
-        status,
-        reviewer: reviewer || '',
-        nudgeCount,
+        tid: id
       }
     });
   };
 
   const handleNudge = () => {
-    showNudgeAlert(title, assignedTo, nudgeCount);
-  }
+    showNudgeAlert(id, title, assignedTo, nudgeCount, onNudgeSent);
+    // onNudgeSent();
+  };
 
   const MAX_TITLE_LENGTH = 23;
 
   const truncatedTitle = title.length > MAX_TITLE_LENGTH 
                             ? title.substring(0, MAX_TITLE_LENGTH) + "..." 
                             : title;
+
+  useEffect(() => {
+    //console.log(`assignedTo in TaskCard: ${assignedTo._id}, ${assignedTo.first_name}`);
+    const show = uid === assignedTo._id;
+    setShowNudgeButton(!show);
+  }, [uid, assignedTo]);
 
   return (
     <ThemedTouchableView style={styles.taskCard} onPress={handlePress}>
@@ -60,33 +69,41 @@ export function TaskCard({
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <FlagIcon size={18} color={Colors.light.red} strokeWidth={2}/>
               <ThemedText type="Body3" style={{color: Colors.light.red}}>{`${nudgeCount}`}</ThemedText>
-              { nudgeCount >= 3 && (
+              {/* { nudgeCount >= 3 && (
                 <ThemedText type="Body3" style={{color: Colors.light.red}}>| TA</ThemedText>
-              )}
+              )} */}
             </View>
           )}
         </View>
-        <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>{deadline}</ThemedText>
+        <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>{formattedDeadline}</ThemedText>
         <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
           <UserCircleIcon size={12} color={Colors.light.tint} />
-          <ThemedText type="Body3" style={{color: Colors.light.tint}}>{assignedTo}</ThemedText>
-          { status !== "To Do" && (
+          <ThemedText type="Body3" style={{color: Colors.light.tint}}>{assignedTo.first_name}</ThemedText>
+          { status !== "To-Do" && (
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <ThemedText type="Body3" style={{color: Colors.light.blackSecondary}}>
                 |
               </ThemedText>
-              <SearchIcon size={12} color={reviewer === "Not Assigned" ? StatusColors.inReview : Colors.light.blackSecondary} />
-              <ThemedText type="Body3" style={{color: reviewer === "Not Assigned" ? StatusColors.inReview : Colors.light.blackSecondary}}>
-                {reviewer === "Not Assigned" ? "Not Assigned" : `${reviewer}`}
+              <SearchIcon size={12} color={ reviewer ? StatusColors.inReview : Colors.light.blackSecondary} />
+              <ThemedText type="Body3" style={{color: reviewer ? StatusColors.inReview : Colors.light.blackSecondary}}>
+                {/* {reviewer ? `${reviewer[0].first_name}` : "Not Assigned"} */}
+                { reviewer && reviewer.length > 0
+                    ? `${reviewer[0].first_name}` 
+                    : "Not Assigned"
+                }
               </ThemedText>
             </View>
           )}
         </View>
       </ThemedView>
       <ThemedView style={styles.rightSection}>
-        <ThemedTouchableView onPress={handleNudge} style={{ marginLeft: 8 }}>
-          <BellIcon size={24} color={Colors.light.blackSecondary} />
-        </ThemedTouchableView>
+        {showNudgeButton ? (
+          <ThemedTouchableView onPress={handleNudge} style={{ marginLeft: 8, backgroundColor: 'transparent' }}>
+            <BellIcon size={24} color={Colors.light.blackSecondary} />
+          </ThemedTouchableView>
+        ) : (
+          <View style={{ height: 24 }} />
+        )}
         <StatusDropdown 
           value={status}
           onValueChange={onStatusChange}

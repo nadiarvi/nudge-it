@@ -1,24 +1,15 @@
-import React, { useMemo, useState } from 'react';
+import { PlusIcon } from '@/components/icons';
+import { FilterModal, ParallaxScrollView, SortModal, TaskCard, ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui';
+import { MEMBER_LISTS } from '@/constants/dataPlaceholder';
+import { Colors } from '@/constants/theme';
+import { useAuthStore } from '@/contexts/auth-context';
+import { useFocusEffect } from '@react-navigation/native';
+import axios from 'axios';
+import { useRouter } from 'expo-router';
+import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
-import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
-import { TaskCard } from '@/components/ui/task-card';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedView } from '@/components/ui/themed-view';
-import { TaskStatus } from '@/types/task';
-import { useRouter } from 'expo-router';
-
-import { FilterIcon } from '@/components/icons/filter-icon';
-import { SortIcon } from '@/components/icons/sort-icon';
-
-import { PlusIcon } from '@/components/icons/plus-icon';
-import { ThemedTouchableView } from '@/components/ui';
-import { FilterModal } from '@/components/ui/filter-modal';
-import { SortModal } from '@/components/ui/sort-modal';
-import { ALL_TASKS, MEMBER_LISTS } from '@/constants/dataPlaceholder';
-import { Colors } from '@/constants/theme';
-
-const taskLists = ALL_TASKS("Alice");
+// const taskLists = ALL_TASKS("Alice");
 
 const FILTER_OPTIONS = [
   {
@@ -50,8 +41,72 @@ const SORT_OPTIONS = [
   { field: 'Nudge Count', condition: 'desc' },
 ];
 
+interface TaskItem {
+  group_id: string;
+  title: string;
+  deadline: Date;
+  // FIX: Change from string[] to User[]
+  assignee: User[]; 
+  reviewer?: User[]; // NOTE: If reviewer is an ID string, change this to 'User' as well.
+  status: string;
+  comments: [];
+  nudges: [];
+}
+
+interface User {
+  uid: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  groups: string[];
+}
+
 export default function TasksScreen() {
   const router = useRouter();
+  const { uid, first_name, groups } = useAuthStore();
+  const gid = groups[0];
+
+  const [taskList, setTaskList] = useState<TaskItem[]>([]);
+
+  // const fetchTasks = async () => {
+  //   try {
+  //     const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
+  //     setTaskList(res.data.tasks);
+  //   } catch (error) {
+  //     console.error('Error fetching tasks:', error);
+  //     console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
+  //   }
+  // };
+
+  const fetchTasks = useCallback(async () => {
+    try {
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
+      setTaskList(res.data.tasks);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
+    }
+  }, [gid]); // Dependency on gid
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchTasks();
+      return () => {}; 
+    }, [fetchTasks]) // Dependency on fetchTasks ensures it runs when gid changes
+  );
+
+  // useEffect(() => {
+  //   fetchTasks();
+  // }, []);
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     fetchTasks();
+  //     return () => {}; 
+  //   }, [gid])
+  // );
+
+  // State for filters and sorts
   const [filters, setFilters] = useState<{ [key: string]: string | null }>({
     status: null,
     assignedTo: null,
@@ -67,19 +122,19 @@ export default function TasksScreen() {
   const [isSortModalVisible, setIsSortModalVisible] = useState(false);
 
   const filteredAndSortedTasks = useMemo(() => {
-    let tasks = taskLists.filter(task => {
+    let tasks = taskList.filter(task => {
       // Check status filter
       if (filters.status && task.status !== filters.status) {
         return false;
       }
 
       // Check assignedTo filter
-      if (filters.assignedTo && task.user !== filters.assignedTo) {
+      if (filters.assignedTo && !task.assignee.includes(filters.assignedTo)) {
         return false;
       }
 
       // Check reviewer filter
-      if (filters.reviewer && task.reviewer !== filters.reviewer) {
+      if (filters.reviewer && !task.reviewer.includes(filters.reviewer)) {
         return false;
       }
 
@@ -184,7 +239,7 @@ export default function TasksScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="H1" style={{ flex: 1 }}>Tasks</ThemedText>
         <ThemedView style={styles.actionContainer}>
-          <ThemedTouchableView onPress={handleFilter}>
+          {/* <ThemedTouchableView onPress={handleFilter}>
             <FilterIcon 
               size={22} 
               color={hasActiveFilters ? Colors.light.tint : Colors.light.blackSecondary}
@@ -197,7 +252,7 @@ export default function TasksScreen() {
               color={hasActiveSort ? Colors.light.tint : Colors.light.blackSecondary}
               strokeWidth={hasActiveSort ? 2 : 1.5}
             />
-          </ThemedTouchableView>
+          </ThemedTouchableView> */}
           <ThemedTouchableView onPress={handleAddTask}>
             <PlusIcon size={22} color={Colors.light.blackSecondary}/>
           </ThemedTouchableView>
@@ -207,20 +262,18 @@ export default function TasksScreen() {
 
       <ThemedView style={{ gap: 8 }}>
       
-      {filteredAndSortedTasks.map((task, index) => (
+      {taskList.map((task, index) => (
         <TaskCard
-          key={index}
-          title={task.title}
-          deadline={task.deadline}
-          assignedTo={task.user}
-          status={task.status as TaskStatus}
-          reviewer={task.reviewer ?? null}
-          nudgeCount={task.nudgeCount}
-          onStatusChange={(newStatus) => {
-            // Handle status change here
-            console.log(`Task "${task.title}" status changed to: ${newStatus}`);
-          }}
-        />
+            key={task.id}
+            id={task.id}
+            title={task.title}
+            deadline={task.deadline}
+            assignedTo={task.assignee[0]}
+            status={task.status}
+            reviewer={task.reviewer}
+            nudgeCount={task.nudges.length}
+            onNudgeSent={fetchTasks}
+          />
       ))}
       </ThemedView>
 

@@ -1,18 +1,20 @@
-import { EyeIcon } from '@/components/icons/eye-icon';
-import { EyeSlashIcon } from '@/components/icons/eye-slash-icon';
-import { ThemedButton } from '@/components/ui/themed-button';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedTextInput } from '@/components/ui/themed-text-input';
-import { ThemedView } from '@/components/ui/themed-view';
+import { EyeIcon, EyeSlashIcon } from '@/components/icons';
+import { ThemedButton, ThemedText, ThemedTextInput, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuthStore } from '@/contexts/auth-context';
+import axios from "axios";
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
+
+// const dotenv = require('dotenv');
+// dotenv.config();
+
+
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, signUp } = useAuth();
+  const { signIn } = useAuthStore();
   const [isSignUp, setIsSignUp] = useState(false);
   
   // Login fields
@@ -27,23 +29,66 @@ export default function LoginScreen() {
   const [lastName, setLastName] = useState('');
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
+  // const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+  const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
   const handleLogin = async () => {
     try {
-      await login(loginEmail, loginPassword);
-      router.replace('/(tabs)');
-    } catch (error) {
-      console.error('Login failed:', error);
-      // TODO: Show error message to user
+      console.log('sending login request to', `${API_BASE_URL}/api/users/login`);
+      console.log('requestbody: ', {
+        email: loginEmail,
+        password: loginPassword
+      });
+
+      const res = await axios.post(
+        `${API_BASE_URL}/api/users/login`,
+        {
+          email: loginEmail,
+          password: loginPassword,
+        }
+      );
+
+      const data = res.data.existingUser;
+
+      console.log("Login response:", data);
+
+      await signIn({
+        uid: data._id,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        groups: data.groups,
+      });
+
+      // router.replace('/(tabs)');
+    } catch (error: any) {
+      console.error("Login failed:", error.response?.data || error.message);
     }
   };
 
   const handleSignUp = async () => {
     try {
-      await signUp(signUpEmail, signUpPassword, firstName, lastName);
-      router.replace('/(tabs)');
-    } catch (error) {
-      console.error('Sign up failed:', error);
-      // TODO: Show error message to user
+      const res = await axios.post(
+        `${API_BASE_URL}/api/users/signup`,
+        {
+          first_name: firstName,
+          last_name: lastName,
+          email: signUpEmail,
+          password: signUpPassword,
+        }
+      );
+
+      await signIn({
+        uid: res.data.uid,
+        first_name: res.data.first_name,
+        last_name: res.data.last_name,
+        email: res.data.email,
+        groups: res.data.groups,
+      });
+
+      // router.replace('/(tabs)');
+    } catch (error: any) {
+      console.error("Sign Up failed:", error.response?.data || error.message);
     }
   };
 

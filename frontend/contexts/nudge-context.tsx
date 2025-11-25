@@ -1,22 +1,43 @@
 import { NudgeConfirmationModal, NudgeSelectionModal } from '@/components/ui/custom-alert';
+import { User } from '@/types/user';
+import axios from 'axios';
 import React, { createContext, useContext, useState } from 'react';
+import { useAuthStore } from './auth-context';
 
 interface NudgeOptions {
   option2Enabled?: boolean;
   option3Enabled?: boolean;
 }
 
+// interface ModalState {
+//   showSelection: boolean;
+//   showConfirmation: boolean;
+//   taskTitle: string;
+//   selectedNudgeType: string;
+//   targetUser: User;
+//   options: NudgeOptions;
+// }
+
+// nudge context.tsx
 interface ModalState {
   showSelection: boolean;
   showConfirmation: boolean;
   taskTitle: string;
+  tid: string; // Add tid to state
   selectedNudgeType: string;
-  targetUser: string;
+  targetUserId: string; // Change to string ID
+  targetUserName: string; // Add for display
   options: NudgeOptions;
 }
 
 interface NudgeContextType {
-  showNudgeAlert: (taskTitle: string, targetUser: string, nudgeCount: number) => void;
+  showNudgeAlert: (
+    tid: string, 
+    taskTitle: string, 
+    targetUser: User, 
+    nudgeCount: number,
+    onSuccessCallback?: () => void
+  ) => void;
 }
 
 const NudgeContext = createContext<NudgeContextType | undefined>(undefined);
@@ -26,6 +47,8 @@ interface NudgeProviderProps {
 }
 
 export function NudgeProvider({ children }: NudgeProviderProps) {
+  const { uid, groups } = useAuthStore();
+
   const [modalState, setModalState] = useState<ModalState>({
     showSelection: false,
     showConfirmation: false,
@@ -35,8 +58,7 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
     options: {},
   });
 
-  const showNudgeAlert = (taskTitle: string, targetUser: string, nudgeCount: number) => {
-    // Calculate which options should be enabled based on nudge count
+  const showNudgeAlert = (tid: string, taskTitle: string, targetUser: string, nudgeCount: number, onSuccessCallback?: () => void) => {
     const option2Enabled = nudgeCount >= 1;
     const option3Enabled = nudgeCount >= 2;
     
@@ -44,9 +66,11 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
       showSelection: true,
       showConfirmation: false,
       taskTitle,
+      tid,
       selectedNudgeType: '',
       targetUser,
       options: { option2Enabled, option3Enabled },
+      onSuccessCallback,
     });
   };
 
@@ -60,7 +84,34 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
   };
 
   const handleConfirm = () => {
-    console.log(`✅ Nudge sent successfully for task: "${modalState.taskTitle}" with option: "${modalState.selectedNudgeType}"`);
+
+    const nudgeData = {
+      type: modalState.selectedNudgeType,
+      group_id: groups[0],
+      task_id: modalState.tid,
+      sender: uid,
+      receiver: modalState.targetUser._id,
+    }
+
+    const sendNudge = async () => {
+      try {
+        const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/nudges/create`, nudgeData);
+        if (res.status === 201) {
+          console.log('Nudge sent successfully');
+          if (modalState.onSuccessCallback) { // <--- Execute on successful API call
+             modalState.onSuccessCallback();
+          }
+        } else {
+          console.error('Failed to send nudge:', res.statusText);
+        }
+      } catch (error) {
+        console.error('Error sending nudge:', error);
+        console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/nudges/create`);
+        console.log('nudge data: ', nudgeData);
+      }
+    }
+
+    sendNudge();
     handleClose();
   };
 

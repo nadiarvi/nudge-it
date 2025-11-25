@@ -10,17 +10,17 @@ interface StatusDropdownProps {
   options?: TaskStatus[];
 }
 
-const defaultOptions: TaskStatus[] = ['To Do', 'In Review', 'Revise', 'Done'];
+const defaultOptions: TaskStatus[] = ['To-Do', 'In Review', 'Revise', 'Done'];
 
 const statusColorMap = {
-  'To Do': StatusColors.toDo,
+  'To-Do': StatusColors.toDo,
   'In Review': StatusColors.inReview,
   'Revise': StatusColors.revise,
   'Done': StatusColors.done,
 };
 
 const statusLightColorMap = {
-  'To Do': StatusColors.toDoLight,
+  'To-Do': StatusColors.toDoLight,
   'In Review': StatusColors.inReviewLight,
   'Revise': StatusColors.reviseLight,
   'Done': StatusColors.doneLight,

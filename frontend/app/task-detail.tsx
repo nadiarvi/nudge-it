@@ -1,29 +1,21 @@
-import { CalendarIcon } from '@/components/icons/calendar-icon';
-import { SearchIcon } from '@/components/icons/search-icon';
-import { StatusIcon } from '@/components/icons/status-icon';
-import { UserCircleIcon } from '@/components/icons/user-circle-icon';
-import { MemberDropdown } from '@/components/ui/member-dropdown';
-import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
-import { StatusDropdown } from '@/components/ui/status-dropdown';
-import { ThemedButton } from '@/components/ui/themed-button';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedTextInput } from '@/components/ui/themed-text-input';
-import { ThemedView } from '@/components/ui/themed-view';
-import { MEMBER_LISTS, SAMPLE_COMMENTS } from '@/constants/dataPlaceholder';
+import { CalendarIcon, SearchIcon, StatusIcon, UserCircleIcon } from '@/components/icons';
+import { MemberDropdown, ParallaxScrollView, StatusDropdown, ThemedButton, ThemedText, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
+import { useAuthStore } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskStatus } from '@/types/task';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import axios from 'axios';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ReactElement, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ReactElement, useEffect, useState } from 'react';
+import { Alert, Platform, StyleSheet, View } from 'react-native';
 
-const formatTimestamp = (timestamp: string) => {
+const formatTimestamp = (timestamp: Date) => {
     //  return is MM.DD HH:MM
-    const date = new Date(timestamp);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
+    const day = timestamp.getDate().toString().padStart(2, '0');
+    const hours = timestamp.getHours().toString().padStart(2, '0');
+    const minutes = timestamp.getMinutes().toString().padStart(2, '0');
     return `${month}.${day}`;
 };
 
@@ -43,7 +35,7 @@ const taskDetailItem = (icon: ReactElement, name: string, content: string | Reac
     )
 }
 
-const commentItem = (comment: {id: string, user: string, text: string, timestamp: string}) => {
+const commentItem = (comment: {id: string, user: string, text: string, timestamp: Date}) => {
     return (
         <ThemedView key={comment.id} style={styles.commentItem}>
             <ThemedText type='Body2' style={styles.commentUser}>
@@ -59,116 +51,305 @@ const commentItem = (comment: {id: string, user: string, text: string, timestamp
     )
 }
 
-export default function TaskDetailPage() {
-  // Retrieve parameters passed from the calling page
-  const params = useLocalSearchParams();
-  const {
-    id,
-    title,
-    deadline,
-    assignedTo,
-    status,
-    reviewer,
-    nudgeCount
-  } = params;
+interface User {
+    _id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+}
 
-  // Convert status to proper TaskStatus type and manage local state
-  const initialStatus = (status as TaskStatus) || 'To Do';
-  const [currentStatus, setCurrentStatus] = useState<TaskStatus>(initialStatus);
+interface TaskDetail {
+    id: string;
+    assignedTo: [];
+    comments: User[];
+    deadline: Date;
+    group_id: string;
+    nudges: [];
+    reviewer?: User[];
+    status: TaskStatus;
+    title: string;
+}
+
+export default function TaskDetailPage() {
+    const { uid, groups } = useAuthStore();
+    const { tid } = useLocalSearchParams();
+    ////console.log(`TaskDetailPage params - tid: ${tid}, uid: ${uid}, groups: ${groups}`);
+    const gid = groups[0];
+    
+    const [taskDetail, setTaskDetail] = useState<TaskDetail | undefined>(undefined); 
+    const [members, setMembers] = useState<User[]>([]);
+
+    const [currentStatus, setCurrentStatus] = useState<TaskStatus>('To-Do');
+    const [currentAssignedTo, setCurrentAssignedTo] = useState<string>(''); // Will hold the assignee ID
+    const [currentReviewer, setCurrentReviewer] = useState<string>(''); // Will hold the reviewer ID
+    const [currentDeadline, setCurrentDeadline] = useState<Date>(new Date());
+    const [allowNudge, setAllowNudge ] = useState(false);
+
+    const { showNudgeAlert } = useNudgeAlert();
+    const router = useRouter();
+
+
+    const fetchGroupMemberIDs = async () => {
+        try {
+            const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${groups[0]}/members`)
+            ////console.log('Fetched group members:', res.data.members);
+            setMembers(res.data.members);
+        } catch (error) {
+            ////console.log('Error: ', error);
+        }
+    };
+
+    const getTaskDetails = async (taskId: string) => {
+        try {
+            const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${taskId}`);
+            setTaskDetail(res.data);
+        } catch (error) {
+            ////console.log('Error fetching task details:', error);
+            console.error(`failed req: ${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${taskId}`);
+            setTaskDetail(null);
+        }
+    };
+
+    const updateTask = async () => {
+        if (!taskDetail || !gid || !tid) return;
+
+        // Check if the current status is different from the original task detail status
+        if (currentStatus === taskDetail.status) {
+            // No status change, do nothing
+            return;
+        }
+
+        const payload = {
+            status: currentStatus,
+        };
+
+        try {
+            const res = await axios.patch(
+                `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${tid}`,
+                payload
+            );
+            console.log('Task status updated successfully on unmount:', res.data.task.status);
+        } catch (error) {
+            console.error('Error updating task status on unmount:', error);
+            console.log('failed patch req URL:', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${tid}`);
+            console.log('failed patch req payload:', payload);
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            updateTask();
+        };
+    }, [currentStatus, taskDetail, gid, tid]);
+
+    useEffect(() => {
+        fetchGroupMemberIDs();
+        getTaskDetails(tid as string);
+    }, [uid, tid]);
+
+    useEffect(() => {
+        if (taskDetail) {
+            setCurrentStatus(taskDetail.status);
+
+            const assignedId = taskDetail.assignee[0];
+            //////console.log('Setting currentAssignedTo to:', assignedId);
+            setCurrentAssignedTo(assignedId);
+            
+            const reviewerId = taskDetail.reviewer[0];
+            //////console.log('Setting currentReviewer to:', reviewerId);
+            setCurrentReviewer(reviewerId);
+
+            if (taskDetail.deadline) {
+                setCurrentDeadline(new Date(taskDetail.deadline));
+            }
+
+            const show = uid === assignedId;
+            setAllowNudge(!show);
+        }
+    }, [taskDetail, uid]);
+
+//   const initialStatus = taskDetail.status;
+//   const [currentStatus, setCurrentStatus] = useState<TaskStatus>(initialStatus);
   
-  // State management for assigned member and reviewer
-  const [currentAssignedTo, setCurrentAssignedTo] = useState<string>(assignedTo as string || '');
-  const [currentReviewer, setCurrentReviewer] = useState<string>((reviewer && reviewer !== '') ? reviewer as string : '');
-  const [comments, setComments] = useState(SAMPLE_COMMENTS);
+//   // State management for assigned member and reviewer
+//   const [currentAssignedTo, setCurrentAssignedTo] = useState(taskDetail.assignedTo);
+//   const [currentReviewer, setCurrentReviewer] = useState(taskDetail.reviewer ?? taskDetail.reviewer);
+//   const [comments, setComments] = useState([]);
+
+
+//   const [ allowNudge, setAllowNudge ] = useState(false);
+
+//   const [modalCalendar, setModalCalendar] = useState(false);
+//   const [currentDeadline, setCurrentDeadline] = useState(new Date(taskDetail.deadline));
+
+//   useEffect(() => {
+//     const show = uid === taskDetail.assignedTo;
+//     setAllowNudge(!show);
+//   }, [uid, taskDetail]);
+  
   
   // Get nudge alert hook and router
-  const { showNudgeAlert } = useNudgeAlert();
-  const router = useRouter();
+//   const { showNudgeAlert } = useNudgeAlert();
+//   const router = useRouter();
 
-  const statusComponent = (taskStatus: TaskStatus) => {
+    // --- Render Guard (Handle loading and error states) ---
+    if (taskDetail === undefined) {
+        return (
+            <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ThemedText type='H2'>Loading Task Details...</ThemedText>
+            </ThemedView>
+        );
+    }
+    
+    if (taskDetail === null) {
+         return (
+            <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ThemedText type='H2' style={{ color: Colors.light.red }}>Task Not Found or Failed to Load</ThemedText>
+            </ThemedView>
+        );
+    }
+    // --- End Render Guard ---
+
+    const statusComponent = (taskStatus: TaskStatus) => {
+        return (
+            <StatusDropdown 
+            value={taskStatus} 
+            onValueChange={(newStatus) => {
+                //////console.log('Status changed to:', newStatus);
+                setCurrentStatus(newStatus);
+                // Handle status change here - you can add API calls or other logic
+            }} />
+        )
+    }
+
+    const memberDropdownComponent = (memberList: string[], currentMember: string, onMemberChange: (member: string) => void, placeholder: string) => {
+        //////console.log('Rendering MemberDropdown with currentMember:', currentMember);
+        return (
+            <MemberDropdown 
+            value={currentMember} 
+            members={memberList}
+            onValueChange={(newMember) => {
+                //////console.log('Member changed to:', newMember);
+                onMemberChange(newMember);
+                // Handle member change here - you can add API calls or other logic
+            }} 
+            placeholder={placeholder}
+            />
+        )
+    }
+
+    const handleNudgePress = () => {
+        if (!allowNudge) {
+        Alert.alert(
+            'Nudge Disabled',
+            'You cannot nudge a task that you are assigned to',
+            [{ text: 'OK' }]
+        );
+        return;
+        }
+        const assignee = members.find(m => m._id === currentAssignedTo);
+        const assigneeName = assignee ? `${assignee.first_name} ${assignee.last_name}` : 'The Assignee';
+        const taskNudgeCount = parseInt(taskDetail.nudges.length as string) || 0;
+
+        //////console.log('Showing nudge alert for task:', taskDetail.title, 'with nudge count:', taskNudgeCount);
+        //////console.log(currentAssignedTo);
+        // showNudgeAlert(taskDetail, taskDetail.title as string, currentAssignedTo, taskNudgeCount);
+
+        showNudgeAlert(
+            tid as string, // Pass tid
+            taskDetail.title as string,
+            currentAssignedTo, // Pass ID
+            assigneeName, // Pass Name
+            taskNudgeCount
+        );
+    }
+
+    const handleChatPress = () => {
+        if (!allowNudge) {
+        Alert.alert(
+            'Chat Disabled',
+            'You cannot chat about a task that you are assigned to',
+            [{ text: 'OK' }]
+        );
+        return;
+        }
+
+        router.replace({
+            pathname: '/chat-member',
+            params: {
+                // 🔑 FIX: Pass only the string ID and use a consistent name (targetUserId)
+                targetUserId: currentAssignedTo._id, 
+            }
+        });
+    }
+
+    const DatePicker = () => {
+        return (
+            <DateTimePicker
+                mode="date"
+                display="compact"
+                value={currentDeadline}
+                onChange={(event, selectedDate) => {
+                    if (selectedDate) {
+                        setCurrentDeadline(selectedDate);
+                        ////console.log('Deadline changed to:', selectedDate);
+                    }
+                }}
+                style={{
+                    marginLeft: Platform.OS === "ios" ? -16 : 0,
+                }}
+            />
+        )
+    }
+    
     return (
-        <StatusDropdown 
-          value={taskStatus} 
-          onValueChange={(newStatus) => {
-            console.log('Status changed to:', newStatus);
-            setCurrentStatus(newStatus);
-            // Handle status change here - you can add API calls or other logic
-        }} />
-    )
-  }
-
-  const memberDropdownComponent = (memberList: string[], currentMember: string, onMemberChange: (member: string) => void, placeholder: string) => {
-    return (
-        <MemberDropdown 
-          value={currentMember} 
-          members={memberList}
-          onValueChange={(newMember) => {
-            console.log('Member changed to:', newMember);
-            onMemberChange(newMember);
-            // Handle member change here - you can add API calls or other logic
-        }} 
-        placeholder={placeholder}
-        />
-    )
-  }
-
-  const handleNudgePress = () => {
-    const taskNudgeCount = parseInt(nudgeCount as string) || 0;
-    console.log('Nudge button pressed - Title:', title, 'Assigned To:', currentAssignedTo, 'Count:', taskNudgeCount);
-    showNudgeAlert(title as string, currentAssignedTo, taskNudgeCount);
-  }
-
-  const handleChatPress = () => {
-    router.replace('/chat');
-  }
-  
-  return (
-    <ParallaxScrollView paddingTop={0}>
-        <ThemedView style={styles.taskDetails}>
-            <ThemedText type='H1'>{title as string || 'Task Details'}</ThemedText>
-            {taskDetailItem(<CalendarIcon size={20}/>, 'Deadline', deadline as string || 'No deadline set')} 
-            {taskDetailItem(<UserCircleIcon size={20}/>, 'Assigned To', memberDropdownComponent(MEMBER_LISTS, currentAssignedTo, setCurrentAssignedTo, 'Select Member'))}
-            {taskDetailItem(<StatusIcon size={20}/>, 'Status', statusComponent(currentStatus))}
-            {taskDetailItem(<SearchIcon size={20}/>, 'Reviewer', memberDropdownComponent(MEMBER_LISTS, currentReviewer, setCurrentReviewer, 'Select Reviewer'))}
-        </ThemedView>
-
-        <ThemedView style={styles.buttonSection}>
-            <ThemedButton variant='hover' onPress={handleNudgePress}>
-                Nudge
-            </ThemedButton>
-            <ThemedButton variant='hover' onPress={handleChatPress}>
-                Chat
-            </ThemedButton>
-        </ThemedView>
-
-        <ThemedView style={styles.commentSection}>
-            <ThemedText type='Body2'>Comments</ThemedText>
-
-            <View style={styles.newCommentSection}>
-                <UserCircleIcon variant='solid' size={16} color={Colors.light.tint}/>
-                <ThemedTextInput 
-                    style={styles.commentInput}
-                    placeholder="Add a comment..."
-                    multiline={true}
-                    type="Body2"
-                />
-            </View>
+        <ParallaxScrollView paddingTop={0}>
+            <ThemedView style={styles.taskDetails}>
+                <ThemedText type='H1'>{taskDetail.title as string || 'Task Details'}</ThemedText>
+                {taskDetailItem(<CalendarIcon size={20}/>, 'Deadline', <DatePicker />)}
+                {taskDetailItem(<UserCircleIcon size={20}/>, 'Assigned To', memberDropdownComponent(members, currentAssignedTo, setCurrentAssignedTo, 'Select Member'))}
+                {taskDetailItem(<StatusIcon size={20}/>, 'Status', statusComponent(currentStatus))}
+                {taskDetailItem(<SearchIcon size={20}/>, 'Reviewer', memberDropdownComponent(members, currentReviewer, setCurrentReviewer, 'Select Reviewer'))}
+            </ThemedView>
 
             <ThemedView style={styles.separator} />
 
-            {/* Existing comments section */}
-            <ThemedView>
-                {comments && comments.length > 0 ? (
-                    comments.map((comment) => commentItem(comment))
-                ) : (
-                    <ThemedText type='Body2' style={{color: Colors.light.blackSecondary}}>
-                        No comments yet.
-                    </ThemedText>
-                )}
+            <ThemedView style={styles.buttonSection}>
+                <ThemedButton variant='hover' onPress={handleNudgePress}>
+                    Nudge
+                </ThemedButton>
+                <ThemedButton variant='hover' onPress={handleChatPress}>
+                    Chat
+                </ThemedButton>
             </ThemedView>
-        </ThemedView>
-    </ParallaxScrollView>
-  );
+
+            {/* <ThemedView style={styles.commentSection}>
+                <ThemedText type='Body2'>Comments</ThemedText>
+
+                <View style={styles.newCommentSection}>
+                    <UserCircleIcon variant='solid' size={16} color={Colors.light.tint}/>
+                    <ThemedTextInput 
+                        style={styles.commentInput}
+                        placeholder="Add a comment..."
+                        multiline={true}
+                        type="Body2"
+                    />
+                </View>
+
+                <ThemedView style={styles.separator} />
+
+                <ThemedView>
+                    {comments && comments.length > 0 ? (
+                        comments.map((comment) => commentItem(comment))
+                    ) : (
+                        <ThemedText type='Body2' style={{color: Colors.light.blackSecondary}}>
+                            No comments yet.
+                        </ThemedText>
+                    )}
+                </ThemedView>
+            </ThemedView> */}
+        </ParallaxScrollView>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -178,7 +359,7 @@ const styles = StyleSheet.create({
     taskDetailItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 32,
+        gap: 36,
         marginTop: 14,
     },
     buttonSection: {
@@ -218,5 +399,9 @@ const styles = StyleSheet.create({
     commentText: {
         flex: 1,
         color: Colors.light.text,
+    },
+    datePickerContainer: {
+        // marginHorizontal: -22,
+        backgroundColor: Colors.light.background,
     }
 });
