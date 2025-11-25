@@ -225,6 +225,11 @@ export default function ChatDetailScreen() {
       return;
     }
 
+    const receiverId = targetUserId as string;
+    console.log(`target usr: ${receiverId}`);
+
+    console.log("Target user ID:", targetUserId);
+
     const otherPerson = people.find(person => person._id !== uid);
 
     let otherUserId: string | undefined = otherPerson;
@@ -247,7 +252,7 @@ export default function ChatDetailScreen() {
       params: { 
         cid,
         people: JSON.stringify(people),
-        otherUserId: otherUserId, // The ID of the person I'm chatting with
+        otherUserId: otherUserId, //SHOULD BE STRING
       }
     });
   }

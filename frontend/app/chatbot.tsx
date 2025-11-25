@@ -82,20 +82,53 @@ const PartnerChatBubble = ({ content, isNugget = false }: ChatBubbleProps) => (
 export default function ChatbotScreen() {
   const { uid, groups } = useAuthStore();
   const gid = groups[0];
-  const { cid, otherUserId } = useLocalSearchParams();
+  const { cid, otherUserId, people } = useLocalSearchParams();
   const router = useRouter();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  console.log('chatbot screen - checking people');
+  console.log(people);
+
+  const getTargetUserId = (peopleList) => {
+    let list = peopleList;
+    
+    if (typeof peopleList === 'string') {
+          try {
+              list = JSON.parse(peopleList);
+          } catch (e) {
+              console.error("Failed to parse peopleList string:", e);
+              return null;
+          }
+      }
+      
+      if (!Array.isArray(list) || list.length === 0) {
+          return null;
+      }
+
+      const idList = list.map(person => person._id);
+      console.log(`ID List: ${idList}`);
+
+      for (const id of idList) {
+        if (id !== uid) { 
+          return id;
+        }
+      }
+      return null;
+  };
+
+
   const getChatHistory = async () => {
     try {
       const resBody = {
         type: 'nugget',
         groupId: gid,
-        otherUserId
+        otherUserId: getTargetUserId(people),
       }
+
+      console.log('Fetching chat history with body:', resBody);
       const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${uid}`, resBody);
       if (res.data?.existingChat?.messages) {
         setMessages(res.data.existingChat.messages); 
@@ -129,6 +162,8 @@ export default function ChatbotScreen() {
     
     const getAIResponse = async () => {
       try {
+        // DEBUG
+        console.log(`Sending to AI: cid=${cid}, uid=${uid}, content=${trimmed}`);
         const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}/${uid}/nugget`, {
           content: trimmed
         });
