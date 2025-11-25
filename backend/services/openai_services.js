@@ -47,10 +47,22 @@ const getAdvice = async (groupId, ownerId, aboutId, userMessage) => {
         content: msg.content
     }));
 
-    const contextText = userChatHistory[0].messages
-        .reverse()
-        .map(msg => `${msg.sender === ownerId ? "You" : "Them"}: ${msg.content}`)
-        .join("\n");
+    const chatDocument = userChatHistory.length > 0 ? userChatHistory[0] : null;
+    let contextText;
+    
+    if (!chatDocument) {
+        // Handle case where the chat between the users doesn't exist
+        contextText = "No previous conversation found.";
+    } else {
+        const messagesArray = chatDocument.messages.map(m => m.toObject()); 
+        
+        // Sort and limit the messages array in memory (most recent 15)
+        messagesArray.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+        contextText = messagesArray
+            .map(msg => `${msg.sender.toString() === ownerId.toString() ? "You" : "Them"}: ${msg.content}`)
+            .join("\n");
+    }
 
     const system_prompt = `
         You are a Nugget, a friendly conflict-resolution coach for students who are working on a team project.
@@ -126,10 +138,15 @@ const reviseMessage = async (chatId, senderId, userMessage) => {
                 }
         `;
 
-        const contextText = userChatHistory.messages
-            .reverse()
-            .map(msg => `${msg.sender === senderId ? "You" : "Them"}: ${msg.content}`)
-            .join("\n");
+        let contextText;
+        if (!userChatHistory) {
+            contextText = "No previous chat history";
+        } else {
+            contextText = userChatHistory.messages
+                .reverse()
+                .map(msg => `${msg.sender === senderId ? "You" : "Them"}: ${msg.content}`)
+                .join("\n");
+        }
 
         const messages = [
             { role: "system", content: system_prompt },
