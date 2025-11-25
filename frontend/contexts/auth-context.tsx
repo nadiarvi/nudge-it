@@ -91,7 +91,7 @@ export const AuthStore: FC<{ children: React.ReactNode }> = ({ children }) => {
       const email = await SecureStore.getItemAsync('email');
       const groups = await SecureStore.getItemAsync('groups');
 
-      console.log("User: ", uid, first_name);
+      // console.log("User: ", uid, first_name);
 
       if (uid && first_name && last_name && email) {
         dispatch({

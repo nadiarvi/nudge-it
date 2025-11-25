@@ -5,52 +5,33 @@ import { useAuthStore } from '@/contexts/auth-context';
 import axios from "axios";
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-
-
-// const dotenv = require('dotenv');
-// dotenv.config();
-
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { signIn } = useAuthStore();
   const [isSignUp, setIsSignUp] = useState(false);
   
-  // Login fields
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   
-  // Sign up fields
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
-  // const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:8000';
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
   const handleLogin = async () => {
     try {
-      console.log('sending login request to', `${API_BASE_URL}/api/users/login`);
-      console.log('requestbody: ', {
+      const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/users/login`, {
         email: loginEmail,
-        password: loginPassword
+        password: loginPassword,
       });
 
-      const res = await axios.post(
-        `${API_BASE_URL}/api/users/login`,
-        {
-          email: loginEmail,
-          password: loginPassword,
-        }
-      );
-
       const data = res.data.existingUser;
-
-      console.log("Login response:", data);
 
       await signIn({
         uid: data._id,
@@ -60,33 +41,39 @@ export default function LoginScreen() {
         groups: data.groups,
       });
 
-      // router.replace('/(tabs)');
     } catch (error: any) {
       console.error("Login failed:", error.response?.data || error.message);
     }
   };
 
   const handleSignUp = async () => {
+    if (!firstName || !lastName || !signUpEmail || !signUpPassword) {
+      Alert.alert("Missing information", "Please fill out all fields to sign up.");
+      return;
+    }
+
+    if (signUpPassword.length < 8) {
+      Alert.alert("Weak Password", "Password must be at least 8 characters long.");
+      return;
+    }
+
     try {
-      const res = await axios.post(
-        `${API_BASE_URL}/api/users/signup`,
-        {
-          first_name: firstName,
-          last_name: lastName,
-          email: signUpEmail,
-          password: signUpPassword,
-        }
-      );
-
-      await signIn({
-        uid: res.data.uid,
-        first_name: res.data.first_name,
-        last_name: res.data.last_name,
-        email: res.data.email,
-        groups: res.data.groups,
+      const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/users/signup`, {
+        first_name: firstName,
+        last_name: lastName,
+        email: signUpEmail,
+        password: signUpPassword,
       });
-
-      // router.replace('/(tabs)');
+      const data = res.data.user;
+      console.log("Sign up BE success");
+      console.log(data);
+      await signIn({
+        uid: data._id,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        groups: data.groups,
+      });
     } catch (error: any) {
       console.error("Sign Up failed:", error.response?.data || error.message);
     }
@@ -112,7 +99,6 @@ export default function LoginScreen() {
           </ThemedView>
 
           {!isSignUp ? (
-            // Login Form
             <ThemedView style={styles.form}>
               <ThemedView style={styles.inputContainer}>
                 <ThemedText type="Body2" style={styles.label}>
@@ -294,8 +280,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: Colors.light.card,
     paddingHorizontal: 16,
-    // paddingVertical: 12,
-    // fontSize: 16,
   },
   passwordContainer: {
     position: 'relative',
