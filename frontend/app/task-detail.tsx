@@ -226,7 +226,8 @@ export default function TaskDetailPage() {
         );
         return;
         }
-        router.replace('/chat');
+        // router.replace('/chat');
+        router.replace(`/chat-member?user=${uid}&assignee=${currentAssignedTo}`);
     }
 
     const DatePicker = () => {
