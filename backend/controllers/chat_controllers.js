@@ -187,7 +187,7 @@ const confirmUserMessage = async (req, res, next) => {
     try {
         let chat = await Chat.findById(chatId).populate("people").populate("messages");
         if (!chat) return next(new HttpError("Chat not found", 404));
-        const otherUserId = chat.people.find(p => p.toString() !== currentUserId.toString());
+        const otherUserId = chat.people.find(p => p.id.toString() !== currentUserId.toString());
         chat.messages.push({
             senderType: "user",
             sender: currentUserId,
