@@ -246,12 +246,20 @@ export default function TaskDetailPage() {
         // console.log(`passing uid: ${uid} and assignee: ${currentAssignedTo._id} to chat-member page`);
         // router.replace(`/chat-member?user=${uid}&assignee=${currentAssignedTo._id}`);
         
+        // router.replace({
+        //     pathname: '/chat-member',
+        //     params: {
+        //         assignedTo: currentAssignedTo,
+        //     }
+        // })
+
         router.replace({
             pathname: '/chat-member',
             params: {
-                assignedTo: currentAssignedTo,
+                // 🔑 FIX: Pass only the string ID and use a consistent name (targetUserId)
+                targetUserId: currentAssignedTo._id, 
             }
-        })
+        });
     }
 
     const DatePicker = () => {

@@ -2,6 +2,7 @@ import { ThemedButton, ThemedText, ThemedTouchableView, ThemedView } from '@/com
 import { ThemedTextInput } from '@/components/ui/themed-text-input';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
+import { User } from '@/types/user';
 import axios from 'axios';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import moment from 'moment';
@@ -88,38 +89,27 @@ const PartnerChatBubble = ({ content, isNugget = false }: ChatBubbleProps) => (
 export default function ChatDetailScreen() {
   const { uid, groups } = useAuthStore();
   const gid = groups[0];
-  const { cid, name, assignedTo } = useLocalSearchParams();
   const router = useRouter();
+  const { cid, name, targetUserId } = useLocalSearchParams();
 
-  // const params = useLocalSearchParams();
-  // const initialCid = params.cid as string | undefined;
-  // const user1 = params.user as string | undefined;
-  // const user2 = params.assignee as string | undefined;
-  // const chatName = params.name as string | undefined;
-
-  const [chatId, setChatId] = useState<string | undefined>(cid);
+  const [chatId, setChatId] = useState<string | undefined>(cid as string);
   const [messages, setMessages] = useState<Message[]>([]); 
   const [currentMsg, setCurrentMsg] = useState<string>('');
+
+  const [people, setPeople] = useState<User[]>([]);
   
   const [showRevisionModal, setShowRevisionModal] = useState(false);
   const [revisionData, setRevisionData] = useState<RevisionData | null>(null);
 
   const createOrGetChat = async (receiverID: string) => {
-    // const otherUserId = userB;
-    // const groupId = groups[0];
-
-    // console.log(otherUserId);
-    // console.log(`uid: ${uid}, userA: ${userA}, userB: ${userB}, groupId: ${groupId}`);
-
     const payload = {
       otherUserId: receiverID,
       groupId: gid,
       type: "user"
-    }
+    };
 
     try {
       const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${uid}`, payload);
-
       return res.data;
     } catch (error) {
       console.error('Error creating or getting chat:', error);
@@ -136,7 +126,7 @@ export default function ChatDetailScreen() {
       try {
         const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${currentChatId}`);
         if (res.data?.existingChat?.messages) {
-          //setPeople(res.data.existingChat.people);
+          setPeople(res.data.existingChat.people);
           setMessages(res.data.existingChat.messages.reverse()); 
         }
       } catch (error) {
@@ -145,14 +135,20 @@ export default function ChatDetailScreen() {
       return;
     }
     
-    if (assignedTo && uid) {
-      //console.log('CID missing. Attempting to create or get chat...');
-      console.assert(uid !== assignedTo._id, "user1 and user2 should be different");
-      const chatData = await createOrGetChat(assignedTo._id); 
+    if (targetUserId) {
+      const receiverId = targetUserId as string;
+
+      if (receiverId === uid) {
+        Alert.alert("Error", "You cannot start a chat with yourself.");
+        router.back();
+        return;
+      }
+      
+      const chatData = await createOrGetChat(receiverId);
 
       if (chatData && chatData.id) {
         setChatId(chatData.id);
-        //setPeople(chatData.people);
+        setPeople(chatData.people);
         
         if (chatData.messages) {
              setMessages(chatData.messages.reverse()); 
@@ -160,7 +156,7 @@ export default function ChatDetailScreen() {
       }
       return;
     }
-  }, [cid, assignedTo, uid]); 
+  }, [cid, targetUserId, uid]); 
 
   useEffect(() => {
     fetchChatData();
@@ -168,7 +164,12 @@ export default function ChatDetailScreen() {
 
   const handleSend = async () => {
     const trimmed = currentMsg.trim();
-    if (!trimmed || !uid || !cid) return;
+    if (!trimmed || !uid || !chatId) {
+      if (!chatId) {
+        Alert.alert("Error", "Chat is not initialized. Try again.");
+      }
+      return;
+    }
 
     setCurrentMsg('');
 
@@ -180,7 +181,6 @@ export default function ChatDetailScreen() {
       });
 
       const data = res.data;
-      //console.log(data);
 
       if (data.needsRevision === true) {
         setRevisionData({
