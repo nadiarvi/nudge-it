@@ -1,24 +1,11 @@
-import React, { ReactElement, useRef, useState } from 'react';
-import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
-
-import ParallaxScrollView from '@/components/ui/parallax-scroll-view';
-import { ThemedText } from '@/components/ui/themed-text';
-import { ThemedView } from '@/components/ui/themed-view';
-
-import { ArrowIcon } from '@/components/icons/arrow-icon';
-import { ClockIcon } from '@/components/icons/clock-icon';
-import { DropdownIcon } from '@/components/icons/dropdown-icon';
-import { InboxIcon } from '@/components/icons/inbox-icon';
-import { SendIcon } from '@/components/icons/send-icon';
-import { TodoIcon } from '@/components/icons/todo-icon';
-
-import { ThemedTouchableView } from '@/components/ui';
+import { CheckIcon, ClockIcon, InboxIcon, SendIcon, TodoIcon } from '@/components/icons';
+import { ParallaxScrollView, TaskCard, ThemedText, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
-
-import { CheckIcon } from '@/components/icons/check-icon';
-import { TaskCard } from '@/components/ui';
-
-import { MY_TASKS } from '@/constants/dataPlaceholder';
+import { useAuthStore } from '@/contexts/auth-context';
+import { useFocusEffect } from '@react-navigation/native';
+import axios from 'axios';
+import React, { ReactElement, useCallback, useRef, useState } from 'react';
+import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 const nudgeCountComponent = (icon: ReactElement, title: string, count: number) => (
   <ThemedView style={styles.nudgeComponent}>
@@ -48,9 +35,9 @@ const renderTaskSection = (category: string, tasks: any[]) => (
     <View style={styles.todoHeader}>
       {getCategoryIcon(category)}
       <ThemedText style={{ flex: 1, color: Colors.light.blackSecondary }} type='H2'>{category} ({tasks.length})</ThemedText>
-      <ThemedTouchableView>
+      {/* <ThemedTouchableView>
         <ArrowIcon size={20} color={Colors.light.blackSecondary} />
-      </ThemedTouchableView>
+      </ThemedTouchableView> */}
     </View>
     {tasks.length > 0 ? (
       tasks.map((task) => (
@@ -59,10 +46,10 @@ const renderTaskSection = (category: string, tasks: any[]) => (
           id={task.id}
           title={task.title}
           deadline={task.deadline}
-          assignedTo={task.assignedTo}
+          assignedTo={task.assignee}
           status={task.status}
           reviewer={task.reviewer}
-          nudgeCount={task.nudgeCount}
+          nudgeCount={task.nudges}
         />
       ))
     ) : (
@@ -76,9 +63,9 @@ const renderTaskSection = (category: string, tasks: any[]) => (
 )
 
 const projectDropdownComponent = (projectName: string, onPress: () => void, dropdownRef: React.RefObject<View | null>) => (
-  <TouchableOpacity ref={dropdownRef} style={styles.projectDropdown} onPress={onPress}>
+  <TouchableOpacity ref={dropdownRef} style={styles.projectDropdown} onPress={onPress} disabled={true}>
     <ThemedText type='Body2' style={{color: Colors.light.tint}}>{projectName}</ThemedText>
-    <DropdownIcon size={12} strokeWidth={3} color={Colors.light.tint} />
+    {/* <DropdownIcon size={12} strokeWidth={3} color={Colors.light.tint} /> */}
   </TouchableOpacity>
 )
 
@@ -103,12 +90,9 @@ const projectSelectionModal = (isVisible: boolean, onClose: () => void, onSelect
             dropdownLayout ? {
               position: 'absolute',
               top: dropdownLayout.y + dropdownLayout.height + 4,
-              // left: dropdownLayout.x, // Align left edge with dropdown left edge
               right: 24,
-              // minWidth: Math.max(dropdownLayout.width, 200),
               maxWidth: 320,
             } : {
-              // Fallback: center the modal if no layout is available
               position: 'absolute',
               top: '40%',
               left: '50%',
@@ -146,10 +130,100 @@ const projectSelectionModal = (isVisible: boolean, onClose: () => void, onSelect
   );
 }
 
+interface User {
+  uid: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  groups: string[];
+  
+}
+interface TaskSection {
+  category: string;
+  tasks: {
+    id: string;
+    title: string;
+    deadline: Date;
+    assignee: [User];
+    reviewer?: [User];
+    nudges: [];
+  }
+}
 
 export default function HomeScreen() {
-  const CURRENT_USER = 'Alice';
-  const [selectedProject, setSelectedProject] = useState('CS473 Social Computing');
+  const { uid, first_name, groups, isLoading } = useAuthStore();
+  //console.log(`homescreen ${uid} ${first_name}`);
+  //console.log('uid:', uid);
+  //console.log('groups:', groups);
+  
+
+  const currentUser = first_name;
+  const gid = groups[0];
+  type TaskSection = {
+    category: string;
+    tasks: any[];
+  };
+  const [taskList, setTaskList] = useState<TaskSection[]>([]);
+  const [prjName, setPrjName] = useState('XXX');
+  const [nudgeSent, setNudgeSent] = useState(99);
+  const [nudgeReceived, setNudgeReceived] = useState(99);
+
+  const retrieveTasks = async () => {
+    try {
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/user/${uid}`);
+      setTaskList(res.data.result);
+    } catch (error) {
+      console.error('Error retrieving tasks:', error);
+    }
+  }
+
+  const fetchNudgeSent = async () => {
+    try {
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/nudges/${gid}/${uid}/sent`);
+      setNudgeSent(res.data.totalNudge);
+    } catch (error) {
+      console.error('Error fetching nudge sent:', error);
+    }
+  };
+
+  const fetchNudgeReceived = async () => {
+    try {
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/nudges/${gid}/${uid}/received`);
+      setNudgeReceived(res.data.totalNudge);
+    } catch (error) {
+      console.error('Error fetching nudge received:', error);
+    }
+  }
+
+  const fetchProjectName = async () => {
+    try {
+      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${gid}`);
+      //console.log('Fetched project name:', res.data.name);
+      setPrjName(res.data.name);
+    } catch (error) {
+      console.error('Error fetching project name:', error);
+    }
+  };
+
+  // useEffect(() => {
+  //   retrieveTasks();
+  //   fetchNudgeSent();
+  //   fetchNudgeReceived();
+  //   fetchProjectName();
+  // }, [uid]);
+
+  useFocusEffect(
+    useCallback(() => {
+      retrieveTasks();
+      fetchNudgeSent();
+      fetchNudgeReceived();
+      fetchProjectName();
+      return () => {
+      };
+    }, [uid]) 
+  );
+  
+  const [selectedProject, setSelectedProject] = useState(prjName);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [dropdownLayout, setDropdownLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const dropdownRef = useRef<View>(null);
@@ -173,15 +247,15 @@ export default function HomeScreen() {
     <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="H1">My Tasks</ThemedText>
-        {projectDropdownComponent(selectedProject, handleSelectProject, dropdownRef)}
+        {projectDropdownComponent(prjName, handleSelectProject, dropdownRef)}
       </ThemedView>
 
       <ThemedView style={styles.nudgeInfoContainer}>
-        {nudgeCountComponent(<SendIcon size={20} color={Colors.light.blackSecondary} />, 'Nudge Sent', 3)}
-        {nudgeCountComponent(<InboxIcon size={20} color={Colors.light.blackSecondary} />, 'Nudge Received', 5)}
+        {nudgeCountComponent(<SendIcon size={20} color={Colors.light.blackSecondary} />, 'Nudge Sent', nudgeSent)}
+        {nudgeCountComponent(<InboxIcon size={20} color={Colors.light.blackSecondary} />, 'Nudge Received', nudgeReceived)}
       </ThemedView>
 
-      { MY_TASKS(CURRENT_USER).map((section) => (
+      { taskList.map((section) => (
         renderTaskSection(section.category, section.tasks)
       )) }
 

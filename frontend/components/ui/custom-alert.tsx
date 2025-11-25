@@ -65,7 +65,7 @@ export function NudgeSelectionModal({
       <View style={styles.buttonContainer}>
         <Pressable 
           style={styles.nudgeOption} 
-          onPress={() => onSelectNudge('Push Notification')}
+          onPress={() => onSelectNudge('reminder')}
         >
           <View style={styles.optionContent}>
             <BellIcon size={24} color={Colors.light.tint} />
@@ -81,7 +81,7 @@ export function NudgeSelectionModal({
         {option2Enabled && (
           <Pressable 
             style={styles.nudgeOption} 
-            onPress={() => onSelectNudge('Simulated Phone Call')}
+            onPress={() => onSelectNudge('phone_call')}
           >
             <View style={styles.optionContent}>
               <CallIcon size={24} color={Colors.light.tint} />
@@ -98,7 +98,7 @@ export function NudgeSelectionModal({
         {option3Enabled && (
           <Pressable 
             style={styles.nudgeOption} 
-            onPress={() => onSelectNudge('Report to TA')}
+            onPress={() => onSelectNudge('email_ta')}
           >
             <View style={styles.optionContent}>
               <FlagIcon size={24} color={Colors.light.red} />
@@ -145,25 +145,24 @@ export function NudgeConfirmationModal({
     const ICON_SIZE = 24;
     const STROKE_WIDTH = 2;
     switch (nudgeType) {
-      case 'Push Notification':
+      case 'reminder':
         return <BellIcon size={ICON_SIZE} strokeWidth={STROKE_WIDTH} color={Colors.light.tint} />;
-      case 'Simulated Phone Call':
+      case 'phone_call':
         return <CallIcon size={ICON_SIZE} strokeWidth={STROKE_WIDTH} color={Colors.light.tint} />;
-      case 'Report to TA':
+      case 'email_ta':
         return <FlagIcon size={ICON_SIZE} strokeWidth={STROKE_WIDTH} color={Colors.light.red} />;
       default:
-        console.log('DEBUG: Falling back to default BellIcon');
         return <BellIcon size={ICON_SIZE} color={Colors.light.tint} />;
     }
   };
 
   const getDescription = () => {
     switch (nudgeType) {
-      case 'Push Notification':
+      case 'reminder':
         return 'A gentle reminder will be sent through a push notification.';
-      case 'Simulated Phone Call':
+      case 'phone_call':
         return 'A simulated phone call will be sent as a stronger reminder to complete their task.';
-      case 'Report to TA':
+      case 'email_ta':
         return 'This will notify the TA that this person has not completed their task after multiple reminders.';
       default:
         return '';
@@ -173,11 +172,11 @@ export function NudgeConfirmationModal({
   const SeverityIndicator = ({ nudgeType }: { nudgeType: string }) => {
     const getSeverityColor = () => {
       switch (nudgeType) {
-        case 'Push Notification':
+        case 'reminder':
           return Colors.light.green;
-        case 'Simulated Phone Call':
+        case 'phone_call':
           return Colors.light.yellow;
-        case 'Report to TA':
+        case 'email_ta':
           return Colors.light.red;
         default:
           return Colors.light.blackSecondary;
@@ -193,11 +192,11 @@ export function NudgeConfirmationModal({
       const inactiveColor = getInactiveDotColor();
       
       switch (nudgeType) {
-        case 'Push Notification':
+        case 'reminder':
           return [activeColor, inactiveColor, inactiveColor]; // Only left dot
-        case 'Simulated Phone Call':
+        case 'phone_call':
           return [inactiveColor, activeColor, inactiveColor]; // Only middle dot
-        case 'Report to TA':
+        case 'email_ta':
           return [inactiveColor, inactiveColor, activeColor]; // Only right dot
         default:
           return [inactiveColor, inactiveColor, inactiveColor];
@@ -236,7 +235,7 @@ export function NudgeConfirmationModal({
         </View>
 
         <ThemedText type="H3" style={[ styles.confirmationText, { color: Colors.light.tint, fontWeight: '400' } ]}>
-          Send this nudge to <ThemedText style={{ fontWeight: '800', color: Colors.light.tint }}>{targetUser}</ThemedText>?
+          Send this nudge to <ThemedText style={{ fontWeight: '800', color: Colors.light.tint }}>{targetUser.first_name}</ThemedText>?
         </ThemedText>
       </View>
       
