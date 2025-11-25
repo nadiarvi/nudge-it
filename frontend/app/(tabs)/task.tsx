@@ -3,7 +3,6 @@ import { FilterModal, ParallaxScrollView, SortModal, TaskCard, ThemedText, Theme
 import { MEMBER_LISTS } from '@/constants/dataPlaceholder';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
-import { TaskStatus } from '@/types/task';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -45,11 +44,20 @@ interface TaskItem {
   group_id: string;
   title: string;
   deadline: Date;
-  assignee: string[];
-  reviewer?: string;
+  // FIX: Change from string[] to User[]
+  assignee: User[]; 
+  reviewer?: User; // NOTE: If reviewer is an ID string, change this to 'User' as well.
   status: string;
   comments: [];
   nudges: [];
+}
+
+interface User {
+  uid: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  groups: string[];
 }
 
 export default function TasksScreen() {
@@ -233,19 +241,37 @@ export default function TasksScreen() {
       <ThemedView style={{ gap: 8 }}>
       
       {taskList.map((task, index) => (
+        // <TaskCard
+        //   // key={index}
+        //   // title={task.title}
+        //   // deadline={task.deadline}
+        //   // assignedTo={task.assignee[0]}
+        //   // status={task.status as TaskStatus}
+        //   // reviewer={task.reviewer ?? null}
+        //   // nudgeCount={task.nudges.length}
+        //   onStatusChange={(newStatus) => {
+        //     // Handle status change here
+        //     console.log(`Task "${task.title}" status changed to: ${newStatus}`);
+        //   }}
+        //   key={task.id}
+        //   id={task.id}
+        //   title={task.title}
+        //   deadline={task.deadline}
+        //   assignedTo={task.assignee}
+        //   status={task.status}
+        //   reviewer={task.reviewer}
+        //   nudgeCount={task.nudgeCount}
+        // />
         <TaskCard
-          key={index}
-          title={task.title}
-          deadline={task.deadline}
-          assignedTo={task.assignee[0]}
-          status={task.status as TaskStatus}
-          reviewer={task.reviewer ?? null}
-          nudgeCount={task.nudges.length}
-          onStatusChange={(newStatus) => {
-            // Handle status change here
-            console.log(`Task "${task.title}" status changed to: ${newStatus}`);
-          }}
-        />
+            key={task.id}
+            id={task.id}
+            title={task.title}
+            deadline={task.deadline}
+            assignedTo={task.assignee}
+            status={task.status}
+            reviewer={task.reviewer}
+            nudgeCount={task.nudgeCount}
+          />
       ))}
       </ThemedView>
 

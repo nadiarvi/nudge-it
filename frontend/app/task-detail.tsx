@@ -73,6 +73,7 @@ interface TaskDetail {
 export default function TaskDetailPage() {
     const { uid, groups } = useAuthStore();
     const { tid } = useLocalSearchParams();
+    console.log(`TaskDetailPage params - tid: ${tid}, uid: ${uid}, groups: ${groups}`);
     const gid = groups[0];
     
     const [taskDetail, setTaskDetail] = useState<TaskDetail | undefined>(undefined); 
@@ -105,6 +106,8 @@ export default function TaskDetailPage() {
             setTaskDetail(res.data);
         } catch (error) {
             console.log('Error fetching task details:', error);
+            console.error(`failed req: ${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${taskId}`);
+            setTaskDetail(null);
         }
     };
 
