@@ -73,7 +73,7 @@ interface TaskDetail {
 export default function TaskDetailPage() {
     const { uid, groups } = useAuthStore();
     const { tid } = useLocalSearchParams();
-    console.log(`TaskDetailPage params - tid: ${tid}, uid: ${uid}, groups: ${groups}`);
+    ////console.log(`TaskDetailPage params - tid: ${tid}, uid: ${uid}, groups: ${groups}`);
     const gid = groups[0];
     
     const [taskDetail, setTaskDetail] = useState<TaskDetail | undefined>(undefined); 
@@ -92,20 +92,20 @@ export default function TaskDetailPage() {
     const fetchGroupMemberIDs = async () => {
         try {
             const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${groups[0]}/members`)
-            console.log('Fetched group members:', res.data.members);
+            ////console.log('Fetched group members:', res.data.members);
             setMembers(res.data.members);
         } catch (error) {
-            console.log('Error: ', error);
+            ////console.log('Error: ', error);
         }
     };
 
     const getTaskDetails = async (taskId: string) => {
         try {
             const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${taskId}`);
-            console.log('Fetched task details:', res.data);
+            ////console.log('Fetched task details:', res.data);
             setTaskDetail(res.data);
         } catch (error) {
-            console.log('Error fetching task details:', error);
+            ////console.log('Error fetching task details:', error);
             console.error(`failed req: ${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${taskId}`);
             setTaskDetail(null);
         }
@@ -121,11 +121,11 @@ export default function TaskDetailPage() {
             setCurrentStatus(taskDetail.status || 'To-Do');
 
             const assignedId = taskDetail.assignee[0];
-            console.log('Setting currentAssignedTo to:', assignedId);
+            //////console.log('Setting currentAssignedTo to:', assignedId);
             setCurrentAssignedTo(assignedId);
             
             const reviewerId = taskDetail.reviewer[0];
-            console.log('Setting currentReviewer to:', reviewerId);
+            //////console.log('Setting currentReviewer to:', reviewerId);
             setCurrentReviewer(reviewerId);
 
             if (taskDetail.deadline) {
@@ -184,7 +184,7 @@ export default function TaskDetailPage() {
             <StatusDropdown 
             value={taskStatus} 
             onValueChange={(newStatus) => {
-                console.log('Status changed to:', newStatus);
+                //////console.log('Status changed to:', newStatus);
                 setCurrentStatus(newStatus);
                 // Handle status change here - you can add API calls or other logic
             }} />
@@ -192,13 +192,13 @@ export default function TaskDetailPage() {
     }
 
     const memberDropdownComponent = (memberList: string[], currentMember: string, onMemberChange: (member: string) => void, placeholder: string) => {
-        console.log('Rendering MemberDropdown with currentMember:', currentMember);
+        //////console.log('Rendering MemberDropdown with currentMember:', currentMember);
         return (
             <MemberDropdown 
             value={currentMember} 
             members={memberList}
             onValueChange={(newMember) => {
-                console.log('Member changed to:', newMember);
+                //////console.log('Member changed to:', newMember);
                 onMemberChange(newMember);
                 // Handle member change here - you can add API calls or other logic
             }} 
@@ -216,8 +216,21 @@ export default function TaskDetailPage() {
         );
         return;
         }
-        const taskNudgeCount = parseInt(taskDetail.nudgeCount as string) || 0;
-        showNudgeAlert(taskDetail.title as string, currentAssignedTo, taskNudgeCount);
+        const assignee = members.find(m => m._id === currentAssignedTo);
+        const assigneeName = assignee ? `${assignee.first_name} ${assignee.last_name}` : 'The Assignee';
+        const taskNudgeCount = parseInt(taskDetail.nudges.length as string) || 0;
+
+        //////console.log('Showing nudge alert for task:', taskDetail.title, 'with nudge count:', taskNudgeCount);
+        //////console.log(currentAssignedTo);
+        // showNudgeAlert(taskDetail, taskDetail.title as string, currentAssignedTo, taskNudgeCount);
+
+        showNudgeAlert(
+            tid as string, // Pass tid
+            taskDetail.title as string,
+            currentAssignedTo, // Pass ID
+            assigneeName, // Pass Name
+            taskNudgeCount
+        );
     }
 
     const handleChatPress = () => {
@@ -242,7 +255,7 @@ export default function TaskDetailPage() {
                 onChange={(event, selectedDate) => {
                     if (selectedDate) {
                         setCurrentDeadline(selectedDate);
-                        console.log('Deadline changed to:', selectedDate);
+                        ////console.log('Deadline changed to:', selectedDate);
                     }
                 }}
                 style={{

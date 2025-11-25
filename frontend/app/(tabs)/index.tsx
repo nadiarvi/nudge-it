@@ -151,9 +151,9 @@ interface TaskSection {
 
 export default function HomeScreen() {
   const { uid, first_name, groups, isLoading } = useAuthStore();
-  console.log(`homescreen ${uid} ${first_name}`);
-  console.log('uid:', uid);
-  console.log('groups:', groups);
+  //console.log(`homescreen ${uid} ${first_name}`);
+  //console.log('uid:', uid);
+  //console.log('groups:', groups);
   
 
   const currentUser = first_name;
@@ -197,7 +197,7 @@ export default function HomeScreen() {
   const fetchProjectName = async () => {
     try {
       const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${gid}`);
-      console.log('Fetched project name:', res.data.name);
+      //console.log('Fetched project name:', res.data.name);
       setPrjName(res.data.name);
     } catch (error) {
       console.error('Error fetching project name:', error);

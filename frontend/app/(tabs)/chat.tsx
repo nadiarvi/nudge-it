@@ -18,7 +18,7 @@ import { User } from '@/types/user';
 export default function ChatScreen() {
   const { uid, groups } = useAuthStore();
   const gid = groups[0];
-  console.log(`chat screen ${uid} - ${gid}`);
+  //console.log(`chat screen ${uid} - ${gid}`);
 
   const [chatData, setChatData] = useState([]);
 
@@ -41,10 +41,10 @@ export default function ChatScreen() {
                           });
 
       setChatData(_chatData);
-      console.log(`Successfully fetched ${chats.length} chats.`);
+      //console.log(`Successfully fetched ${chats.length} chats.`);
     } catch (error) {
       console.error('Error fetching chats:', error);
-      console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${gid}/${uid}`);
+      //console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${gid}/${uid}`);
     }
   }, [uid, gid]);
 

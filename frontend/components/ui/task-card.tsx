@@ -53,7 +53,7 @@ export function TaskCard({
                             : title;
 
   useEffect(() => {
-    console.log(`assignedTo in TaskCard: ${assignedTo._id}, ${assignedTo.first_name}`);
+    //console.log(`assignedTo in TaskCard: ${assignedTo._id}, ${assignedTo.first_name}`);
     const show = uid === assignedTo._id;
     setShowNudgeButton(!show);
   }, [uid, assignedTo]);

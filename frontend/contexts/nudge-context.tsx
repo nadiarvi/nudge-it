@@ -1,4 +1,5 @@
 import { NudgeConfirmationModal, NudgeSelectionModal } from '@/components/ui/custom-alert';
+import { User } from '@/types/user';
 import axios from 'axios';
 import React, { createContext, useContext, useState } from 'react';
 import { useAuthStore } from './auth-context';
@@ -8,17 +9,29 @@ interface NudgeOptions {
   option3Enabled?: boolean;
 }
 
+// interface ModalState {
+//   showSelection: boolean;
+//   showConfirmation: boolean;
+//   taskTitle: string;
+//   selectedNudgeType: string;
+//   targetUser: User;
+//   options: NudgeOptions;
+// }
+
+// nudge context.tsx
 interface ModalState {
   showSelection: boolean;
   showConfirmation: boolean;
   taskTitle: string;
+  tid: string; // Add tid to state
   selectedNudgeType: string;
-  targetUser: string;
+  targetUserId: string; // Change to string ID
+  targetUserName: string; // Add for display
   options: NudgeOptions;
 }
 
 interface NudgeContextType {
-  showNudgeAlert: (tid: string, taskTitle: string, targetUser: string, nudgeCount: number) => void;
+  showNudgeAlert: (tid: string, taskTitle: string, targetUser: User, nudgeCount: number) => void;
 }
 
 const NudgeContext = createContext<NudgeContextType | undefined>(undefined);
