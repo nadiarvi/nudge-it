@@ -25,6 +25,7 @@ export function TaskCard({
   reviewer = null,
   nudgeCount = 0,
   onStatusChange = () => {},
+  onNudgeSent = () => {},
 }: TaskCardProps) {
   const router = useRouter();
   const { uid, first_name } = useAuthStore();
@@ -43,7 +44,8 @@ export function TaskCard({
   };
 
   const handleNudge = () => {
-    showNudgeAlert(id, title, assignedTo, nudgeCount);
+    showNudgeAlert(id, title, assignedTo, nudgeCount, onNudgeSent);
+    // onNudgeSent();
   };
 
   const MAX_TITLE_LENGTH = 23;
@@ -67,9 +69,9 @@ export function TaskCard({
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
               <FlagIcon size={18} color={Colors.light.red} strokeWidth={2}/>
               <ThemedText type="Body3" style={{color: Colors.light.red}}>{`${nudgeCount}`}</ThemedText>
-              { nudgeCount >= 3 && (
+              {/* { nudgeCount >= 3 && (
                 <ThemedText type="Body3" style={{color: Colors.light.red}}>| TA</ThemedText>
-              )}
+              )} */}
             </View>
           )}
         </View>

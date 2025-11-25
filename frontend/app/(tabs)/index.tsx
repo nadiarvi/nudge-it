@@ -48,7 +48,7 @@ const renderTaskSection = (category: string, tasks: any[]) => (
           assignedTo={task.assignee}
           status={task.status}
           reviewer={task.reviewer}
-          nudgeCount={task.nudgeCount}
+          nudgeCount={task.nudges}
         />
       ))
     ) : (

@@ -31,7 +31,13 @@ interface ModalState {
 }
 
 interface NudgeContextType {
-  showNudgeAlert: (tid: string, taskTitle: string, targetUser: User, nudgeCount: number) => void;
+  showNudgeAlert: (
+    tid: string, 
+    taskTitle: string, 
+    targetUser: User, 
+    nudgeCount: number,
+    onSuccessCallback?: () => void
+  ) => void;
 }
 
 const NudgeContext = createContext<NudgeContextType | undefined>(undefined);
@@ -52,7 +58,7 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
     options: {},
   });
 
-  const showNudgeAlert = (tid: string, taskTitle: string, targetUser: string, nudgeCount: number) => {
+  const showNudgeAlert = (tid: string, taskTitle: string, targetUser: string, nudgeCount: number, onSuccessCallback?: () => void) => {
     const option2Enabled = nudgeCount >= 1;
     const option3Enabled = nudgeCount >= 2;
     
@@ -64,6 +70,7 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
       selectedNudgeType: '',
       targetUser,
       options: { option2Enabled, option3Enabled },
+      onSuccessCallback,
     });
   };
 
@@ -91,6 +98,9 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
         const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/nudges/create`, nudgeData);
         if (res.status === 201) {
           console.log('Nudge sent successfully');
+          if (modalState.onSuccessCallback) { // <--- Execute on successful API call
+             modalState.onSuccessCallback();
+          }
         } else {
           console.error('Failed to send nudge:', res.statusText);
         }

@@ -12,6 +12,7 @@ export interface Task {
 
 export interface TaskCardProps extends Task {
   onStatusChange?: (status: TaskStatus) => void;
+  onNudgeSent?: () => void;
 }
 
 export interface TaskDetailParams {

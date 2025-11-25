@@ -3,9 +3,10 @@ import { FilterModal, ParallaxScrollView, SortModal, TaskCard, ThemedText, Theme
 import { MEMBER_LISTS } from '@/constants/dataPlaceholder';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
+import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 // const taskLists = ALL_TASKS("Alice");
@@ -67,7 +68,17 @@ export default function TasksScreen() {
 
   const [taskList, setTaskList] = useState<TaskItem[]>([]);
 
-  const fetchTasks = async () => {
+  // const fetchTasks = async () => {
+  //   try {
+  //     const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
+  //     setTaskList(res.data.tasks);
+  //   } catch (error) {
+  //     console.error('Error fetching tasks:', error);
+  //     console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
+  //   }
+  // };
+
+  const fetchTasks = useCallback(async () => {
     try {
       const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
       setTaskList(res.data.tasks);
@@ -75,11 +86,25 @@ export default function TasksScreen() {
       console.error('Error fetching tasks:', error);
       console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
     }
-  };
+  }, [gid]); // Dependency on gid
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchTasks();
+      return () => {}; 
+    }, [fetchTasks]) // Dependency on fetchTasks ensures it runs when gid changes
+  );
+
+  // useEffect(() => {
+  //   fetchTasks();
+  // }, []);
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     fetchTasks();
+  //     return () => {}; 
+  //   }, [gid])
+  // );
 
   // State for filters and sorts
   const [filters, setFilters] = useState<{ [key: string]: string | null }>({
@@ -246,7 +271,8 @@ export default function TasksScreen() {
             assignedTo={task.assignee[0]}
             status={task.status}
             reviewer={task.reviewer}
-            nudgeCount={task.nudgeCount}
+            nudgeCount={task.nudges.length}
+            onNudgeSent={fetchTasks}
           />
       ))}
       </ThemedView>
