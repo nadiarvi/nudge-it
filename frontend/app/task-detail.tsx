@@ -102,7 +102,6 @@ export default function TaskDetailPage() {
     const getTaskDetails = async (taskId: string) => {
         try {
             const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${taskId}`);
-            ////console.log('Fetched task details:', res.data);
             setTaskDetail(res.data);
         } catch (error) {
             ////console.log('Error fetching task details:', error);
@@ -111,6 +110,38 @@ export default function TaskDetailPage() {
         }
     };
 
+    const updateTask = async () => {
+        if (!taskDetail || !gid || !tid) return;
+
+        // Check if the current status is different from the original task detail status
+        if (currentStatus === taskDetail.status) {
+            // No status change, do nothing
+            return;
+        }
+
+        const payload = {
+            status: currentStatus,
+        };
+
+        try {
+            const res = await axios.patch(
+                `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${tid}`,
+                payload
+            );
+            console.log('Task status updated successfully on unmount:', res.data.task.status);
+        } catch (error) {
+            console.error('Error updating task status on unmount:', error);
+            console.log('failed patch req URL:', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${tid}`);
+            console.log('failed patch req payload:', payload);
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            updateTask();
+        };
+    }, [currentStatus, taskDetail, gid, tid]);
+
     useEffect(() => {
         fetchGroupMemberIDs();
         getTaskDetails(tid as string);
@@ -118,7 +149,7 @@ export default function TaskDetailPage() {
 
     useEffect(() => {
         if (taskDetail) {
-            setCurrentStatus(taskDetail.status || 'To-Do');
+            setCurrentStatus(taskDetail.status);
 
             const assignedId = taskDetail.assignee[0];
             //////console.log('Setting currentAssignedTo to:', assignedId);
@@ -242,16 +273,6 @@ export default function TaskDetailPage() {
         );
         return;
         }
-        // router.replace('/chat');
-        // console.log(`passing uid: ${uid} and assignee: ${currentAssignedTo._id} to chat-member page`);
-        // router.replace(`/chat-member?user=${uid}&assignee=${currentAssignedTo._id}`);
-        
-        // router.replace({
-        //     pathname: '/chat-member',
-        //     params: {
-        //         assignedTo: currentAssignedTo,
-        //     }
-        // })
 
         router.replace({
             pathname: '/chat-member',

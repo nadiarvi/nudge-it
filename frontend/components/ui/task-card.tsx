@@ -86,7 +86,11 @@ export function TaskCard({
               </ThemedText>
               <SearchIcon size={12} color={ reviewer ? StatusColors.inReview : Colors.light.blackSecondary} />
               <ThemedText type="Body3" style={{color: reviewer ? StatusColors.inReview : Colors.light.blackSecondary}}>
-                {reviewer ? `${reviewer[0].first_name}` : "Not Assigned"}
+                {/* {reviewer ? `${reviewer[0].first_name}` : "Not Assigned"} */}
+                { reviewer && reviewer.length > 0
+                    ? `${reviewer[0].first_name}` 
+                    : "Not Assigned"
+                }
               </ThemedText>
             </View>
           )}

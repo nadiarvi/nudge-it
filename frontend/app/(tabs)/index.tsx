@@ -2,8 +2,9 @@ import { CheckIcon, ClockIcon, InboxIcon, SendIcon, TodoIcon } from '@/component
 import { ParallaxScrollView, TaskCard, ThemedText, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
+import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, { ReactElement, useCallback, useRef, useState } from 'react';
 import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 const nudgeCountComponent = (icon: ReactElement, title: string, count: number) => (
@@ -204,12 +205,23 @@ export default function HomeScreen() {
     }
   };
 
-  useEffect(() => {
-    retrieveTasks();
-    fetchNudgeSent();
-    fetchNudgeReceived();
-    fetchProjectName();
-  }, [uid]);
+  // useEffect(() => {
+  //   retrieveTasks();
+  //   fetchNudgeSent();
+  //   fetchNudgeReceived();
+  //   fetchProjectName();
+  // }, [uid]);
+
+  useFocusEffect(
+    useCallback(() => {
+      retrieveTasks();
+      fetchNudgeSent();
+      fetchNudgeReceived();
+      fetchProjectName();
+      return () => {
+      };
+    }, [uid]) 
+  );
   
   const [selectedProject, setSelectedProject] = useState(prjName);
   const [isModalVisible, setIsModalVisible] = useState(false);
