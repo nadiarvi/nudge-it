@@ -87,7 +87,7 @@ function RootNavigation() {
         name="register-group" 
         options={{ 
           headerTitle: 'Register Your Group',
-          headerShown: true,
+          headerShown: false,
         }} 
       />
     </Stack>
