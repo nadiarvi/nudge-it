@@ -17,6 +17,7 @@
     - [5. Get Members of a Group](#5-get-members-of-a-group)
     - [6. Add Members to a Group](#6-add-members-to-a-group)
     - [7. Delete Members from a Group](#7-delete-members-from-a-group)
+    - [8. Join Group by Invite Code](#8-join-group-by-invite-code)
   - [🗂️ Task API](#️-task-api)
     - [1. Create a New Task](#1-create-a-new-task)
     - [2. Get a Task by ID](#2-get-a-task-by-id)
@@ -167,10 +168,12 @@
 
 ### 1. Create a New Group
 
-**Endpoint:** `POST api/groups/create`
-- **Description:** Create a new group
+**Endpoint:** `POST api/groups/create/:uid`
+- **Description:** Create a new group. The creator (uid) is automatically added as a member.
 - **Request Body:**
   - `name`: String (required)
+  - `members`: Array of user IDs (optional)
+  - `ta_email`: String (optional)
   - `nudge_limit`: Integer (optional, default: 1)
 
 **Request Example:**
@@ -192,9 +195,18 @@
     "_id": "groupid",
     "name": "CS473",
     "nudge_limit": 2,
-    "members": [],
+    "members": [
+      {
+        "_id": "userId1",
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "email": "alice@email.com"
+      }
+    ],
+    "ta_email": "ta@email.com",
     "chats": [],
-    "tasks": []
+    "tasks": [],
+    "invite_code": "ABC123"
   }
 }
 ```
@@ -202,6 +214,7 @@
 - `500`: Server error
 
 ---
+
 ### 2. Get a Group Information
 
 **Endpoint:** `GET api/groups/:gid`
@@ -214,16 +227,25 @@
   "_id": "groupid",
   "name": "CS473",
   "nudge_limit": 2,
-  "members": ["userId1", "userId2"],
-  "ta_email": "ta@gmail.com",
+  "members": [
+    {
+      "_id": "userId1",
+      "first_name": "Alice",
+      "last_name": "Smith",
+      "email": "alice@email.com"
+    }
+  ],
+  "ta_email": "ta@email.com",
   "tasks": ["taskId1", "taskId2"], 
-  "chats": ["chatId1"] 
+  "chats": ["chatId1"],
+  "invite_code": "ABC123"
 }
 ```
 - `404`: Group does not exist
 - `500`: Server error
 
 ---
+
 ### 3. Delete a Group
 
 **Endpoint:** `DELETE api/groups/:gid`
@@ -241,19 +263,24 @@
 - `500`: Server error
 
 ---
+
 ### 4. Update a Group Information
 
 **Endpoint:** `PATCH api/groups/:gid`
 - **Description:** Update group details (name, tasks, chats, ta_email, nudge_limit)
 - **Request Body:**
   - `name`: String (optional)
+  - `ta_email`: String (optional)
+  - `tasks`: Array of task IDs (optional)
+  - `chats`: Array of chat IDs (optional)
   - `nudge_limit`: Integer (optional)
 
 **Request Example:**
 ```json
 {
   "name": "CS473 Updated",
-  "nudge_limit": 3
+  "nudge_limit": 3,
+  "ta_email": "newta@email.com"
 }
 ```
 
@@ -263,11 +290,20 @@
 {
   "group": {
     "_id": "groupid",
-    "name": "CS473",
+    "name": "CS473 Updated",
     "nudge_limit": 3,
-    "members": ["userId1", "userId2"],
+    "members": [
+      {
+        "_id": "userId1",
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "email": "alice@email.com"
+      }
+    ],
+    "ta_email": "newta@email.com",
     "chats": ["chatId1"],
-    "tasks": ["taskId1"]
+    "tasks": ["taskId1"],
+    "invite_code": "ABC123"
   }
 }
 ```
@@ -275,22 +311,31 @@
 - `500`: Server error
 
 ---
+
 ### 5. Get Members of a Group
 
 **Endpoint:** `GET api/groups/:gid/members`
-- **Description:** Get the list of members in a group
+- **Description:** Get the list of members in a group (returns full user objects)
 
 **Responses:**
-- `200 OK`: Returns array of user IDs
+- `200 OK`: Returns array of user objects
 ```json
 {
-  "members": ["userId1", "userId2"]
+  "members": [
+    {
+      "_id": "userId1",
+      "first_name": "Alice",
+      "last_name": "Smith",
+      "email": "alice@email.com"
+    }
+  ]
 }
 ```
 - `404`: Group does not exist
 - `500`: Server error
 
 ---
+
 ### 6. Add Members to a Group
 
 **Endpoint:** `PATCH api/groups/:gid/members`
@@ -301,7 +346,7 @@
 **Request Example:**
 ```json
 {
-  "userIds": ["userId3", "userId4"]
+  "userIds": ["userId2", "userId3"]
 }
 ```
 
@@ -313,7 +358,9 @@
   "existingGroup": {
     "_id": "groupid",
     "name": "CS473",
-    "members": ["userId1", "userId2", "userId3", "userId4"],
+    "members": [
+      // ...full user objects
+    ],
     "chats": ["chatId1"],
     "tasks": ["taskId1"]
   }
@@ -323,6 +370,7 @@
 - `500`: Server error
 
 ---
+
 ### 7. Delete Members from a Group
 
 **Endpoint:** `DELETE api/groups/:gid/members`
@@ -341,15 +389,58 @@
 - `200 OK`: Members removed
 ```json
 {
-  "_Id" : "groupid",
-  "name": "CS473",
-  "members": ["userId1", "userId3", "userId4"],
-  "ta_email": "ta@gmail.com",
-  "tasks": ["taskId1", "taskId2"], 
-  "chats": ["chatId1"] 
+  "existingGroup": {
+    "_id": "groupid",
+    "name": "CS473",
+    "members": [
+      // ...full user objects
+    ],
+    "ta_email": "ta@email.com",
+    "tasks": ["taskId1", "taskId2"], 
+    "chats": ["chatId1"],
+    "invite_code": "ABC123"
+  }
 }
 ```
 - `404`: Group does not exist
+- `500`: Server error
+
+---
+
+### 8. Join Group by Invite Code
+
+**Endpoint:** `PATCH api/groups/:uid/join`
+- **Description:** Join a group using an invite code
+- **Request Body:**
+  - `inviteCode`: String (required)
+
+**Request Example:**
+```json
+{
+  "inviteCode": "ABC123"
+}
+```
+
+**Responses:**
+- `200 OK`: Successfully joined the group
+```json
+{
+  "message": "Successfully joined the group.",
+  "group": {
+    "_id": "groupid",
+    "name": "CS473",
+    "members": [
+      // ...full user objects
+    ],
+    "ta_email": "ta@email.com",
+    "tasks": ["taskId1", "taskId2"], 
+    "chats": ["chatId1"],
+    "invite_code": "ABC123"
+  }
+}
+```
+- `404`: Invalid invitation code
+- `409`: Already a member
 - `500`: Server error
 
 ---

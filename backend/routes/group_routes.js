@@ -3,7 +3,7 @@ const { check } = require("express-validator");
 const router = express.Router();
 
 const groupController = require("../controllers/group_controllers");
-const { createGroup, getGroup, deleteGroup, updateGroup, getMembers, addMembers, deleteMembers } = groupController;
+const { createGroup, getGroup, deleteGroup, updateGroup, getMembers, addMembers, deleteMembers, joinGroup } = groupController;
 
 router.post("/create",
     [
@@ -29,5 +29,7 @@ router.get("/:gid/members", getMembers);
 router.patch("/:gid/members", addMembers);
 
 router.delete("/:gid/members", deleteMembers);
+
+router.patch("/:uid/join", joinGroup);
 
 module.exports = router;

@@ -141,7 +141,7 @@ const getTaskByUser = async (req, res, next) => {
 };
 
 const deleteTask = async (req, res, next) => {
-    const { tid, gid } = req.params;
+    const { gid, tid } = req.params;
     let existingTask;
 
     try {
@@ -156,8 +156,9 @@ const deleteTask = async (req, res, next) => {
             return next(new HttpError('Task does not exist', 400));
         }
 
-        await existingTask.remove();
+        await existingTask.deleteOne();
     } catch (err) {
+        console.error(err);
         const error = new HttpError('Fetching task failed, please try again later.', 500);
         return next(error);
     }
