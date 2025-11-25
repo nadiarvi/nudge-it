@@ -2,6 +2,7 @@ import { ThemedButton, ThemedText, ThemedTouchableView, ThemedView } from '@/com
 import { ThemedTextInput } from '@/components/ui/themed-text-input';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
+import { User } from '@/types/user';
 import axios from 'axios';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import moment from 'moment';
@@ -90,44 +91,31 @@ export default function ChatDetailScreen() {
   const { cid, name } = useLocalSearchParams();
   const router = useRouter();
 
-  // const [messages, setMessages] = useState<Message[]>([]); 
-  // const [currentMsg, setCurrentMsg] = useState<string>('');
-  
-  // // ✨ NEW: State for Revision Modal
-  // const [showRevisionModal, setShowRevisionModal] = useState(false);
-  // const [revisionData, setRevisionData] = useState<RevisionData | null>(null);
-
-  // 1. Unified Route Params
   const params = useLocalSearchParams();
   const initialCid = params.cid as string | undefined;
   const user1 = params.user as string | undefined;
   const user2 = params.assignee as string | undefined;
   const chatName = params.name as string | undefined;
 
-  // 2. State for Definitive Chat ID (Handles both navigation methods)
-  const [chatId, setChatId] = useState<string | undefined>(initialCid); // Definitive chat ID state
+  const [chatId, setChatId] = useState<string | undefined>(initialCid);
+  const [people, setPeople] = useState<User[]>([]);
   const [messages, setMessages] = useState<Message[]>([]); 
   const [currentMsg, setCurrentMsg] = useState<string>('');
   
-  // 3. State for Revision Modal
   const [showRevisionModal, setShowRevisionModal] = useState(false);
   const [revisionData, setRevisionData] = useState<RevisionData | null>(null);
 
-  // ✨ NEW: Unified Chat Fetching Logic (Find or Create)
   const createOrGetChat = async (userA: string, userB: string) => {
-    // Assuming the current user (uid) is userA, and the assignee is userB.
-    // Assuming group ID (gid) is fetched from auth context (groups[0])
     const otherUserId = userB;
-    const groupId = groups[0]; // You need to get this from useAuthStore if it's not local
+    const groupId = groups[0];
 
     try {
       const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${userA}`, {
         otherUserId: otherUserId,
         groupId: groupId,
-        type: "user" // Assuming redirection is always for a user-to-user chat
+        type: "user"
       });
 
-      // The response structure is the same for 201 (Created) and 200 (Existing)
       return res.data;
     } catch (error) {
       console.error('Error creating or getting chat:', error);
@@ -138,11 +126,11 @@ export default function ChatDetailScreen() {
   const fetchChatData = useCallback(async () => {
     let currentChatId = initialCid;
     
-    // A. If CID is provided, use it directly for fetching
     if (currentChatId) {
       try {
         const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${currentChatId}`);
         if (res.data?.existingChat?.messages) {
+          setPeople(res.data.existingChat.people);
           setMessages(res.data.existingChat.messages.reverse()); 
         }
       } catch (error) {
@@ -151,22 +139,19 @@ export default function ChatDetailScreen() {
       return;
     }
     
-    // B. If CID is missing but user pair is available, create or get chat
     if (user1 && user2) {
       console.log('CID missing. Attempting to create or get chat...');
       
-      const chatData = await createOrGetChat(user1, user2); // Call the new function
+      const chatData = await createOrGetChat(user1, user2); 
 
       if (chatData && chatData.id) {
-        setChatId(chatData.id); // Set the definitive chat ID
+        setChatId(chatData.id);
+        setPeople(chatData.people);
         
-        // Load messages for the newly found/created chat
         if (chatData.messages) {
-             // Ensure messages are ordered newest first if BE returns oldest first
              setMessages(chatData.messages.reverse()); 
         }
       }
-
       return;
     }
   }, [initialCid, user1, user2]); 
@@ -174,23 +159,6 @@ export default function ChatDetailScreen() {
   useEffect(() => {
     fetchChatData();
   }, [fetchChatData]);
-
-
-  // const getChatHistory = async () => {
-  //   try {
-  //     const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}`);
-  //     if (res.data?.existingChat?.messages) {
-  //       // NOTE: MIND THE ORDER RETURNED BY BE
-  //       setMessages(res.data.existingChat.messages); 
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching chat history:', error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   getChatHistory();
-  // }, [uid, cid]);
 
   const handleSend = async () => {
     const trimmed = currentMsg.trim();
@@ -246,10 +214,34 @@ export default function ChatDetailScreen() {
   };
 
   const handleNuggitPress = () => {
+    if (!uid) {
+      console.error("Current user ID (uid) is missing.");
+      return;
+    }
+
+    const otherPerson = people.find(person => person._id !== uid);
+
+    let otherUserId: string | undefined = otherPerson?._id;
+
+    if (!otherUserId && user1 && user2) {
+      otherUserId = [user1, user2].find(id => id !== uid);
+    }
+
+    if (!otherUserId) {
+      console.error("Could not determine the other user's ID from people or URL params.");
+      Alert.alert("Error", "Could not identify the recipient for the AI assistant.");
+      return;
+    }
+
+    console.log(`user: ${uid}, chat: ${cid}, users: ${user1}, ${user2}`);
+    console.log(`the other uid is: ${[user1, user2].find(id => id !== uid)}`);
+
     router.push({
       pathname: '/chatbot', 
       params: { 
-        cid
+        cid,
+        people: JSON.stringify(people),
+        otherUserId: otherUserId, // The ID of the person I'm chatting with
       }
     });
   }
@@ -268,6 +260,8 @@ export default function ChatDetailScreen() {
     if (!messages || messages.length === 0) {
       return <ThemedText style={{ textAlign: 'center', marginTop: 20 }}>Start chatting now!</ThemedText>;
     }
+
+    // const msg = [...messages].reverse();
 
     const renderItem = ({ item, index }: { item: Message, index: number }) => {
       const previousMsg = index > 0 ? messages[index - 1] : null;

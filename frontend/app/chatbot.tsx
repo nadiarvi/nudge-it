@@ -80,8 +80,9 @@ const PartnerChatBubble = ({ content, isNugget = false }: ChatBubbleProps) => (
 // --- MAIN SCREEN COMPONENT ---
 
 export default function ChatbotScreen() {
-  const { uid } = useAuthStore();
-  const { cid } = useLocalSearchParams();
+  const { uid, groups } = useAuthStore();
+  const gid = groups[0];
+  const { cid, otherUserId } = useLocalSearchParams();
   const router = useRouter();
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -90,12 +91,18 @@ export default function ChatbotScreen() {
 
   const getChatHistory = async () => {
     try {
-      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}`);
+      const resBody = {
+        type: 'nugget',
+        groupId: gid,
+        otherUserId
+      }
+      const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${uid}`, resBody);
       if (res.data?.existingChat?.messages) {
         setMessages(res.data.existingChat.messages); 
       }
     } catch (error) {
       console.error('Error fetching chat history:', error);
+      console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${uid}`);
     }
   };
 
@@ -115,11 +122,9 @@ export default function ChatbotScreen() {
       senderType: 'user',
       type: 'normal',
     };
-
-    // Add new message to the top (since FlatList is inverted)
+    
     setMessages(prev => [...prev, userMessage]);
 
-    // Logic for sending message to AI service and receiving response would go here.
     setIsLoading(true);
     
     const getAIResponse = async () => {
