@@ -212,6 +212,18 @@ export default function ChatDetailScreen() {
 
   const handleSendOriginal = async () => {
     console.log('sending anyway: ', revisionData?.original);
+    try {
+      console.log(`chat id: ${cid}, uid: ${uid}`);
+      const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}/${uid}/confirm`, {
+        chosenContent: revisionData?.original,
+      });
+      setMessages(res.data.chat.messages);
+    } catch (error) {
+      console.error('Error sending original message:', error);
+      console.error('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${cid}/${uid}/confirm`);
+    }
+
+    setShowRevisionModal(false);
   }
 
   const handleChooseSuggestion = () => {
@@ -226,10 +238,6 @@ export default function ChatDetailScreen() {
     }
 
     const receiverId = targetUserId as string;
-    console.log(`target usr: ${receiverId}`);
-
-    console.log("Target user ID:", targetUserId);
-
     const otherPerson = people.find(person => person._id !== uid);
 
     let otherUserId: string | undefined = otherPerson;
@@ -243,9 +251,6 @@ export default function ChatDetailScreen() {
       Alert.alert("Error", "Could not identify the recipient for the AI assistant.");
       return;
     }
-
-    //console.log(`user: ${uid}, chat: ${cid}, users: ${user1}, ${user2}`);
-    //console.log(`the other uid is: ${[user1, user2].find(id => id !== uid)}`);
 
     router.push({
       pathname: '/chatbot', 
@@ -271,8 +276,6 @@ export default function ChatDetailScreen() {
     if (!messages || messages.length === 0) {
       return <ThemedText style={{ textAlign: 'center', marginTop: 20 }}>Start chatting now!</ThemedText>;
     }
-
-    // const msg = [...messages].reverse();
 
     const renderItem = ({ item, index }: { item: Message, index: number }) => {
       const previousMsg = index > 0 ? messages[index - 1] : null;
