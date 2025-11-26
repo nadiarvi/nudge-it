@@ -35,8 +35,8 @@ Nudge-it is a collaboration tool designed to help student teams maintain account
       npm install
       ```
 3. **Environment Setup**
-    - Backend: Create a `.env` file in `backend/` (see backend/README.md for details)
-    - Frontend: Create a `.env` file in `frontend/` (see frontend/README.md for details)
+    - Backend: Create a `.env` file in `backend/` (see [`backend/README.md`](backend/README.md) for details)
+    - Frontend: Create a `.env` file in `frontend/` (see [`frontend/README.md`](frontend/README.md) for details)
 
 ## Running the Project
 - **Backend:**
@@ -49,9 +49,10 @@ Nudge-it is a collaboration tool designed to help student teams maintain account
   cd frontend
   npx expo start
   ```
+  > **Note:** To run the app on your phone, download the [Expo Go](https://expo.dev/client) app from the App Store or Google Play. Scan the QR code shown in your terminal after running the frontend to open the app on your device.
 
 ## Documentation
-- **Backend API:** See `backend/README.md` for endpoints, request/response examples, and setup instructions.
+- **Backend API:** See [`backend/README.md`](backend/README.md) for endpoints, request/response examples, and setup instructions.
 - **@TODO: FRONTEND**
 
 ## Tech Stack
@@ -61,6 +62,7 @@ Nudge-it is a collaboration tool designed to help student teams maintain account
   - Input Validation: express-validator
   - AI Services: OpenAI API
   - Email Services: nodemailer
+  - Push Notifications: expo-server-sdk
   - Environment Config: dotenv
 - **Frontend**
   - Framework: React Native
