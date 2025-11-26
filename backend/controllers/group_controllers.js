@@ -204,6 +204,14 @@ const joinGroup = async (req, res, next) => {
             return next(new HttpError("You are already a member of this group.", 409));
         }
 
+        const newMember = await User.findById(uid);
+        if (!newMember) {
+            return next(new HttpError("Invalid user id", 404));
+        }
+
+        newMember.groups.push(groupToJoin._id);
+        await newMember.save();
+
         groupToJoin.members.push(uid);
         await groupToJoin.save();
 
