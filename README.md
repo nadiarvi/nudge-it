@@ -64,6 +64,7 @@ Nudge-it is a collaboration tool designed to help student teams maintain account
   - Email Services: nodemailer
   - Push Notifications: expo-server-sdk
   - Environment Config: dotenv
+  - AI Assistance: GitHub Copilot, ChatGPT, Gemini
 - **Frontend**
   - Framework: React Native with Expo
   - Navigation: React Navigation
