@@ -258,11 +258,15 @@ export default function ChatDetailScreen() {
     try {
       const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${uid}`, payload);
       const data = res.data;
+      
+      let chatData;
+      if (data.existingChat) chatData = data.existingChat;
+      if (data.newChat) chatData = data.newChat;
 
-      if (data && data.id) {
-        setChatId(data.id);
-        setMessages(data.messages.reverse());
-        setPeople(data.people);
+      if (chatData && chatData._id) {
+        setChatId(chatData._id);
+        setMessages(chatData.messages.reverse());
+        setPeople(chatData.people);
       }
     } catch (error) {
       console.error('Error creating or getting chat:', error);
@@ -279,7 +283,7 @@ export default function ChatDetailScreen() {
 
   const handleSend = async () => {
     const trimmed = currentMsg.trim();
-    const activeChatId = chatId || cid;
+    const activeChatId = chatId;
 
     if (!trimmed || !uid || !activeChatId) {
       if (!activeChatId) {
@@ -322,6 +326,11 @@ export default function ChatDetailScreen() {
       }
     } catch (error) {
       console.error('Error sending message:', error);
+      console.log(`chatId: ${activeChatId}, uid: ${uid}`);
+      console.error(
+        'Failed request:',
+        `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${activeChatId}/${uid}/user`
+      );
       setCurrentMsg(trimmed);
       Alert.alert('Error', 'Could not send message due to a server error.');
     }
