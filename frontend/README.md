@@ -1,24 +1,64 @@
-# Getting Started
+# Frontend for Nudge-it
 
-## Version Syncing
-1. After cloning the repo, make sure to pull the latest changes on `frontend` branch into your local version.
-```bash
-git fetch origin
-git switch frontend
-git pull origin frontend
+- [Frontend for Nudge-it](#frontend-for-nudge-it)
+  - [⚙️ Setup](#️-setup)
+  - [💻 Repository Structure](#-repository-structure)
+
+
+## ⚙️ Setup
+1. **Install Dependencies**
+   ```
+   npm install
+   ```
+     
+2. **Environment Setup**  
+   Create a `.env` file in `frontend/` which contains:
+   ```
+   EXPO_PUBLIC_API_BASE_URL=https://nudge-it.onrender.com
+   ```
+     
+3. **Run the Application**
+   ```
+   npx expo start
+   ```
+   > Note: add `--clear` flag if bundling issues are encountered
+     
+4. **Run the Simulator**  
+   Open [Expo Go](https://expo.dev/go) on your mobile device and scan the QR code given in the terminal.
+
+## 💻 Repository Structure
 ```
-
-2. Navigate to your own workspace (the branch under your name) and merge the `frontend` branch into your branch to sync the latest update.
-```bash
-git switch your_branch_name
-git merge frontend
-```
-
-3. Resolve merging conflicts (if any). Make sure to accept the latest version.
-
-4. After you're done working, push the changes to your branch on the cloud and make a pull request to the `frontend` branch.
-```bash
-git add .
-git commit -m "feat: describe your changes"
-git push origin your_branch_name
+frontend
+├── api              # API clients and network logic
+│   ├── authApi.ts
+│   └── axiosClient.ts
+├── app              # Main app screens and navigation
+│   ├── _layout.tsx
+│   ├── (tabs)         # Tab navigation screens
+│   │   ├── _layout.tsx    # Tabs layout
+│   │   ├── chat.tsx       # Chat tab
+│   │   ├── index.tsx      # Main tab (dashboard)
+│   │   ├── profile.tsx    # Profile tab
+│   │   └── task.tsx       # Task tab
+│   ├── chat-member.tsx
+│   ├── chatbot.tsx
+│   ├── login.tsx
+│   ├── register-group.tsx
+│   └── task-detail.tsx
+├── app.json
+├── components       # Reusable UI components
+│   ├── icons        # SVG Icons
+│   └── ui           # React UI components
+├── constants        # Static data and theme config
+├── contexts         # React context providers
+├── eas.json
+├── eslint.config.js
+├── expo-env.d.ts
+├── hooks            # Custom React hooks
+├── package-lock.json
+├── package.json
+├── README.md
+├── tsconfig.json
+├── types            # TypeScript type definitions
+└── utils            # Utility/helper functions
 ```

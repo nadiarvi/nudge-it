@@ -3,7 +3,7 @@
 </p>
 Team Nudge-it Repository for CS473 Introduction to Social Computing
 
-Link to Prototype: @TODO
+🔗 [Prototype Link](https://expo.dev/preview/update?message=DPM4+High-fi+Report&updateRuntimeVersion=1.0.0&createdAt=2025-11-26T12%3A24%3A34.871Z&slug=exp&projectId=dd820b30-1224-4ab6-9c44-33cdc2c5a105&group=71762891-ad1a-427c-9617-9b350d84e65d)
 
 ## Table of Contents
 - [Table of Contents](#table-of-contents)
@@ -31,7 +31,7 @@ Nudge-it is a collaboration tool designed to help student teams maintain account
       ```
     - Frontend:
       ```
-      cd ../frontend
+      cd frontend
       npm install
       ```
 3. **Environment Setup**
@@ -53,7 +53,7 @@ Nudge-it is a collaboration tool designed to help student teams maintain account
 
 ## Documentation
 - **Backend API:** See [`backend/README.md`](backend/README.md) for endpoints, request/response examples, and setup instructions.
-- **@TODO: FRONTEND**
+- **Frontend Implementation:** See [`frontend/README.md`](frontend/README.md) for frontend implementation details and set up instructions.
 
 ## Tech Stack
 - **Backend**
@@ -65,9 +65,13 @@ Nudge-it is a collaboration tool designed to help student teams maintain account
   - Push Notifications: expo-server-sdk
   - Environment Config: dotenv
 - **Frontend**
-  - Framework: React Native
-  - **@TODO: FRONTEND**
-
+  - Framework: React Native with Expo
+  - Navigation: React Navigation
+  - Backend Communication: Axios
+  - Date & Time Handling: Moment.js
+  - Environment Config: dotenv
+  - Type Checking & Linting: TypeScript, ESLint, Prettier
+  - AI Assistance: GitHub Copilot, ChatGPT, Claude.ai, Gemini
 ## Code Organization
 ```
 nudge-it/

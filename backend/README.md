@@ -1,7 +1,7 @@
-# Backend for Nudge-It
+# Backend for Nudge-it
 
 ## 🗃️ Table of Contents
-- [Backend for Nudge-It](#backend-for-nudge-it)
+- [Backend for Nudge-it](#backend-for-nudge-it)
   - [🗃️ Table of Contents](#️-table-of-contents)
   - [⚙️ Setup](#️-setup)
   - [👤 User API](#-user-api)
