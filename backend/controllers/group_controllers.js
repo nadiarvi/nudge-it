@@ -209,7 +209,7 @@ const joinGroup = async (req, res, next) => {
 
         groupToJoin = await Group.findById(groupToJoin._id).populate('members');
 
-        req.status(200).json({
+        res.status(200).json({
             message: "Successfully joined the group.",
             group: groupToJoin
         })
