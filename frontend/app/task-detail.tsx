@@ -8,13 +8,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { ReactElement, useEffect, useLayoutEffect, useState } from 'react';
-import { Alert, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-
-const formatTimestamp = (timestamp: Date) => {
-    const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
-    const day = timestamp.getDate().toString().padStart(2, '0');
-    return `${month}.${day}`;
-};
+import { Alert, Platform, StyleSheet, TextInput, View } from 'react-native';
 
 const taskDetailItem = (icon: ReactElement, name: string, content: string | ReactElement) => {
     return (
@@ -161,11 +155,8 @@ export default function TaskDetailPage() {
 
     const updateTask = async () => {
         if (!taskDetail || !gid || !tid || isNewTask) return;
-
-        // Don't update if title is empty (invalid state)
         if (!taskTitle.trim()) return;
 
-        // Check if anything has changed
         const hasChanges = 
             currentStatus !== taskDetail.status ||
             taskTitle !== taskDetail.title ||
@@ -194,9 +185,7 @@ export default function TaskDetailPage() {
         }
     };
 
-    // Auto-save on unmount for existing tasks
     useEffect(() => {
-        // Only set up cleanup if we have loaded task details
         if (!isNewTask && taskDetail) {
             return () => {
                 updateTask();
@@ -204,7 +193,6 @@ export default function TaskDetailPage() {
         }
     }, [currentStatus, currentAssignedTo, currentReviewer, currentDeadline, taskTitle, taskDetail]);
 
-    // Initial data fetch
     useEffect(() => {
         fetchGroupMemberIDs();
         if (!isNewTask) {
@@ -212,7 +200,6 @@ export default function TaskDetailPage() {
         }
     }, [uid, tid]);
 
-    // Initialize form fields when task details are loaded
     useEffect(() => {
         if (taskDetail) {
             setTaskTitle(taskDetail.title);
@@ -317,10 +304,17 @@ export default function TaskDetailPage() {
             return;
         }
 
-        router.replace({
+        // DEBUG
+        console.log(`Passing param to chat-member: `);
+        console.log(currentAssignedTo);
+
+        // const targetUid = currentAssignedTo._id;
+
+        router.push({
             pathname: '/chat-member',
             params: {
-                targetUserId: currentAssignedTo,
+                targetUid: currentAssignedTo._id,
+                targetUsername: currentAssignedTo.first_name,
             }
         });
     }
@@ -344,22 +338,6 @@ export default function TaskDetailPage() {
                     marginLeft: Platform.OS === "ios" ? -16 : 0,
                 }}
             />
-        )
-    }
-
-    
-
-    const TitleDisplay = () => {
-        if (isEditingTitle) {
-            return <TitleInput />
-        }
-        
-        return (
-            <TouchableOpacity onPress={() => setIsEditingTitle(true)} activeOpacity={0.7}>
-                <ThemedText type='H1' style={styles.editableTitle}>
-                    {taskTitle || 'Untitled Task'}
-                </ThemedText>
-            </TouchableOpacity>
         )
     }
     

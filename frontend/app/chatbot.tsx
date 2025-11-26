@@ -92,112 +92,57 @@ export default function ChatbotScreen() {
 
   const [isWaitAI, setIsWaitAI] = useState(false);
 
-  const getTargetUserId = (peopleList) => {
-    let list = peopleList;
+  // const getTargetUserId = (peopleList) => {
+  //   let list = peopleList;
     
-    if (typeof peopleList === 'string') {
-          try {
-              list = JSON.parse(peopleList);
-          } catch (e) {
-              console.error("Failed to parse peopleList string:", e);
-              return null;
-          }
-      }
+  //   if (typeof peopleList === 'string') {
+  //         try {
+  //             list = JSON.parse(peopleList);
+  //         } catch (e) {
+  //             console.error("Failed to parse peopleList string:", e);
+  //             return null;
+  //         }
+  //     }
       
-      if (!Array.isArray(list) || list.length === 0) {
-          return null;
-      }
+  //     if (!Array.isArray(list) || list.length === 0) {
+  //         return null;
+  //     }
 
-      const idList = list.map(person => person._id);
-      console.log(`ID List: ${idList}`);
+  //     const idList = list.map(person => person._id);
+  //     console.log(`ID List: ${idList}`);
 
-      for (const id of idList) {
-        if (id !== uid) { 
-          return id;
-        }
-      }
-      return null;
-  };
+  //     for (const id of idList) {
+  //       if (id !== uid) { 
+  //         return id;
+  //       }
+  //     }
+  //     return null;
+  // };
 
   const getChatHistory = async () => {
-    try {
-      const resBody = {
-        type: 'nugget',
-        groupId: gid,
-        otherUserId: getTargetUserId(people),
-      }
+    const payload = {
+      type: 'nugget',
+      groupId: gid,
+      otherUserId: otherUserId,
+    };
 
-      console.log('Fetching chat history with body:', resBody);
-      const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${uid}`, resBody);
+    try {
+      console.log('Fetching chat history with body:', payload);
+      const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${uid}`, payload);
       if (res.data?.existingChat?.messages) {
         setMessages(res.data.existingChat.messages); 
         setBotCid(res.data.existingChat._id);
       }
     } catch (error) {
       console.error('Error fetching chat history:', error);
-      console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${uid}`);
+      console.error('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${uid}`);
+      console.error('with payload: ', payload);
     }
   };
 
   useEffect(() => {
     getChatHistory();
   }, [uid, cid]);
-
-  // const handleSend = () => {
-  //   const trimmed = inputText.trim();
-  //   if (!trimmed) return;
-
-  //   const userMessage: Message = {
-  //     _id: Date.now().toString(),
-  //     sender: uid,
-  //     content: trimmed,
-  //     timestamp: moment().toISOString(),
-  //     senderType: 'user',
-  //     type: 'normal',
-  //   };
-    
-  //   setMessages(prev => [...prev, userMessage]);
-
-  //   setIsLoading(true);
-    
-  //   const getAIResponse = async () => {
-  //     try {
-  //       // DEBUG
-  //       console.log(`Sending to AI: cid=${botCid}, uid=${uid}, content=${trimmed}`);
-  //       setIsWaitAI(true);
-  //       const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${botCid}/${uid}/nugget`, {
-  //         content: trimmed
-  //       });
-        
-  //       const waitingMsg: Message = {
-  //         _id: 'waiting-' + Date.now().toString(),
-  //         sender: 'nugget',
-  //         content: 'Nugget is typing...',
-  //         timestamp: moment().toISOString(),
-  //         senderType: 'nugget',
-  //         type: 'normal',
-  //       }
-
-  //       setMessages(prev => [...prev, waitingMsg]);
-
-  //       if (res.data) {
-  //         const aiMsg: Message = res.data.chat.messages[1];
-  //         setMessages(prev => [...prev.filter(msg => !msg._id.startsWith('waiting-')), aiMsg]);
-  //         setIsWaitAI(false);
-  //       } else {
-  //         console.error('No data in AI response');
-  //       }
-  //     } catch (error) {
-  //       console.error('Error fetching AI response:', error);
-  //       console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${botCid}/${uid}/nugget`);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   }
-
-  //   setInputText('');
-  //   getAIResponse();
-  // };
 
   const handleSend = () => {
     const trimmed = inputText.trim();

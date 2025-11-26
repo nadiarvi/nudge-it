@@ -1,4 +1,7 @@
 export const formatDisplayName = (name: string) => {
+    console.assert(typeof name === 'string', `Expected a string for name formatting, but received ${typeof name}`);
+    if (!name) return 'Unknown';
+    
     const trimmedName = name.trim();
     if (!trimmedName) {
         return;
