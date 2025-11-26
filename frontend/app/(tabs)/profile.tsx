@@ -2,6 +2,7 @@ import { ParallaxScrollView, ThemedButton, ThemedText, ThemedTextInput, ThemedTo
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
 import axios from 'axios';
+import * as Clipboard from 'expo-clipboard';
 
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -64,7 +65,9 @@ interface ProfileData {
   lastName: string;
   email: string;
   projectName: string;
+  taEmail: string;
   nudgeLimit: string;
+  inviteCode: string;
 }
 
 interface EditingFieldState {
@@ -84,7 +87,9 @@ export default function ProfileScreen() {
     lastName: last_name,
     email: email,
     projectName: '',
+    taEmail: '',
     nudgeLimit: '',
+    inviteCode: '',
   });
 
   const getGroupInfo = async () => {
@@ -95,7 +100,9 @@ export default function ProfileScreen() {
       setProfileData(prev => ({
         ...prev,
         projectName: projectData.name,
+        taEmail: projectData.ta_email,
         nudgeLimit: projectData.nudge_limit.toString(),
+        inviteCode: projectData.invite_code,
       }));
     } catch (error) {
       console.error("Failed to fetch group info:", error);
@@ -106,11 +113,23 @@ export default function ProfileScreen() {
     getGroupInfo();
   }, [uid]);
 
-  const handleFieldPress = (label: string, key: keyof ProfileData, currentValue: string) => {
+  const handleFieldPress = (label: string, key: keyof ProfileData, currentValue: string, disable: boolean = false) => {
+    if (disable) return;
     setEditingField({ label, key });
     setEditValue(currentValue);
     setIsModalVisible(true);
   };
+
+  const handleCopyToClipboard = async () => {
+  if (profileData.inviteCode) {
+    try {
+      await Clipboard.setStringAsync(profileData.inviteCode);
+      Alert.alert('Invite Code Copied', 'The invite code has been copied to your clipboard.');
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  }
+};
 
   const handleSave = () => {
     if (editingField) {
@@ -192,11 +211,22 @@ export default function ProfileScreen() {
           onPress={() => handleFieldPress('Project Name', 'projectName', profileData.projectName)}
         />
         <FieldItem 
+          label="TA Email" 
+          value={profileData.taEmail}
+          onPress={() => handleFieldPress('TA Email', 'taEmail', profileData.taEmail)}
+        />
+        <FieldItem 
           label="Nudge Limit per Stage" 
           value={profileData.nudgeLimit}
           onPress={() => handleFieldPress('Nudge Limit per Stage', 'nudgeLimit', profileData.nudgeLimit)}
+        /> 
+        <FieldItem 
+          label="Invite Code" 
+          value={profileData.inviteCode}
+          // onPress={() => handleFieldPress('Invite Code', 'inviteCode', profileData.inviteCode, true)}
+          onPress={() => handleCopyToClipboard()}
           style={{ borderBottomWidth: 0}}
-        />  
+        />
       </ProfileSection>
 
       <ProfileSection sectionTitle="Other">

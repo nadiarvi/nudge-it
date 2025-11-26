@@ -20,6 +20,7 @@ export default function RegisterGroupScreen() {
 
   // Join group states
   const [inviteCode, setInviteCode] = useState('');
+  const INVITE_CODE_LENGTH = 6;   
 
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -63,36 +64,33 @@ export default function RegisterGroupScreen() {
   };
 
   const handleJoinGroup = async () => {
-    // TODO: ENTER A GROUP WITH 4 DIGIT INVITATION CODE
-    if (!inviteCode.trim() || inviteCode.trim().length !== 4) {
-      Alert.alert("Invalid Code", "Please enter a valid 4-digit invite code.");
+    if (!inviteCode.trim() || inviteCode.trim().length !== INVITE_CODE_LENGTH) {
+      Alert.alert("Invalid Code", `Please enter a valid ${INVITE_CODE_LENGTH}-digit invite code.`);
       return;
     }
 
     setLoading(true);
 
     try {
-        Alert.alert("Coming Soon", "Join group functionality is coming soon! Please create a new group for now.");
-      // Use the invite code as the group ID
-    //   const groupId = inviteCode.trim();
+      const payload = { inviteCode}
+      console.assert(uid, "User ID is required to join a group");
+      const res = await axios.patch(`${API_BASE_URL}/api/groups/${uid}/join`, payload);
+      const gid = res.data.group._id;
 
-    //   const res = await axios.patch(`${API_BASE_URL}/api/groups/${groupId}/members`, {
-    //     userIds: [uid],
-    //   });
+      // Update the auth context with the joined group
+      await signIn({
+        uid,
+        first_name,
+        last_name,
+        email,
+        groups: [gid],
+      });
 
-    //   // Update the auth context with the joined group
-    //   await signIn({
-    //     uid,
-    //     first_name,
-    //     last_name,
-    //     email,
-    //     groups: [groupId],
-    //   });
-
-    //   Alert.alert("Success", "Successfully joined the group!");
-    //   router.replace('/(tabs)');
+      Alert.alert("Success", "Successfully joined the group!");
+      router.replace('/(tabs)');
     } catch (error: any) {
       console.error("Join group failed:", error.response?.data || error.message);
+      console.error("failed req: ", `${API_BASE_URL}/api/groups/${uid}/join`, { inviteCode });
       Alert.alert("Error", error.response?.data?.message || "Failed to join group. Please check the invite code and try again.");
     } finally {
       setLoading(false);
@@ -218,15 +216,14 @@ export default function RegisterGroupScreen() {
                     Invite Code
                 </ThemedText>
                 <ThemedText type="Body2" style={styles.helperText}>
-                    Enter the 4-digit code from your group
+                    Enter the {INVITE_CODE_LENGTH}-digit code from your group
                 </ThemedText>
                 <ThemedTextInput
                     style={[styles.input, styles.codeInput]}
-                    placeholder="0000"
+                    placeholder="000000"
                     value={inviteCode}
                     onChangeText={setInviteCode}
-                    keyboardType="number-pad"
-                    maxLength={4}
+                    maxLength={INVITE_CODE_LENGTH}
                 />
                 </ThemedView>
             </ThemedView>
