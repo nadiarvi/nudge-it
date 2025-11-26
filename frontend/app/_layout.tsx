@@ -33,6 +33,24 @@ function RootNavigation() {
 
   // const inAuthGroup = segments[0] === 'login';
 
+  // useEffect(() => {
+  //   if (!isLoading) {
+  //     // Case 1: User is not signed in
+  //     if (!isSignIn && !inAuthOrOnboardingGroup) {
+  //       console.log('Redirecting to login - user not signed in');
+  //       router.replace('/login');
+  //     }
+  //     // Case 2: User is signed in but has no groups
+  //     else if (isSignIn && !hasGroup && currSegment !== 'register-group') {
+  //       router.replace('/register-group');
+  //     }
+  //     // Case 3: User is signed in, has groups, but still on login page
+  //     else if (isSignIn && hasGroup && currSegment === 'login') {
+  //       router.replace('/(tabs)');
+  //     }
+  //   }
+  // }, [isSignIn, inAuthOrOnboardingGroup, isLoading, currSegment, groups]);
+
   useEffect(() => {
     if (!isLoading) {
       // Case 1: User is not signed in
@@ -44,12 +62,12 @@ function RootNavigation() {
       else if (isSignIn && !hasGroup && currSegment !== 'register-group') {
         router.replace('/register-group');
       }
-      // Case 3: User is signed in, has groups, but still on login page
-      else if (isSignIn && hasGroup && currSegment === 'login') {
+      // Case 3: User is signed in and has groups - should be on tabs
+      else if (isSignIn && hasGroup && inAuthOrOnboardingGroup) {
         router.replace('/(tabs)');
       }
     }
-  }, [isSignIn, inAuthOrOnboardingGroup, isLoading, currSegment, groups]);
+  }, [isSignIn, inAuthOrOnboardingGroup, isLoading, currSegment, groups, hasGroup]);
 
   if (isLoading) {
     return (

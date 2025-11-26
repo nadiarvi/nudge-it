@@ -213,12 +213,12 @@ export default function TasksScreen() {
       pathname: '/task-detail',
       params: { 
         id: 'new',
-        title: '',
-        deadline: '',
-        assignedTo: '',
-        status: 'To Do',
-        reviewer: '',
-        nudgeCount: 0,
+        // title: '',
+        // deadline: '',
+        // assignedTo: '',
+        // status: 'To-Do',
+        // reviewer: '',
+        // nudgeCount: 0,
       }
     });
   };

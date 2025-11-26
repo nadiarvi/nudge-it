@@ -27,6 +27,8 @@ export default function LoginScreen() {
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
   const handleLogin = async () => {
+    console.log("Attempting login with:", { email: loginEmail });
+    console.log('HELLOOOO PLS WORK IM BEGGING');
     setIsLoading(true);
 
     try {
@@ -36,6 +38,8 @@ export default function LoginScreen() {
       });
 
       const data = res.data.existingUser;
+      console.log('Login BE success');
+      console.log(data);
 
       await signIn({
         uid: data._id,
@@ -81,6 +85,10 @@ export default function LoginScreen() {
         groups: data.groups,
       });
     } catch (error: any) {
+      if (error.response?.data?.message) {
+        Alert.alert("Sign Up Error", error.response.data.message);
+      }
+
       console.error("Sign Up failed:", error.response?.data || error.message);
     } finally {
       setIsLoading(false);
