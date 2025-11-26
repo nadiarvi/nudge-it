@@ -71,6 +71,22 @@ export default function ChatScreen() {
     });
 };
 
+  const handleChatPressv2 = (chat: { users: User[] }) => {
+    const otherUser = chat.users.find((user) => user._id !== uid);
+    if (!otherUser) {
+      console.error('No other user found in chat.');
+      return;
+    }
+
+    router.push({
+        pathname: '/chat-member',
+        params: {
+          targetUid: otherUser._id,
+          targetUsername: otherUser.first_name,
+        }
+    });
+  }
+
   const MAX_LENGTH = 400;
   const displayChat = (chat: string) => {
     return chat.length > MAX_LENGTH ? chat.substring(0, MAX_LENGTH) + "..." : chat;
@@ -93,7 +109,7 @@ export default function ChatScreen() {
           <ThemedTouchableView 
             key={item.id} 
             style={styles.chatItem} 
-            onPress={() => handleChatPress(item)}
+            onPress={() => handleChatPressv2(item)}
           >
             {/* Icon */}
             {item.name === 'Nuggit' ? (
