@@ -5,50 +5,12 @@ import AuthStore, { useAuthStore } from '@/contexts/auth-context';
 import { NudgeProvider } from '@/contexts/nudge-context';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { router, Stack, useSegments } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import 'react-native-reanimated';
 
 export const unstable_settings = {
   initialRouteName: 'login',
 };
-
-function RootLayoutContent() {
-  const { isSignIn, isLoading, uid } = useAuthStore();
-  console.log('RootLayout - isSignIn:', isSignIn, 'isLoading:', isLoading, 'uid:', uid);
-  
-  if (isLoading) {
-    return <ThemedText>Loading...</ThemedText>;
-  }
-
-  return (
-    <ThemeProvider value={DefaultTheme}>
-      <NudgeProvider>
-        <Stack>
-          <Stack.Screen 
-            name="login" 
-            options={{ 
-              headerShown: false,
-            }} 
-          />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-          <Stack.Screen 
-            name="task-detail" 
-            options={{ 
-              headerShown: true,
-              title: '',
-              headerBackTitle: '',
-              headerRight: () => <TaskDetailHeader />,
-              gestureEnabled: false,
-            }} 
-          />
-        </Stack>
-        <StatusBar style="auto" />
-      </NudgeProvider>
-    </ThemeProvider>
-  );
-}
 
 export default function RootLayout() {
   return (
@@ -60,21 +22,52 @@ export default function RootLayout() {
 }
 
 function RootNavigation() {
-  const { isSignIn, isLoading } = useAuthStore();
+  const { isSignIn, isLoading, groups } = useAuthStore();
   const segments = useSegments();
 
-  const inAuthGroup = segments[0] === 'login';
+  const routes = ['login', 'register-group'];
+  const currSegment = segments[0];
+  const inAuthOrOnboardingGroup = routes.includes(currSegment);
+
+  const hasGroup = groups && groups.length > 0;
+
+  // const inAuthGroup = segments[0] === 'login';
+
+  // useEffect(() => {
+  //   if (!isLoading) {
+  //     // Case 1: User is not signed in
+  //     if (!isSignIn && !inAuthOrOnboardingGroup) {
+  //       console.log('Redirecting to login - user not signed in');
+  //       router.replace('/login');
+  //     }
+  //     // Case 2: User is signed in but has no groups
+  //     else if (isSignIn && !hasGroup && currSegment !== 'register-group') {
+  //       router.replace('/register-group');
+  //     }
+  //     // Case 3: User is signed in, has groups, but still on login page
+  //     else if (isSignIn && hasGroup && currSegment === 'login') {
+  //       router.replace('/(tabs)');
+  //     }
+  //   }
+  // }, [isSignIn, inAuthOrOnboardingGroup, isLoading, currSegment, groups]);
 
   useEffect(() => {
     if (!isLoading) {
-      if (!isSignIn && !inAuthGroup) {
+      // Case 1: User is not signed in
+      if (!isSignIn && !inAuthOrOnboardingGroup) {
+        console.log('Redirecting to login - user not signed in');
         router.replace('/login');
-      } 
-      else if (isSignIn && inAuthGroup) {
+      }
+      // Case 2: User is signed in but has no groups
+      else if (isSignIn && !hasGroup && currSegment !== 'register-group') {
+        router.replace('/register-group');
+      }
+      // Case 3: User is signed in and has groups - should be on tabs
+      else if (isSignIn && hasGroup && inAuthOrOnboardingGroup) {
         router.replace('/(tabs)');
       }
     }
-  }, [isSignIn, inAuthGroup, isLoading]);
+  }, [isSignIn, inAuthOrOnboardingGroup, isLoading, currSegment, groups, hasGroup]);
 
   if (isLoading) {
     return (
@@ -106,6 +99,13 @@ function RootNavigation() {
           headerBackTitle: '',
           headerRight: () => <TaskDetailHeader />,
           gestureEnabled: false,
+        }} 
+      />
+      <Stack.Screen 
+        name="register-group" 
+        options={{ 
+          headerTitle: 'Register Your Group',
+          headerShown: false,
         }} 
       />
     </Stack>

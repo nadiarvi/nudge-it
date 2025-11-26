@@ -1,4 +1,5 @@
 export { ArrowIcon } from './arrow-icon';
+export { BackIcon } from './back-icon';
 export { BellIcon } from './bell-icon';
 export { CalendarIcon } from './calendar-icon';
 export { CallIcon } from './call-icon';

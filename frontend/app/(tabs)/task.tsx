@@ -213,12 +213,12 @@ export default function TasksScreen() {
       pathname: '/task-detail',
       params: { 
         id: 'new',
-        title: '',
-        deadline: '',
-        assignedTo: '',
-        status: 'To Do',
-        reviewer: '',
-        nudgeCount: 0,
+        // title: '',
+        // deadline: '',
+        // assignedTo: '',
+        // status: 'To-Do',
+        // reviewer: '',
+        // nudgeCount: 0,
       }
     });
   };
@@ -261,8 +261,31 @@ export default function TasksScreen() {
       <ThemedView style={styles.separator}/>
 
       <ThemedView style={{ gap: 8 }}>
+
+       {taskList.length === 0 ? (
+          <ThemedView style={{ alignItems: 'center', marginTop: 32 }}>
+            <ThemedText style={{ color: Colors.light.blackSecondary }}>
+              No tasks available.
+            </ThemedText>
+          </ThemedView>
+        ) : (
+          taskList.map((task, index) => (
+            <TaskCard
+              key={task.id}
+              id={task.id}
+              title={task.title}
+              deadline={task.deadline}
+              assignedTo={task.assignee[0]}
+              status={task.status}
+              reviewer={task.reviewer}
+              nudgeCount={task.nudges.length}
+              onNudgeSent={fetchTasks}
+            />
+          ))
+        )}
+
       
-      {taskList.map((task, index) => (
+      {/* {taskList.map((task, index) => (
         <TaskCard
             key={task.id}
             id={task.id}
@@ -274,7 +297,7 @@ export default function TasksScreen() {
             nudgeCount={task.nudges.length}
             onNudgeSent={fetchTasks}
           />
-      ))}
+      ))} */}
       </ThemedView>
 
       <FilterModal

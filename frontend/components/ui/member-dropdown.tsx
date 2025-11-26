@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/theme';
+import { formatDisplayName } from '@/utils/name-formatter';
 import React, { useRef, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './themed-text';
@@ -28,9 +29,7 @@ const defaultMembers: Member[] = [
 
 // Helper to display member name
 const getMemberDisplayName = (member: Member) => {
-  // console.log('member for rendering name:');
-  // console.log(member);
-    return member.first_name || 'Unknown Member';
+    return  formatDisplayName(member.first_name) || 'Unknown Member';
 };
 
 export function MemberDropdown({ 
@@ -39,9 +38,6 @@ export function MemberDropdown({
   members = defaultMembers,
   placeholder = 'Select Member'
 }: MemberDropdownProps) {
-  // DEBUG
-  // console.log('check value');
-  // console.log(value);
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownLayout, setDropdownLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const dropdownRef = useRef<View>(null);

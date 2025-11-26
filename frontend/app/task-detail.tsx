@@ -1,21 +1,18 @@
 import { CalendarIcon, SearchIcon, StatusIcon, UserCircleIcon } from '@/components/icons';
-import { MemberDropdown, ParallaxScrollView, StatusDropdown, ThemedButton, ThemedText, ThemedView } from '@/components/ui';
+import { MemberDropdown, ParallaxScrollView, StatusDropdown, TaskDetailHeader, ThemedButton, ThemedText, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskStatus } from '@/types/task';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ReactElement, useEffect, useState } from 'react';
-import { Alert, Platform, StyleSheet, View } from 'react-native';
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { ReactElement, useEffect, useLayoutEffect, useState } from 'react';
+import { Alert, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 const formatTimestamp = (timestamp: Date) => {
-    //  return is MM.DD HH:MM
     const month = (timestamp.getMonth() + 1).toString().padStart(2, '0');
     const day = timestamp.getDate().toString().padStart(2, '0');
-    const hours = timestamp.getHours().toString().padStart(2, '0');
-    const minutes = timestamp.getMinutes().toString().padStart(2, '0');
     return `${month}.${day}`;
 };
 
@@ -35,22 +32,6 @@ const taskDetailItem = (icon: ReactElement, name: string, content: string | Reac
     )
 }
 
-const commentItem = (comment: {id: string, user: string, text: string, timestamp: Date}) => {
-    return (
-        <ThemedView key={comment.id} style={styles.commentItem}>
-            <ThemedText type='Body2' style={styles.commentUser}>
-                {comment.user}
-            </ThemedText>
-            <ThemedText type='Body2' style={styles.commentText}>
-                {comment.text}
-            </ThemedText>
-            <ThemedText type='Body3' style={{color: Colors.light.blackSecondary}}>
-                {formatTimestamp(comment.timestamp)}
-            </ThemedText>
-        </ThemedView>
-    )
-}
-
 interface User {
     _id: string;
     first_name: string;
@@ -60,67 +41,146 @@ interface User {
 
 interface TaskDetail {
     id: string;
-    assignedTo: [];
+    assignee: string[];
     comments: User[];
     deadline: Date;
     group_id: string;
     nudges: [];
-    reviewer?: User[];
+    reviewer?: string[];
     status: TaskStatus;
     title: string;
 }
 
+const TitleInput = ({ 
+    value, 
+    onChangeText, 
+    placeholder, 
+    autoFocus, 
+    onBlur 
+}: {
+    value: string;
+    onChangeText: (text: string) => void;
+    placeholder: string;
+    autoFocus: boolean;
+    onBlur: () => void;
+}) => {
+    return (
+        <TextInput
+            style={styles.titleInput}
+            value={value}
+            onChangeText={onChangeText}
+            placeholder={placeholder}
+            placeholderTextColor={Colors.light.blackSecondary}
+            autoFocus={autoFocus}
+            onBlur={onBlur}
+            multiline={false}
+        />
+    )
+}
+
 export default function TaskDetailPage() {
+    const navigation = useNavigation();
     const { uid, groups } = useAuthStore();
     const { tid } = useLocalSearchParams();
-    ////console.log(`TaskDetailPage params - tid: ${tid}, uid: ${uid}, groups: ${groups}`);
     const gid = groups[0];
+    
+    // Determine if this is a new task or existing task
+    const isNewTask = !tid || tid === 'new';
     
     const [taskDetail, setTaskDetail] = useState<TaskDetail | undefined>(undefined); 
     const [members, setMembers] = useState<User[]>([]);
+    const [isLoading, setIsLoading] = useState(!isNewTask);
 
+    // Form fields
+    const [taskTitle, setTaskTitle] = useState<string>('');
     const [currentStatus, setCurrentStatus] = useState<TaskStatus>('To-Do');
-    const [currentAssignedTo, setCurrentAssignedTo] = useState<string>(''); // Will hold the assignee ID
-    const [currentReviewer, setCurrentReviewer] = useState<string>(''); // Will hold the reviewer ID
+    const [currentAssignedTo, setCurrentAssignedTo] = useState<string>('');
+    const [currentReviewer, setCurrentReviewer] = useState<string>('');
     const [currentDeadline, setCurrentDeadline] = useState<Date>(new Date());
-    const [allowNudge, setAllowNudge ] = useState(false);
+    const [allowNudge, setAllowNudge] = useState(false);
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
 
     const { showNudgeAlert } = useNudgeAlert();
     const router = useRouter();
 
-
     const fetchGroupMemberIDs = async () => {
         try {
-            const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${groups[0]}/members`)
-            ////console.log('Fetched group members:', res.data.members);
+            const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${gid}/members`)
             setMembers(res.data.members);
         } catch (error) {
-            ////console.log('Error: ', error);
+            console.log('Error fetching members:', error);
         }
     };
 
     const getTaskDetails = async (taskId: string) => {
+        if (!taskId || taskId === 'new') return;
+        
+        setIsLoading(true);
         try {
             const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${taskId}`);
             setTaskDetail(res.data);
         } catch (error) {
-            ////console.log('Error fetching task details:', error);
-            console.error(`failed req: ${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${taskId}`);
-            setTaskDetail(null);
+            console.error('Error fetching task details:', error);
+            Alert.alert('Error', 'Failed to load task details');
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const updateTask = async () => {
-        if (!taskDetail || !gid || !tid) return;
+    const createNewTask = async () => {
+        if (!taskTitle.trim()) {
+            Alert.alert('Error', 'Please enter a task title');
+            return;
+        }
 
-        // Check if the current status is different from the original task detail status
-        if (currentStatus === taskDetail.status) {
-            // No status change, do nothing
+        if (!currentAssignedTo) {
+            Alert.alert('Error', 'Please assign the task to someone');
             return;
         }
 
         const payload = {
+            title: taskTitle,
             status: currentStatus,
+            assignee: currentAssignedTo._id,
+            reviewer: currentReviewer ? currentReviewer._id : [],
+            deadline: currentDeadline.toISOString(),
+            group_id: gid,
+        };
+
+        try {
+            const res = await axios.post(
+                `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/create`,
+                payload
+            );
+            router.back();
+        } catch (error) {
+            console.error('Error creating task:', error);
+            Alert.alert('Error', 'Failed to create task');
+        }
+    };
+
+    const updateTask = async () => {
+        if (!taskDetail || !gid || !tid || isNewTask) return;
+
+        // Don't update if title is empty (invalid state)
+        if (!taskTitle.trim()) return;
+
+        // Check if anything has changed
+        const hasChanges = 
+            currentStatus !== taskDetail.status ||
+            taskTitle !== taskDetail.title ||
+            currentAssignedTo !== taskDetail.assignee[0] ||
+            currentReviewer !== (taskDetail.reviewer?.[0] || '') ||
+            currentDeadline.getTime() !== new Date(taskDetail.deadline).getTime();
+
+        if (!hasChanges) return;
+
+        const payload = {
+            title: taskTitle,
+            status: currentStatus,
+            assignee: [currentAssignedTo],
+            reviewer: currentReviewer ? [currentReviewer] : [],
+            deadline: currentDeadline.toISOString(),
         };
 
         try {
@@ -128,159 +188,145 @@ export default function TaskDetailPage() {
                 `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${tid}`,
                 payload
             );
-            console.log('Task status updated successfully on unmount:', res.data.task.status);
+            console.log('Task updated successfully:', res.data.task);
         } catch (error) {
-            console.error('Error updating task status on unmount:', error);
-            console.log('failed patch req URL:', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${tid}`);
-            console.log('failed patch req payload:', payload);
+            console.error('Error updating task:', error);
         }
     };
 
+    // Auto-save on unmount for existing tasks
     useEffect(() => {
-        return () => {
-            updateTask();
-        };
-    }, [currentStatus, taskDetail, gid, tid]);
+        // Only set up cleanup if we have loaded task details
+        if (!isNewTask && taskDetail) {
+            return () => {
+                updateTask();
+            };
+        }
+    }, [currentStatus, currentAssignedTo, currentReviewer, currentDeadline, taskTitle, taskDetail]);
 
+    // Initial data fetch
     useEffect(() => {
         fetchGroupMemberIDs();
-        getTaskDetails(tid as string);
+        if (!isNewTask) {
+            getTaskDetails(tid as string);
+        }
     }, [uid, tid]);
 
+    // Initialize form fields when task details are loaded
     useEffect(() => {
         if (taskDetail) {
+            setTaskTitle(taskDetail.title);
             setCurrentStatus(taskDetail.status);
-
-            const assignedId = taskDetail.assignee[0];
-            //////console.log('Setting currentAssignedTo to:', assignedId);
-            setCurrentAssignedTo(assignedId);
+            setCurrentAssignedTo(taskDetail.assignee[0] || '');
+            setCurrentReviewer(taskDetail.reviewer?.[0] || '');
             
-            const reviewerId = taskDetail.reviewer[0];
-            //////console.log('Setting currentReviewer to:', reviewerId);
-            setCurrentReviewer(reviewerId);
-
             if (taskDetail.deadline) {
                 setCurrentDeadline(new Date(taskDetail.deadline));
             }
 
-            const show = uid === assignedId;
-            setAllowNudge(!show);
+            const isAssignedToCurrentUser = uid === taskDetail.assignee[0];
+            setAllowNudge(!isAssignedToCurrentUser);
+        } else if (isNewTask) {
+            // Set defaults for new task
+            setTaskTitle('');
+            setCurrentStatus('To-Do');
+            setCurrentAssignedTo('');
+            setCurrentReviewer('');
+            setCurrentDeadline(new Date());
+            setAllowNudge(false);
         }
-    }, [taskDetail, uid]);
+    }, [taskDetail, uid, isNewTask]);
 
-//   const initialStatus = taskDetail.status;
-//   const [currentStatus, setCurrentStatus] = useState<TaskStatus>(initialStatus);
-  
-//   // State management for assigned member and reviewer
-//   const [currentAssignedTo, setCurrentAssignedTo] = useState(taskDetail.assignedTo);
-//   const [currentReviewer, setCurrentReviewer] = useState(taskDetail.reviewer ?? taskDetail.reviewer);
-//   const [comments, setComments] = useState([]);
+    // Update header for existing tasks
+    useLayoutEffect(() => {
+        if (!isNewTask && tid) {
+            navigation.setOptions({
+                headerRight: () => <TaskDetailHeader tid={tid as string} gid={gid} />,
+            });
+        } else {
+            navigation.setOptions({
+                headerRight: () => null,
+            });
+        }
+    }, [navigation, tid, gid, isNewTask]);
 
-
-//   const [ allowNudge, setAllowNudge ] = useState(false);
-
-//   const [modalCalendar, setModalCalendar] = useState(false);
-//   const [currentDeadline, setCurrentDeadline] = useState(new Date(taskDetail.deadline));
-
-//   useEffect(() => {
-//     const show = uid === taskDetail.assignedTo;
-//     setAllowNudge(!show);
-//   }, [uid, taskDetail]);
-  
-  
-  // Get nudge alert hook and router
-//   const { showNudgeAlert } = useNudgeAlert();
-//   const router = useRouter();
-
-    // --- Render Guard (Handle loading and error states) ---
-    if (taskDetail === undefined) {
+    // Loading state for existing tasks
+    if (isLoading) {
         return (
             <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <ThemedText type='H2'>Loading Task Details...</ThemedText>
             </ThemedView>
         );
     }
-    
-    if (taskDetail === null) {
-         return (
-            <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ThemedText type='H2' style={{ color: Colors.light.red }}>Task Not Found or Failed to Load</ThemedText>
-            </ThemedView>
-        );
-    }
-    // --- End Render Guard ---
 
     const statusComponent = (taskStatus: TaskStatus) => {
         return (
             <StatusDropdown 
-            value={taskStatus} 
-            onValueChange={(newStatus) => {
-                //////console.log('Status changed to:', newStatus);
-                setCurrentStatus(newStatus);
-                // Handle status change here - you can add API calls or other logic
-            }} />
+                value={taskStatus} 
+                onValueChange={setCurrentStatus}
+            />
         )
     }
 
-    const memberDropdownComponent = (memberList: string[], currentMember: string, onMemberChange: (member: string) => void, placeholder: string) => {
-        //////console.log('Rendering MemberDropdown with currentMember:', currentMember);
+    const memberDropdownComponent = (
+        memberList: User[], 
+        currentMember: string, 
+        onMemberChange: (member: string) => void, 
+        placeholder: string
+    ) => {
         return (
             <MemberDropdown 
-            value={currentMember} 
-            members={memberList}
-            onValueChange={(newMember) => {
-                //////console.log('Member changed to:', newMember);
-                onMemberChange(newMember);
-                // Handle member change here - you can add API calls or other logic
-            }} 
-            placeholder={placeholder}
+                value={currentMember} 
+                members={memberList}
+                onValueChange={onMemberChange}
+                placeholder={placeholder}
             />
         )
     }
 
     const handleNudgePress = () => {
         if (!allowNudge) {
-        Alert.alert(
-            'Nudge Disabled',
-            'You cannot nudge a task that you are assigned to',
-            [{ text: 'OK' }]
-        );
-        return;
+            Alert.alert(
+                'Nudge Disabled',
+                'You cannot nudge a task that you are assigned to',
+                [{ text: 'OK' }]
+            );
+            return;
         }
+        
         const assignee = members.find(m => m._id === currentAssignedTo);
         const assigneeName = assignee ? `${assignee.first_name} ${assignee.last_name}` : 'The Assignee';
-        const taskNudgeCount = parseInt(taskDetail.nudges.length as string) || 0;
-
-        //////console.log('Showing nudge alert for task:', taskDetail.title, 'with nudge count:', taskNudgeCount);
-        //////console.log(currentAssignedTo);
-        // showNudgeAlert(taskDetail, taskDetail.title as string, currentAssignedTo, taskNudgeCount);
+        const taskNudgeCount = taskDetail?.nudges?.length || 0;
 
         showNudgeAlert(
-            tid as string, // Pass tid
-            taskDetail.title as string,
-            currentAssignedTo, // Pass ID
-            assigneeName, // Pass Name
+            tid as string,
+            taskTitle,
+            currentAssignedTo,
+            assigneeName,
             taskNudgeCount
         );
     }
 
     const handleChatPress = () => {
         if (!allowNudge) {
-        Alert.alert(
-            'Chat Disabled',
-            'You cannot chat about a task that you are assigned to',
-            [{ text: 'OK' }]
-        );
-        return;
+            Alert.alert(
+                'Chat Disabled',
+                'You cannot chat about a task that you are assigned to',
+                [{ text: 'OK' }]
+            );
+            return;
         }
 
         router.replace({
             pathname: '/chat-member',
             params: {
-                // 🔑 FIX: Pass only the string ID and use a consistent name (targetUserId)
-                targetUserId: currentAssignedTo._id, 
+                targetUserId: currentAssignedTo,
             }
         });
+    }
+
+    const handleSaveNewTask = () => {
+        createNewTask();
     }
 
     const DatePicker = () => {
@@ -292,7 +338,6 @@ export default function TaskDetailPage() {
                 onChange={(event, selectedDate) => {
                     if (selectedDate) {
                         setCurrentDeadline(selectedDate);
-                        ////console.log('Deadline changed to:', selectedDate);
                     }
                 }}
                 style={{
@@ -301,53 +346,69 @@ export default function TaskDetailPage() {
             />
         )
     }
+
+    
+
+    const TitleDisplay = () => {
+        if (isEditingTitle) {
+            return <TitleInput />
+        }
+        
+        return (
+            <TouchableOpacity onPress={() => setIsEditingTitle(true)} activeOpacity={0.7}>
+                <ThemedText type='H1' style={styles.editableTitle}>
+                    {taskTitle || 'Untitled Task'}
+                </ThemedText>
+            </TouchableOpacity>
+        )
+    }
     
     return (
         <ParallaxScrollView paddingTop={0}>
             <ThemedView style={styles.taskDetails}>
-                <ThemedText type='H1'>{taskDetail.title as string || 'Task Details'}</ThemedText>
+                <TitleInput 
+                    value={taskTitle}
+                    onChangeText={setTaskTitle}
+                    placeholder="Task Title"
+                    autoFocus={isNewTask}
+                    onBlur={() => setIsEditingTitle(false)}
+                />
+                
                 {taskDetailItem(<CalendarIcon size={20}/>, 'Deadline', <DatePicker />)}
-                {taskDetailItem(<UserCircleIcon size={20}/>, 'Assigned To', memberDropdownComponent(members, currentAssignedTo, setCurrentAssignedTo, 'Select Member'))}
+                {taskDetailItem(
+                    <UserCircleIcon size={20}/>, 
+                    'Assigned To', 
+                    memberDropdownComponent(members, currentAssignedTo, setCurrentAssignedTo, 'Select Member')
+                )}
                 {taskDetailItem(<StatusIcon size={20}/>, 'Status', statusComponent(currentStatus))}
-                {taskDetailItem(<SearchIcon size={20}/>, 'Reviewer', memberDropdownComponent(members, currentReviewer, setCurrentReviewer, 'Select Reviewer'))}
+                {taskDetailItem(
+                    <SearchIcon size={20}/>, 
+                    'Reviewer', 
+                    memberDropdownComponent(members, currentReviewer, setCurrentReviewer, 'Select Reviewer')
+                )}
             </ThemedView>
 
             <ThemedView style={styles.separator} />
 
-            <ThemedView style={styles.buttonSection}>
-                <ThemedButton variant='hover' onPress={handleNudgePress}>
-                    Nudge
-                </ThemedButton>
-                <ThemedButton variant='hover' onPress={handleChatPress}>
-                    Chat
-                </ThemedButton>
-            </ThemedView>
-
-            {/* <ThemedView style={styles.commentSection}>
-                <ThemedText type='Body2'>Comments</ThemedText>
-
-                <View style={styles.newCommentSection}>
-                    <UserCircleIcon variant='solid' size={16} color={Colors.light.tint}/>
-                    <ThemedTextInput 
-                        style={styles.commentInput}
-                        placeholder="Add a comment..."
-                        multiline={true}
-                        type="Body2"
-                    />
-                </View>
-
-                <ThemedView style={styles.separator} />
-
-                <ThemedView>
-                    {comments && comments.length > 0 ? (
-                        comments.map((comment) => commentItem(comment))
-                    ) : (
-                        <ThemedText type='Body2' style={{color: Colors.light.blackSecondary}}>
-                            No comments yet.
-                        </ThemedText>
-                    )}
+            {isNewTask ? (
+                <ThemedView style={styles.buttonSection}>
+                    <ThemedButton variant='primary' onPress={handleSaveNewTask}>
+                        Create Task
+                    </ThemedButton>
+                    <ThemedButton variant='secondary' onPress={() => router.back()}>
+                        Cancel
+                    </ThemedButton>
                 </ThemedView>
-            </ThemedView> */}
+            ) : (
+                <ThemedView style={styles.buttonSection}>
+                    <ThemedButton variant='hover' onPress={handleNudgePress}>
+                        Nudge
+                    </ThemedButton>
+                    <ThemedButton variant='hover' onPress={handleChatPress}>
+                        Chat
+                    </ThemedButton>
+                </ThemedView>
+            )}
         </ParallaxScrollView>
     );
 }
@@ -367,41 +428,28 @@ const styles = StyleSheet.create({
         gap: 12,
         alignSelf: 'center',
     },
-    commentSection: {
-        flexDirection: 'column',
-        gap: 8,
-    },
-    newCommentSection: {
-        flexDirection: 'row',
-        gap: 8,
-        alignItems: 'flex-start',
-    },
-    commentInput: {
-        flex: 1,
-        fontSize: 16,
-        color: Colors.light.text,
-        paddingVertical: 0,
-    },
     separator: {
         height: 1,
         backgroundColor: Colors.light.cardBorder,
     },
-    commentItem: {
-        flexDirection: 'row',
-        gap: 8,
-        marginBottom: 12,
-    },
-    commentUser: {
-        minWidth: 48,
-        fontWeight: '600',
-        color: Colors.light.tint,
-    },
-    commentText: {
-        flex: 1,
+    titleInput: {
+        fontSize: 32,
+        fontWeight: 'bold',
         color: Colors.light.text,
+        borderWidth: 0,
+        borderRadius: 8,
+        minHeight: 48,
+        letterSpacing: 0,
+        fontFamily: Platform.select({
+            ios: 'System',
+            android: 'sans-serif',
+        }),
     },
-    datePickerContainer: {
-        // marginHorizontal: -22,
-        backgroundColor: Colors.light.background,
-    }
+    editableTitle: {
+        marginBottom: 16,
+        padding: 8,
+        borderRadius: 8,
+        backgroundColor: 'transparent',
+        minHeight: 48,
+    },
 });
