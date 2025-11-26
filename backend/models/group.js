@@ -14,7 +14,17 @@ const GroupSchema = new mongoose.Schema({
     },
     tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],     // array of task id
     chats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chat' }],
-    nudge_limit: { type: Number, default: 1 }
+    nudge_limit: { type: Number, default: 1 },
+    invite_code: {
+        type: String,
+        required: true,
+        uppercase: true,
+        trim: true,
+        minLength: 6,
+        maxLength: 6,
+        unique: true,
+        index: true
+    }
 })
 
 module.exports = mongoose.model('Group', GroupSchema);

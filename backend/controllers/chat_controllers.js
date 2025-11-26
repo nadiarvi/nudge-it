@@ -68,6 +68,8 @@ const createOrGetChat = async (req, res, next) => {
             });
         }
 
+        console.log("creating new chat ---");
+
         await newChat.save();
         await newChat.populate("people", "messages");
 
@@ -125,6 +127,14 @@ const getChatById = async (req, res, next) => {
             return next(new HttpError("Chat not found", 404));
         }
 
+        // Reverse messages order before returning
+        const chatObj = existingChat.toObject();
+        if (Array.isArray(chatObj.messages)) {
+            chatObj.messages = chatObj.messages.slice().reverse();
+        }
+
+        existingChat.messages = chatObj.messages;
+
         res.status(200).json({ existingChat });
     } catch (err) {
         console.error(err);
@@ -145,7 +155,7 @@ const sendUserMessage = async (req, res, next) => {
         const otherUserId = chat.people.find(p => p.id.toString() !== currentUserId.toString());
 
         // Revise tone
-        const revision = await reviseMessage(content);
+        const revision = await reviseMessage(chatId, currentUserId, content);
         if (revision.revise) {
             // Ask user to confirm which message to use
             return res.status(200).json({
@@ -221,6 +231,13 @@ const sendNuggetMessage = async (req, res, next) => {
         });
 
         await chat.save();
+        // Reverse messages order before returning
+        const chatObj = chat.toObject();
+        if (Array.isArray(chatObj.messages)) {
+            chatObj.messages = chatObj.messages.slice().reverse();
+        }
+
+        chat.messages = chatObj.messages;
         res.status(201).json({ chat });
     } catch (err) {
         return next(new HttpError("Sending nugget message failed", 500));
