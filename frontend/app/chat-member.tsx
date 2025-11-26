@@ -264,7 +264,7 @@ export default function ChatDetailScreen() {
 
       if (chatData && chatData._id) {
         setChatId(chatData._id);
-        setMessages(chatData.messages.reverse());
+        setMessages(chatData.messages);
         setPeople(chatData.people);
       }
     } catch (error) {
