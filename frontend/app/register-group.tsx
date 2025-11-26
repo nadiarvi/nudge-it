@@ -1,14 +1,15 @@
-import { ParallaxScrollView, ThemedButton, ThemedText, ThemedTextInput, ThemedView } from '@/components/ui';
+import { BackIcon } from '@/components/icons';
+import { ParallaxScrollView, ThemedButton, ThemedText, ThemedTextInput, ThemedTouchableView, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function RegisterGroupScreen() {
   const router = useRouter();
-  const { first_name, uid, email, last_name, signIn } = useAuthStore();
+  const { first_name, uid, email, last_name, signIn, signOut } = useAuthStore();
   const [activeTab, setActiveTab] = useState<'create' | 'join'>('create');
   const [loading, setLoading] = useState(false);
 
@@ -30,17 +31,18 @@ export default function RegisterGroupScreen() {
 
     setLoading(true);
 
-    try {
-      const res = await axios.post(`${API_BASE_URL}/api/groups/create`, {
+    const payload = {
         name: groupName.trim(),
-        members: [uid],
         ta_email: taEmail.trim() || undefined,
-        nudge_limit: parseInt(nudgeLimit) || 1,
-      });
+        nudge_limit: parseInt(nudgeLimit) || undefined,
+    }
+    console.log("Creating group with payload:", payload);
 
-      const groupId = res.data.group._id;
-
-      // Update the auth context with the new group
+    try {
+      console.log('creating group for user:', uid);
+      const res = await axios.post(`${API_BASE_URL}/api/groups/create/${uid}`, payload);
+      const groupId = res.data.groupId;
+    
       await signIn({
         uid,
         first_name,
@@ -49,10 +51,11 @@ export default function RegisterGroupScreen() {
         groups: [groupId],
       });
 
-      Alert.alert("Success", `Group "${groupName}" created successfully!`);
       router.replace('/(tabs)');
+      
     } catch (error: any) {
       console.error("Group creation failed:", error.response?.data || error.message);
+      console.log("failed req: ", `${API_BASE_URL}/api/groups/create/${uid}`, payload);
       Alert.alert("Error", error.response?.data?.message || "Failed to create group. Please try again.");
     } finally {
       setLoading(false);
@@ -103,143 +106,154 @@ export default function RegisterGroupScreen() {
     setNudgeLimit('1');
     setInviteCode('');
     setActiveTab(tab);
-  }
+  };
+
+  const handleBackNav = async () => {
+    await signOut();
+    router.replace('/login');
+  };
 
   return (
     <ParallaxScrollView>
-        <ThemedView style={styles.centerWrapper}>
-            <ThemedView style={{ flexDirection: 'column', gap: 16, marginTop: 32,}}>
-                <View style={{ alignItems: 'center', marginBottom: 32, gap: 16 }}>
-                    <ThemedText type="H1" style={styles.title}>
-                        Join a Group
-                    </ThemedText>
-                    <ThemedText type="Body1" style={styles.subtitle}>
-                        Make a new group or join an existing one to get started!
-                    </ThemedText>
-                </View>
-            
-                {/* Tab Selector */}
-                <ThemedView style={styles.tabContainer}>
-                    <TouchableOpacity
-                        style={[styles.tab, activeTab === 'create' && styles.activeTab]}
-                        onPress={() => handleSwitchTab('create')}
-                    >
-                    <ThemedText
-                        type="Body2"
-                        style={[styles.tabText, activeTab === 'create' && styles.activeTabText]}
-                    >
-                        Create Group
-                    </ThemedText>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                    style={[styles.tab, activeTab === 'join' && styles.activeTab]}
-                    onPress={() => handleSwitchTab('join')}
-                    >
-                    <ThemedText
-                        type="Body2"
-                        style={[styles.tabText, activeTab === 'join' && styles.activeTabText]}
-                    >
-                        Join Group
-                    </ThemedText>
-                    </TouchableOpacity>
-                </ThemedView>
+        <ThemedTouchableView onPress={handleBackNav} style={{ flexDirection: 'row', gap: 2, alignItems: 'center' }}>
+            <BackIcon size={16} strokeWidth={3} color={Colors.light.tint} />
+            <ThemedText style={styles.backNavTitle} type="Body2">
+                Sign Up
+            </ThemedText>
 
-            {/* Tab Content */}
-            {activeTab === 'create' ? (
-                <ThemedView style={styles.content}>
-                <ThemedView style={styles.form}>
-                    <ThemedView style={styles.inputContainer}>
-                    <ThemedText type="Body2" style={styles.label}>
-                        Group Name
-                    </ThemedText>
-                    <ThemedTextInput
-                        style={styles.input}
-                        value={groupName}
-                        onChangeText={setGroupName}
-                    />
-                    </ThemedView>
-
-                    <ThemedView style={styles.inputContainer}>
-                    <ThemedText type="Body2" style={styles.label}>
-                        TA Email (Optional)
-                    </ThemedText>
-                    <ThemedTextInput
-                        style={styles.input}
-                        placeholder="ta@email.com"
-                        value={taEmail}
-                        onChangeText={setTaEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                    />
-                    </ThemedView>
-
-                    <ThemedView style={styles.inputContainer}>
-                    <ThemedText type="Body2" style={styles.label}>
-                        Daily Nudge Limit
-                    </ThemedText>
-                    <ThemedTextInput
-                        style={styles.input}
-                        placeholder="1"
-                        value={nudgeLimit}
-                        onChangeText={setNudgeLimit}
-                        keyboardType="number-pad"
-                    />
-                    </ThemedView>
-                </ThemedView>
-
-                <ThemedButton 
-                    variant="primary" 
-                    onPress={handleCreateGroup}
-                    style={styles.button}
-                    disabled={loading}
+        </ThemedTouchableView>
+        <ThemedView style={{ flexDirection: 'column', gap: 16, marginTop: 32,}}>
+            <View style={{ alignItems: 'center', marginBottom: 32, gap: 16 }}>
+                <ThemedText type="H1" style={styles.title}>
+                    Join a Group
+                </ThemedText>
+                <ThemedText type="Body1" style={styles.subtitle}>
+                    Make a new group or join an existing one to get started!
+                </ThemedText>
+            </View>
+        
+            {/* Tab Selector */}
+            <ThemedView style={styles.tabContainer}>
+                <TouchableOpacity
+                    style={[styles.tab, activeTab === 'create' && styles.activeTab]}
+                    onPress={() => handleSwitchTab('create')}
                 >
-                    {loading ? 'Creating Group...' : 'Create Group'}
-                </ThemedButton>
-                </ThemedView>
-            ) : (
-                <ThemedView style={styles.content}>
-                <ThemedView style={styles.form}>
-                    <ThemedView style={styles.inputContainer}>
-                    <ThemedText type="Body2" style={styles.label}>
-                        Invite Code
-                    </ThemedText>
-                    <ThemedText type="Body2" style={styles.helperText}>
-                        Enter the 4-digit code from your group
-                    </ThemedText>
-                    <ThemedTextInput
-                        style={[styles.input, styles.codeInput]}
-                        placeholder="0000"
-                        value={inviteCode}
-                        onChangeText={setInviteCode}
-                        keyboardType="number-pad"
-                        maxLength={4}
-                    />
-                    </ThemedView>
-                </ThemedView>
-
-                <ThemedButton 
-                    variant="primary" 
-                    onPress={handleJoinGroup}
-                    style={styles.button}
-                    disabled={loading}
+                <ThemedText
+                    type="Body2"
+                    style={[styles.tabText, activeTab === 'create' && styles.activeTabText]}
                 >
-                    {loading ? 'Joining Group...' : 'Join Group'}
-                </ThemedButton>
-                </ThemedView>
-            )}
+                    Create Group
+                </ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                style={[styles.tab, activeTab === 'join' && styles.activeTab]}
+                onPress={() => handleSwitchTab('join')}
+                >
+                <ThemedText
+                    type="Body2"
+                    style={[styles.tabText, activeTab === 'join' && styles.activeTabText]}
+                >
+                    Join Group
+                </ThemedText>
+                </TouchableOpacity>
             </ThemedView>
+
+        {/* Tab Content */}
+        {activeTab === 'create' ? (
+            <ThemedView style={styles.content}>
+            <ThemedView style={styles.form}>
+                <ThemedView style={styles.inputContainer}>
+                <ThemedText type="Body2" style={styles.label}>
+                    Group Name
+                </ThemedText>
+                <ThemedTextInput
+                    style={styles.input}
+                    value={groupName}
+                    onChangeText={setGroupName}
+                />
+                </ThemedView>
+
+                <ThemedView style={styles.inputContainer}>
+                <ThemedText type="Body2" style={styles.label}>
+                    TA Email (Optional)
+                </ThemedText>
+                <ThemedTextInput
+                    style={styles.input}
+                    placeholder="ta@email.com"
+                    value={taEmail}
+                    onChangeText={setTaEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                />
+                </ThemedView>
+
+                <ThemedView style={styles.inputContainer}>
+                <ThemedText type="Body2" style={styles.label}>
+                    Nudge Threshold per Stage
+                </ThemedText>
+                <ThemedTextInput
+                    style={styles.input}
+                    placeholder="1"
+                    value={nudgeLimit}
+                    onChangeText={setNudgeLimit}
+                    keyboardType="number-pad"
+                />
+                </ThemedView>
+            </ThemedView>
+
+            <ThemedButton 
+                variant="primary" 
+                onPress={handleCreateGroup}
+                style={styles.button}
+                disabled={loading}
+            >
+                {loading ? 'Creating Group...' : 'Create Group'}
+            </ThemedButton>
+            </ThemedView>
+        ) : (
+            <ThemedView style={styles.content}>
+            <ThemedView style={styles.form}>
+                <ThemedView style={styles.inputContainer}>
+                <ThemedText type="Body2" style={styles.label}>
+                    Invite Code
+                </ThemedText>
+                <ThemedText type="Body2" style={styles.helperText}>
+                    Enter the 4-digit code from your group
+                </ThemedText>
+                <ThemedTextInput
+                    style={[styles.input, styles.codeInput]}
+                    placeholder="0000"
+                    value={inviteCode}
+                    onChangeText={setInviteCode}
+                    keyboardType="number-pad"
+                    maxLength={4}
+                />
+                </ThemedView>
+            </ThemedView>
+
+            <ThemedButton 
+                variant="primary" 
+                onPress={handleJoinGroup}
+                style={styles.button}
+                disabled={loading}
+            >
+                {loading ? 'Joining Group...' : 'Join Group'}
+            </ThemedButton>
+            </ThemedView>
+        )}
         </ThemedView>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-    centerWrapper: {
-        minHeight: Dimensions.get('window').height * 0.8,
-        // justifyContent: 'center',
-    },
     title: {
         textAlign: 'center',
+    },
+    backNavTitle: {
+        color: Colors.light.tint, 
+        fontWeight: '600',
+        fontSize: 16,
     },
     subtitle: {
         textAlign: 'center',

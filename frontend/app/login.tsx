@@ -22,9 +22,13 @@ export default function LoginScreen() {
   const [lastName, setLastName] = useState('');
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
   const handleLogin = async () => {
+    setIsLoading(true);
+
     try {
       const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/users/login`, {
         email: loginEmail,
@@ -40,9 +44,10 @@ export default function LoginScreen() {
         email: data.email,
         groups: data.groups,
       });
-
     } catch (error: any) {
       console.error("Login failed:", error.response?.data || error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,6 +62,7 @@ export default function LoginScreen() {
       return;
     }
 
+    setIsLoading(true);
     try {
       const res = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/users/signup`, {
         first_name: firstName,
@@ -76,6 +82,8 @@ export default function LoginScreen() {
       });
     } catch (error: any) {
       console.error("Sign Up failed:", error.response?.data || error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -131,6 +139,7 @@ export default function LoginScreen() {
                   <TouchableOpacity 
                     style={styles.eyeIcon}
                     onPress={() => setShowLoginPassword(!showLoginPassword)}
+                    disabled={isLoading}
                   >
                     {showLoginPassword ? <EyeIcon size={20} color={Colors.light.blackSecondary} /> : <EyeSlashIcon size={20} color={Colors.light.blackSecondary} />}
                   </TouchableOpacity>
@@ -186,6 +195,7 @@ export default function LoginScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
+                  disabled={isLoading}
                 />
               </ThemedView>
 
@@ -201,10 +211,12 @@ export default function LoginScreen() {
                     onChangeText={setSignUpPassword}
                     secureTextEntry={!showSignUpPassword}
                     autoCapitalize="none"
+                    disabled={isLoading}
                   />
                   <TouchableOpacity 
                     style={styles.eyeIcon}
                     onPress={() => setShowSignUpPassword(!showSignUpPassword)}
+                    disabled={isLoading}
                   >
                     {showSignUpPassword ? <EyeIcon size={20} color={Colors.light.blackSecondary} /> : <EyeSlashIcon size={20} color={Colors.light.blackSecondary} />}
                   </TouchableOpacity>
@@ -215,6 +227,7 @@ export default function LoginScreen() {
                 variant="primary" 
                 onPress={handleSignUp}
                 style={styles.submitButton}
+                disabled={isLoading}
               >
                 Sign Up
               </ThemedButton>
