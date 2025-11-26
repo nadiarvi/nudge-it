@@ -13,7 +13,8 @@ const createGroup = async (req, res, next) => {
         );
     }
 
-    const { uid } = req.params?.uid;
+    const { uid } = req.params;
+    console.log("uid:", uid);
 
     if (!uid) {
         return next(new HttpError("User ID is required to create a group.", 400));

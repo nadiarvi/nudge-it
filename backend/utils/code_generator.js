@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 // generates a random string of 6 uppercase letters and numbers
 const generateCode = (length = 6) => {
     let result = '';
