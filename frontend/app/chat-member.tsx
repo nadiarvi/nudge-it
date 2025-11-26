@@ -238,7 +238,6 @@ export default function ChatDetailScreen() {
   const { uid, groups } = useAuthStore();
   const gid = groups[0];
   const router = useRouter();
-  // const { cid, name, targetUserId } = useLocalSearchParams(); //OLD
   const { targetUid, targetUsername } = useLocalSearchParams();
 
   const [chatId, setChatId] = useState<string>('');
@@ -380,8 +379,8 @@ export default function ChatDetailScreen() {
     let otherUserId: string | undefined = otherPerson?._id;
 
     // Fallback to targetUserId from URL params if not found in people
-    if (!otherUserId && targetUserId) {
-      otherUserId = targetUserId._id as string;
+    if (!otherUserId && targetUid) {
+      otherUserId = targetUid as string;
     }
 
     if (!otherUserId) {
@@ -390,7 +389,7 @@ export default function ChatDetailScreen() {
       return;
     }
 
-    const activeChatId = chatId || cid;
+    const activeChatId = chatId;
 
     router.push({
       pathname: '/chatbot',
