@@ -40,6 +40,7 @@ export default function ChatScreen() {
                               id: chat._id,
                               name: partner?.first_name || 'Unknown User',
                               message: latestMessage,
+                              partner: partner,
                             };
                           });
 
@@ -71,8 +72,10 @@ export default function ChatScreen() {
     });
 };
 
-  const handleChatPressv2 = (chat: { users: User[] }) => {
-    const otherUser = chat.users.find((user) => user._id !== uid);
+  const handleChatPressv2 = (chat: { partner: User }) => {
+    console.log(`param passed: `, chat);
+    // const otherUser = chat.users.find((user) => user._id !== uid);
+    const otherUser = chat.partner;
     if (!otherUser) {
       console.error('No other user found in chat.');
       return;
