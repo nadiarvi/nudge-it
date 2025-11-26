@@ -5,7 +5,7 @@ const router = express.Router();
 const groupController = require("../controllers/group_controllers");
 const { createGroup, getGroup, deleteGroup, updateGroup, getMembers, addMembers, deleteMembers, joinGroup } = groupController;
 
-router.post("/create",
+router.post("/create/:uid",
     [
         check("name").notEmpty(),
         check("nudge_limit").optional().isInt({ min: 1 })
