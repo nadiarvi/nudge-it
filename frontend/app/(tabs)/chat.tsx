@@ -15,6 +15,7 @@ import axios from 'axios';
 
 import { User } from '@/types/user';
 
+import { Colors } from '@/constants/theme';
 import { formatDisplayName } from '@/utils/name-formatter';
 
 export default function ChatScreen() {
@@ -81,35 +82,43 @@ export default function ChatScreen() {
         <ThemedText type="H1">Chats</ThemedText>
       </ThemedView>
 
-      {chatData.map((item) => (
-        <ThemedTouchableView 
-          key={item.id} 
-          style={styles.chatItem} 
-          onPress={() => handleChatPress(item)}
-        >
-          {item.name === 'Nuggit' ? (
-            <NuggitIcon size={40} />
-          ) : (
-            <ProfileIcon size={40} />
-          )}
+      {chatData.length === 0 ? (
+        <ThemedView style={{ alignItems: 'center', marginTop: 32 }}>
+          <ThemedText style={{ color: Colors.light.blackSecondary }}>
+            No chats available.
+          </ThemedText>
+        </ThemedView>
+      ) : (
+        chatData.map((item) => (
+          <ThemedTouchableView 
+            key={item.id} 
+            style={styles.chatItem} 
+            onPress={() => handleChatPress(item)}
+          >
+            {/* Icon */}
+            {item.name === 'Nuggit' ? (
+              <NuggitIcon size={40} />
+            ) : (
+              <ProfileIcon size={40} />
+            )}
 
-          {/* Chat Text */}
-          <View style={styles.chatTextContainer}>
-            <ThemedText type="H3">{formatDisplayName(item.name)}</ThemedText>
-            <ThemedText type="Body3" style={styles.messagePreview} numberOfLines={1}>
-              {/* {displayChat(item.message)} */}
-              {item.message}
-            </ThemedText>
-          </View>
-
-          {/* Unread Badge */}
-          {item.unread && (
-            <View style={styles.unreadBadge}>
-              <ThemedText type="Body3" style={styles.unreadText}>1</ThemedText>
+            {/* Chat Text */}
+            <View style={styles.chatTextContainer}>
+              <ThemedText type="H3">{formatDisplayName(item.name)}</ThemedText>
+              <ThemedText type="Body3" style={styles.messagePreview} numberOfLines={1}>
+                {item.message}
+              </ThemedText>
             </View>
-          )}
-        </ThemedTouchableView>
-      ))}
+
+            {/* Unread Badge */}
+            {item.unread && (
+              <View style={styles.unreadBadge}>
+                <ThemedText type="Body3" style={styles.unreadText}>1</ThemedText>
+              </View>
+            )}
+          </ThemedTouchableView>
+        ))
+      )}
     </ParallaxScrollView>
   );
 }
@@ -117,12 +126,11 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
-    gap: 8,
   },
   separator: {
     height: 0.5,
     backgroundColor: '#CCCCCC',
-    marginVertical: 2,
+    // marginVertical: 2,
   },
   searchInput: {
     height: 40,
