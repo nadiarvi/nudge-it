@@ -33,7 +33,7 @@ const sendPushNotification = async (receiverId, groupId, taskId) => {
 
         // send a push notification
         const messages = tokens.map(token => {
-            if (!ExpoPush.isExpoPushToken(token)) {
+            if (!ExpoSDK.isExpoPushToken(token)) {
                 console.warn("Invalid Expo push token:", token);
                 return null;
             }
