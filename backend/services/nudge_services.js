@@ -8,7 +8,6 @@ const HttpError = require("../models/http-error");
 const User = require("../models/user");
 const Group = require("../models/group");
 const Task = require("../models/task");
-const { checkGroupExists, checkUserExists } = require("../utils/validators");
 const user = require("../models/user");
 
 dotenv.config();
@@ -33,7 +32,7 @@ const sendPushNotification = async (receiverId, groupId, taskId) => {
 
         // send a push notification
         const messages = tokens.map(token => {
-            if (!ExpoPush.isExpoPushToken(token)) {
+            if (!ExpoSDK.isExpoPushToken(token)) {
                 console.warn("Invalid Expo push token:", token);
                 return null;
             }
@@ -69,9 +68,58 @@ const sendPushNotification = async (receiverId, groupId, taskId) => {
 };
 
 const simulatePhoneCall = async (receiverId, groupId, taskId) => {
-  // Simulate a phone call
-  console.log(`Simulated phone call to user ${receiverId} for group ${groupId}, task ${taskId}`);
-  return true;
+  try {
+        const [receiver, group, task] = await Promise.all([
+            User.findById(receiverId),
+            Group.findById(groupId),
+            Task.findById(taskId)
+        ]);
+
+        if (!receiver) throw new HttpError("Receiver not found", 404);
+        if (!group) throw new HttpError("Group not found", 404);
+        if (!task) throw new HttpError("Task not found", 404);
+
+        const tokens = receiver.expo_push_tokens || [];
+        if (tokens.length === 0) {
+            console.log("No Expo push token for user", receiver.name);
+            return false;
+        }
+
+        // send a push notification
+        const messages = tokens.map(token => {
+            if (!ExpoSDK.isExpoPushToken(token)) {
+                console.warn("Invalid Expo push token:", token);
+                return null;
+            }
+
+            return {
+                to: token,
+                sound: 'default',
+                title: `[${group.name}] ${task.title} ⚠️`,
+                body: 'Someone sent you a phone call. Please do your task immediately.',
+                data: {
+                    groupId: groupId.toString(),
+                    taskId: taskId.toString()
+                }
+            }
+        }).filter(Boolean);
+
+        const chunks = ExpoPush.chunkPushNotifications(messages);
+        const tickets = [];
+        for (const chunk of chunks) {
+            try {
+                const ticketChunk = await ExpoPush.sendPushNotificationsAsync(chunk);
+                tickets.push(...ticketChunk);
+            } catch (err) {
+                console.error("Error sending push chunk:", err);
+            }
+        }
+        console.log("Pushed a notification");
+        return true;
+    } catch (err) {
+        console.error("Failed to send push notification:", err);
+        return false;
+    }
 };
 
 const transporter = nodemailer.createTransport({
@@ -82,19 +130,88 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const sendEmailToTA = async (taEmail, groupId, receiverId) => {
-    // let existingGroup, receiver;
-    // try {
-    //     existingGroup = await checkGroupExists(groupId);
-    // } catch (err) {
-    //     return next(err);
-    // }
+const sendEmailToTA = async (taEmail, groupId, senderId, receiverId) => {
+    try {
+        const [sender, receiver, group, task] = await Promise.all([
+            User.findById(senderId),
+            User.findById(receiverId),
+            Group.findById(groupId),
+            Task.findById(taskId)
+        ]);
 
-    // try {
-    //     receiver = await checkUserExists(receiverId);
-    // } catch (err) {
-    //     return next(err);
-    // }
+        if (!receiver) throw new HttpError("Receiver not found", 404);
+        if (!group) throw new HttpError("Group not found", 404);
+        if (!task) throw new HttpError("Task not found", 404);
+
+        const receiverTokens = receiver.expo_push_tokens || [];
+        if (receiverTokens.length === 0) {
+            console.log("No Expo push token for user", receiver.name);
+            return false;
+        }
+
+        // send a push notification to the receiver
+        const messages = receiverTokens.map(token => {
+            if (!ExpoSDK.isExpoPushToken(token)) {
+                console.warn("Invalid Expo push token:", token);
+                return null;
+            }
+
+            return {
+                to: token,
+                sound: 'default',
+                title: `[${group.name}] ${task.title} ‼️`,
+                body: 'An email was sent to the TA because you did not do this work.',
+                data: {
+                    groupId: groupId.toString(),
+                    taskId: taskId.toString()
+                }
+            }
+        }).filter(Boolean);
+
+        const chunks = ExpoPush.chunkPushNotifications(messages);
+        const tickets = [];
+        for (const chunk of chunks) {
+            try {
+                const ticketChunk = await ExpoPush.sendPushNotificationsAsync(chunk);
+                tickets.push(...ticketChunk);
+            } catch (err) {
+                console.error("Error sending push chunk:", err);
+            }
+        }
+        console.log("Pushed a notification to receiver");
+
+        // send a push notification to the sender
+        const senderTokens = sender?.expo_push_tokens || [];
+        if (senderTokens.length > 0) {
+            const senderMessages = senderTokens.map(token => {
+                if (!ExpoSDK.isExpoPushToken(token)) {
+                    console.warn("Invalid Expo push token for sender:", token);
+                    return null;
+                }
+                return {
+                    to: token,
+                    sound: 'default',
+                    title: `[${group.name}] Nudge Sent`,
+                    body: `An email is sent to the TA regarding ${receiver.first_name}`,
+                    data: {
+                        groupId: groupId.toString(),
+                        taskId: taskId.toString()
+                    }
+                }
+            }).filter(Boolean);
+            const senderChunks = ExpoPush.chunkPushNotifications(senderMessages);
+            for (const chunk of senderChunks) {
+                try {
+                    await ExpoPush.sendPushNotificationsAsync(chunk);
+                } catch (err) {
+                    console.error("Error sending push chunk to sender:", err);
+                }
+            }
+            console.log("Pushed a notification to sender");
+        }
+    } catch (err) {
+        console.error("Failed to send push notification:", err);
+    }
 
     // Dummy data, to be deleted later
     const existingGroup = {
@@ -124,7 +241,7 @@ Student
     console.log("An email is sent to TA");
 }
 
-const handleNudgeDelivery = async (type, receiverId, groupId, taskId, taEmail) => {
+const handleNudgeDelivery = async (type, senderId, receiverId, groupId, taskId, taEmail) => {
     try {
         switch (type) {
             case "reminder":
@@ -137,7 +254,7 @@ const handleNudgeDelivery = async (type, receiverId, groupId, taskId, taEmail) =
 
             case "email_ta":
                 if (!taEmail) throw new HttpError("TA email not available", 400);
-                await sendEmailToTA(taEmail, groupId, receiverId);
+                await sendEmailToTA(taEmail, groupId, senderId, receiverId);
                 break;
 
             default:

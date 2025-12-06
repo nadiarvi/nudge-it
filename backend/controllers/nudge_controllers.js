@@ -41,7 +41,7 @@ const createNudge = async (req, res, next) => {
         await newNudge.save();
 
         // send actual action (push notification / call / email)
-        await handleNudgeDelivery(type, receiver, group_id, task_id, ta_email);
+        await handleNudgeDelivery(type, sender, receiver, group_id, task_id, ta_email);
 
         // Add nudge to task
         if (task_id) {
