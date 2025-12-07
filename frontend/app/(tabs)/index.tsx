@@ -30,7 +30,7 @@ const getCategoryIcon = (category: string) => {
   }
 }
 
-const renderTaskSection = (category: string, tasks: any[]) => (
+const renderTaskSection = (category: string, tasks: any[], handleStatusChange) => (
   <ThemedView key={category} style={styles.todoSectionContainer}>
     <View style={styles.todoHeader}>
       {getCategoryIcon(category)}
@@ -50,6 +50,7 @@ const renderTaskSection = (category: string, tasks: any[]) => (
           status={task.status}
           reviewer={task.reviewer}
           nudgeCount={task.nudges}
+          onStatusChange={(newStatus) => handleStatusChange(task.id, newStatus)}
         />
       ))
     ) : (
@@ -205,6 +206,21 @@ export default function HomeScreen() {
     }
   };
 
+  const handleStatusChange = (taskId: string, newStatus: string) => {
+    setTaskList(prev =>
+      prev.map(section => ({
+        ...section,
+        tasks: section.tasks.map(task =>
+          task.id === taskId
+            ? { ...task, status: newStatus } // update UI
+            : task
+        )
+      }))
+    );
+  };
+
+
+
   // useEffect(() => {
   //   retrieveTasks();
   //   fetchNudgeSent();
@@ -255,9 +271,14 @@ export default function HomeScreen() {
         {nudgeCountComponent(<InboxIcon size={20} color={Colors.light.blackSecondary} />, 'Nudge Received', nudgeReceived)}
       </ThemedView>
 
-      { taskList.map((section) => (
+      {/* { taskList.map((section) => (
         renderTaskSection(section.category, section.tasks)
-      )) }
+      )) } */}
+
+      {taskList.map(section =>
+        renderTaskSection(section.category, section.tasks, handleStatusChange)
+      )}
+
 
       {projectSelectionModal(isModalVisible, closeModal, handleProjectSelection, selectedProject, dropdownLayout)}
     </ParallaxScrollView>

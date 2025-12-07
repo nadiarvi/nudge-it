@@ -11,6 +11,7 @@ import { useNudgeAlert } from '@/contexts/nudge-context';
 import { TaskCardProps } from '@/types/task';
 import { formatDate } from '@/utils/date-formatter';
 import { formatDisplayName } from '@/utils/name-formatter';
+import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -29,7 +30,8 @@ export function TaskCard({
   onNudgeSent = () => {},
 }: TaskCardProps) {
   const router = useRouter();
-  const { uid, first_name } = useAuthStore();
+  const { uid, groups, first_name } = useAuthStore();
+  const gid = groups[0];
   const { showNudgeAlert } = useNudgeAlert();
 
   const [showNudgeButton, setShowNudgeButton] = useState(false);
@@ -47,6 +49,21 @@ export function TaskCard({
   const handleNudge = () => {
     showNudgeAlert(id, title, assignedTo, nudgeCount, onNudgeSent);
     // onNudgeSent();
+  };
+
+  const handleStatusUpdate = async (newStatus: string) => {
+    try {
+      await axios.patch(
+        `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}/${id}`,
+        { status: newStatus }
+      );
+
+      // Immediately update UI in parent
+      onStatusChange(newStatus);
+
+    } catch (error) {
+      console.error("Failed to update task status:", error);
+    }
   };
 
   const MAX_TITLE_LENGTH = 23;
@@ -107,7 +124,7 @@ export function TaskCard({
         )}
         <StatusDropdown 
           value={status}
-          onValueChange={onStatusChange}
+          onValueChange={handleStatusUpdate}
         />
       </ThemedView>
     </ThemedTouchableView>

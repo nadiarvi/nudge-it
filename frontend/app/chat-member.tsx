@@ -5,10 +5,11 @@ import { useAuthStore } from '@/contexts/auth-context';
 import { User } from '@/types/user';
 import { formatDisplayName } from '@/utils/name-formatter';
 import axios from 'axios';
+import { Image as ExpoImage } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import moment from 'moment';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, FlatList, Image, KeyboardAvoidingView, Modal, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, KeyboardAvoidingView, Modal, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 // --- INTERFACES ---
 
@@ -465,13 +466,24 @@ export default function ChatDetailScreen() {
         <ThemedView style={styles.container}>{renderChatHistory(messages)}</ThemedView>
 
         {/* Floating Nuggit Button */}
-        <TouchableOpacity onPress={handleNuggitPress}>
+        {/* <TouchableOpacity onPress={handleNuggitPress}>
           <Image
             source={require('@/assets/images/nuggit-icon.png')}
             style={styles.sticker}
             resizeMode="contain"
           />
+        </TouchableOpacity> */}
+
+        <TouchableOpacity onPress={handleNuggitPress}>
+          <ExpoImage
+            source={require('@/assets/images/nuggit-icon.png')}
+            style={styles.sticker}
+            contentFit="contain"
+            placeholder={require('@/assets/images/nuggit-icon-small.png')}
+            transition={150}
+          />
         </TouchableOpacity>
+
 
         {/* Message Input */}
         <ThemedView style={styles.textInputContainer}>
