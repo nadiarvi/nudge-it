@@ -66,7 +66,7 @@ const renderTaskSection = (category: string, tasks: any[], handleStatusChange) =
 
 const projectDropdownComponent = (projectName: string, onPress: () => void, dropdownRef: React.RefObject<View | null>) => (
   <TouchableOpacity ref={dropdownRef} style={styles.projectDropdown} onPress={onPress} disabled={true}>
-    <ThemedText type='Body2' style={{color: Colors.light.tint}}>{projectName}</ThemedText>
+    <ThemedText type='Body2' style={{color: Colors.light.blackSecondary}}>{projectName}</ThemedText>
     {/* <DropdownIcon size={12} strokeWidth={3} color={Colors.light.tint} /> */}
   </TouchableOpacity>
 )
@@ -154,10 +154,6 @@ interface TaskSection {
 
 export default function HomeScreen() {
   const { uid, first_name, groups, isLoading } = useAuthStore();
-  //console.log(`homescreen ${uid} ${first_name}`);
-  //console.log('uid:', uid);
-  //console.log('groups:', groups);
-  
 
   const currentUser = first_name;
   const gid = groups[0];
@@ -255,7 +251,7 @@ export default function HomeScreen() {
     <ParallaxScrollView>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="H1">My Tasks</ThemedText>
-        {projectDropdownComponent(prjName, handleSelectProject, dropdownRef)}
+        {/* {projectDropdownComponent(prjName, handleSelectProject, dropdownRef)} */}
       </ThemedView>
 
       <ThemedView style={styles.nudgeInfoContainer}>
@@ -272,7 +268,7 @@ export default function HomeScreen() {
       )}
 
 
-      {projectSelectionModal(isModalVisible, closeModal, handleProjectSelection, selectedProject, dropdownLayout)}
+      {/* {projectSelectionModal(isModalVisible, closeModal, handleProjectSelection, selectedProject, dropdownLayout)} */}
     </ParallaxScrollView>
   );
 }
@@ -287,8 +283,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: RFValue(8),
     borderRadius: RFValue(8),
     borderWidth: RFValue(0.5),
-    borderColor: Colors.light.tint,
-    backgroundColor: Colors.light.lightTint,
+    borderColor: Colors.light.cardBorder,
+    backgroundColor: Colors.light.card,
     marginLeft: 'auto',
     flexDirection: 'row',
     gap: RFValue(4),
