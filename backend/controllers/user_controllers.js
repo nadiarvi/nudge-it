@@ -116,7 +116,7 @@ const addToken = async (req, res, next) => {
     }
 
     try {
-        existingUser = await User.findById(id);
+        existingUser = await User.findById(uid);
         if (!existingUser.expo_push_tokens.includes(pushToken)) {
             existingUser.expo_push_tokens.push(pushToken);
             await existingUser.save();
