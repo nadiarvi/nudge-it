@@ -84,6 +84,7 @@ export default function TaskDetailPage() {
     const [taskDetail, setTaskDetail] = useState<TaskDetail | undefined>(undefined); 
     const [members, setMembers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(!isNewTask);
+    const [isSelf, setIsSelf] = useState(false);
 
     // Form fields
     const [taskTitle, setTaskTitle] = useState<string>('');
@@ -94,6 +95,14 @@ export default function TaskDetailPage() {
     const [allowNudge, setAllowNudge] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
 
+    useEffect(() => {
+        console.log('current user id:', uid);
+        console.log('current assigned to:', currentAssignedTo._id);
+        if (uid && currentAssignedTo._id) {
+            setIsSelf(uid === currentAssignedTo._id);
+        }
+    }, [uid, currentAssignedTo]);
+    
     const { showNudgeAlert } = useNudgeAlert();
     const router = useRouter();
 
@@ -369,24 +378,27 @@ export default function TaskDetailPage() {
             <ThemedView style={styles.separator} />
 
             {isNewTask ? (
-                <ThemedView style={styles.buttonSection}>
-                    <ThemedButton variant='primary' onPress={handleSaveNewTask}>
-                        Create Task
-                    </ThemedButton>
-                    <ThemedButton variant='secondary' onPress={() => router.back()}>
-                        Cancel
-                    </ThemedButton>
-                </ThemedView>
-            ) : (
-                <ThemedView style={styles.buttonSection}>
-                    <ThemedButton variant='hover' onPress={handleNudgePress}>
-                        Nudge
-                    </ThemedButton>
-                    <ThemedButton variant='hover' onPress={handleChatPress}>
-                        Chat
-                    </ThemedButton>
-                </ThemedView>
-            )}
+            // CASE 1 — Creating a new task
+            <View style={styles.buttonSection}>
+                <ThemedButton variant='primary' onPress={handleSaveNewTask}>
+                    Create Task
+                </ThemedButton>
+                <ThemedButton variant='secondary' onPress={() => router.back()}>
+                    Cancel
+                </ThemedButton>
+            </View>
+            ) : !isSelf ? (
+            // CASE 2 — Not new task AND not self → show Nudge & Chat
+            <View style={styles.buttonSection}>
+                <ThemedButton variant='hover' onPress={handleNudgePress}>
+                    Nudge
+                </ThemedButton>
+                <ThemedButton variant='hover' onPress={handleChatPress}>
+                    Chat
+                </ThemedButton>
+            </View>
+            ) : null}  // CASE 3 — not new task AND isSelf → show nothing
+
         </ParallaxScrollView>
     );
 }
