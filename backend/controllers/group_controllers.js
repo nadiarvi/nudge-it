@@ -1,4 +1,5 @@
 const Group = require("../models/group");
+const User = require("../models/user");
 const HttpError = require("../models/http-error");
 const { validationResult } = require("express-validator");
 const { checkGroupExists, checkUserExists } = require("../utils/validators");
