@@ -40,6 +40,13 @@ const createGroup = async (req, res, next) => {
         });
 
         await newGroup.save();
+
+        // Add the group to the user's list of groups
+        const creator = await require("../models/user").findById(uid);
+        if (creator && !creator.groups.map(gid => gid.toString()).includes(newGroup._id.toString())) {
+            creator.groups.push(newGroup._id);
+            await creator.save();
+        }
     } catch (err) {
         console.error(err);
         const error = new HttpError("Failed to create a group, please try again later.", 500);
