@@ -36,7 +36,8 @@ interface NudgeContextType {
     taskTitle: string, 
     targetUser: User, 
     nudgeCount: number,
-    onSuccessCallback?: () => void
+    // onSuccessCallback?: () => void
+    targetUserName?: string,
   ) => void;
 }
 
@@ -58,7 +59,13 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
     options: {},
   });
 
-  const showNudgeAlert = (tid: string, taskTitle: string, targetUser: string, nudgeCount: number, onSuccessCallback?: () => void) => {
+  const showNudgeAlert = (
+    tid: string, 
+    taskTitle: string, 
+    targetUser: string, 
+    nudgeCount: number, 
+    onSuccessCallback?: () => void
+  ) => {
     const option2Enabled = nudgeCount >= 1;
     const option3Enabled = nudgeCount >= 2;
     

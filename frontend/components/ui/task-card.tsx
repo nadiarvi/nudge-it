@@ -47,7 +47,10 @@ export function TaskCard({
   };
 
   const handleNudge = () => {
-    showNudgeAlert(id, title, assignedTo, nudgeCount, onNudgeSent);
+    const shouldNudgeReviewer = status === "In Review" && reviewer && reviewer.length > 0;
+    const targetUid = shouldNudgeReviewer ? reviewer[0]._id : assignedTo._id;
+
+    showNudgeAlert(id, title, targetUid, nudgeCount, onNudgeSent);
     // onNudgeSent();
   };
 
@@ -73,10 +76,16 @@ export function TaskCard({
                             : title;
 
   useEffect(() => {
-    //console.log(`assignedTo in TaskCard: ${assignedTo._id}, ${assignedTo.first_name}`);
-    const show = uid === assignedTo._id;
-    setShowNudgeButton(!show);
-  }, [uid, assignedTo]);
+    const isInReview = status === "In Review";
+
+    if (isInReview && reviewer && reviewer.length > 0) {
+      const isCurrentUserReviewer = uid === reviewer[0]._id;
+      setShowNudgeButton(!isCurrentUserReviewer);
+    } else {
+      const isCurrentUserAssignee = uid === assignedTo._id;
+      setShowNudgeButton(!isCurrentUserAssignee);
+    }
+  }, [uid, assignedTo, reviewer, status]);
 
   return (
     <ThemedTouchableView style={styles.taskCard} onPress={handlePress}>

@@ -89,8 +89,8 @@ export default function TaskDetailPage() {
     // Form fields
     const [taskTitle, setTaskTitle] = useState<string>('');
     const [currentStatus, setCurrentStatus] = useState<TaskStatus>('To-Do');
-    const [currentAssignedTo, setCurrentAssignedTo] = useState<string>('');
-    const [currentReviewer, setCurrentReviewer] = useState<string>('');
+    const [currentAssignedTo, setCurrentAssignedTo] = useState<string>('');     // User Schema
+    const [currentReviewer, setCurrentReviewer] = useState<string>('');         // User Schema
     const [currentDeadline, setCurrentDeadline] = useState<Date>(new Date());
     const [allowNudge, setAllowNudge] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -220,8 +220,18 @@ export default function TaskDetailPage() {
                 setCurrentDeadline(new Date(taskDetail.deadline));
             }
 
-            const isAssignedToCurrentUser = uid === taskDetail.assignee[0];
-            setAllowNudge(!isAssignedToCurrentUser);
+            const isInReview = taskDetail.status === 'In Review';
+            if (isInReview) {
+                console.log('CHECK DATA TYPE XXX');
+                // console.log(taskDetail.reviewer[0]); //User Schema
+                const isCurrentUserReviewer = uid === taskDetail.reviewer?.[0]._id;
+                console.log(`Task is in review. Current user is reviewer: ${isCurrentUserReviewer}`);
+                setAllowNudge(!isCurrentUserReviewer);
+            } else {
+                const isCurrentUserAssignee = uid === taskDetail.assignee[0]._id;
+                console.log(`Task is not in review. Current user is assignee: ${isCurrentUserAssignee}`);
+                setAllowNudge(!isCurrentUserAssignee);
+            }
         } else if (isNewTask) {
             // Set defaults for new task
             setTaskTitle('');
@@ -281,8 +291,6 @@ export default function TaskDetailPage() {
     }
 
     const handleNudgePress = () => {
-        // console.log('Nudge Pressed');
-
         if (!allowNudge) {
             Alert.alert(
                 'Nudge Disabled',
@@ -291,27 +299,21 @@ export default function TaskDetailPage() {
             );
             return;
         }
-        
-        const assignee = members.find(m => m._id === currentAssignedTo);
-        const assigneeName = assignee ? `${assignee.first_name} ${assignee.last_name}` : 'The Assignee';
+
+        const nudgeReviewer = currentStatus === 'In Review' && currentReviewer;
+        const targetUser = nudgeReviewer ? currentReviewer : currentAssignedTo;
+
+        const targetPerson = members.find(m => m._id === targetUser._id);        // User Schema
+        // const targetName = targetPerson ? `${targetPerson.first_name} ${targetPerson.last_name}` : null;
+
         const taskNudgeCount = taskDetail?.nudges?.length || 0;
-
-        // console.log(`nudge count: ${taskNudgeCount}`);
-
-        // showNudgeAlert(
-        //     tid as string,
-        //     taskTitle,
-        //     currentAssignedTo,
-        //     assigneeName,
-        //     taskNudgeCount
-        // );
 
         showNudgeAlert(
             tid as string,
             taskTitle,
-            currentAssignedTo,
-            taskNudgeCount,   // 4th = nudgeCount (correct)
-            assigneeName      // 5th = optional callback or metadata
+            targetUser,
+            taskNudgeCount, 
+            // targetName
         );
 
     }
