@@ -84,6 +84,7 @@ export default function TaskDetailPage() {
     const [taskDetail, setTaskDetail] = useState<TaskDetail | undefined>(undefined); 
     const [members, setMembers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(!isNewTask);
+    const [isSelf, setIsSelf] = useState(false);
 
     // Form fields
     const [taskTitle, setTaskTitle] = useState<string>('');
@@ -94,6 +95,14 @@ export default function TaskDetailPage() {
     const [allowNudge, setAllowNudge] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
 
+    useEffect(() => {
+        // console.log('current user id:', uid);
+        // console.log('current assigned to:', currentAssignedTo._id);
+        if (uid && currentAssignedTo._id) {
+            setIsSelf(uid === currentAssignedTo._id);
+        }
+    }, [uid, currentAssignedTo]);
+    
     const { showNudgeAlert } = useNudgeAlert();
     const router = useRouter();
 
@@ -102,7 +111,7 @@ export default function TaskDetailPage() {
             const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/groups/${gid}/members`)
             setMembers(res.data.members);
         } catch (error) {
-            console.log('Error fetching members:', error);
+            console.error('Error fetching members:', error);
         }
     };
 
@@ -272,6 +281,8 @@ export default function TaskDetailPage() {
     }
 
     const handleNudgePress = () => {
+        // console.log('Nudge Pressed');
+
         if (!allowNudge) {
             Alert.alert(
                 'Nudge Disabled',
@@ -285,13 +296,24 @@ export default function TaskDetailPage() {
         const assigneeName = assignee ? `${assignee.first_name} ${assignee.last_name}` : 'The Assignee';
         const taskNudgeCount = taskDetail?.nudges?.length || 0;
 
+        // console.log(`nudge count: ${taskNudgeCount}`);
+
+        // showNudgeAlert(
+        //     tid as string,
+        //     taskTitle,
+        //     currentAssignedTo,
+        //     assigneeName,
+        //     taskNudgeCount
+        // );
+
         showNudgeAlert(
             tid as string,
             taskTitle,
             currentAssignedTo,
-            assigneeName,
-            taskNudgeCount
+            taskNudgeCount,   // 4th = nudgeCount (correct)
+            assigneeName      // 5th = optional callback or metadata
         );
+
     }
 
     const handleChatPress = () => {
@@ -305,8 +327,8 @@ export default function TaskDetailPage() {
         }
 
         // DEBUG
-        console.log(`Passing param to chat-member: `);
-        console.log(currentAssignedTo);
+        // console.log(`Passing param to chat-member: `);
+        // console.log(currentAssignedTo);
 
         // const targetUid = currentAssignedTo._id;
 
@@ -369,24 +391,27 @@ export default function TaskDetailPage() {
             <ThemedView style={styles.separator} />
 
             {isNewTask ? (
-                <ThemedView style={styles.buttonSection}>
-                    <ThemedButton variant='primary' onPress={handleSaveNewTask}>
-                        Create Task
-                    </ThemedButton>
-                    <ThemedButton variant='secondary' onPress={() => router.back()}>
-                        Cancel
-                    </ThemedButton>
-                </ThemedView>
-            ) : (
-                <ThemedView style={styles.buttonSection}>
-                    <ThemedButton variant='hover' onPress={handleNudgePress}>
-                        Nudge
-                    </ThemedButton>
-                    <ThemedButton variant='hover' onPress={handleChatPress}>
-                        Chat
-                    </ThemedButton>
-                </ThemedView>
-            )}
+            // CASE 1 — Creating a new task
+            <View style={styles.buttonSection}>
+                <ThemedButton variant='primary' onPress={handleSaveNewTask}>
+                    Create Task
+                </ThemedButton>
+                <ThemedButton variant='secondary' onPress={() => router.back()}>
+                    Cancel
+                </ThemedButton>
+            </View>
+            ) : !isSelf ? (
+            // CASE 2 — Not new task AND not self → show Nudge & Chat
+            <View style={styles.buttonSection}>
+                <ThemedButton variant='hover' onPress={handleNudgePress}>
+                    Nudge
+                </ThemedButton>
+                <ThemedButton variant='hover' onPress={handleChatPress}>
+                    Chat
+                </ThemedButton>
+            </View>
+            ) : null}  // CASE 3 — not new task AND isSelf → show nothing
+
         </ParallaxScrollView>
     );
 }

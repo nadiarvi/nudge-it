@@ -29,6 +29,9 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     console.log("Attempting login with:", { email: loginEmail });
     console.log('HELLOOOO PLS WORK IM BEGGING');
+
+    console.log("API URL FROM APK:", process.env.EXPO_PUBLIC_API_BASE_URL);
+
     setIsLoading(true);
 
     try {
@@ -49,6 +52,7 @@ export default function LoginScreen() {
         groups: data.groups,
       });
     } catch (error: any) {
+      Alert.alert("Login Error", "Invalid email or password. Please try again.");
       console.error("Login failed:", error.response?.data || error.message);
     } finally {
       setIsLoading(false);
