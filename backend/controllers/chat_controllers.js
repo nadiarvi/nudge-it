@@ -171,6 +171,8 @@ const sendUserMessage = async (req, res, next) => {
                 receiver: otherUserId,
                 content
             });
+            // Update numOfMessagesRead for sender
+            chat.numOfMessagesRead.set(currentUserId.toString(), (chat.numOfMessagesRead.get(currentUserId.toString()) || 0) + 1);
             await chat.save();
             return res.status(201).json({ message: "Message sent", chat, needsRevision: false });
         }
@@ -195,6 +197,8 @@ const confirmUserMessage = async (req, res, next) => {
             content: chosenContent,
             timestamp: Date.now()
         });
+        // Update numOfMessagesRead for sender
+        chat.numOfMessagesRead.set(currentUserId.toString(), (chat.numOfMessagesRead.get(currentUserId.toString()) || 0) + 1);
         await chat.save();
         return res.status(201).json({ message: "Message sent", chat });
     } catch (err) {
@@ -218,6 +222,8 @@ const sendNuggetMessage = async (req, res, next) => {
             content,
             timestamp: Date.now()
         });
+        // For nugget chat, update numOfMessagesRead for user
+        chat.numOfMessagesRead.set(currentUserId.toString(), chat.messages.length);
         await chat.save();
 
         // Generate nugget response
@@ -229,7 +235,8 @@ const sendNuggetMessage = async (req, res, next) => {
             content: botReply,
             timestamp: Date.now()
         });
-
+        // For nugget chat, update numOfMessagesRead for user again
+        chat.numOfMessagesRead.set(currentUserId.toString(), chat.messages.length);
         await chat.save();
         // Reverse messages order before returning
         const chatObj = chat.toObject();
@@ -244,6 +251,39 @@ const sendNuggetMessage = async (req, res, next) => {
     }
 };
 
+// Mark all messages as read for a user in a chat
+const markMessagesAsRead = async (req, res, next) => {
+    const { cid, uid } = req.params;
+    try {
+        const chat = await Chat.findById(cid);
+        if (!chat) return next(new HttpError("Chat not found", 404));
+        chat.numOfMessagesRead.set(uid.toString(), chat.messages.length);
+        await chat.save();
+        res.status(200).json({ message: "All messages marked as read." });
+    } catch (err) {
+        return next(new HttpError("Failed to mark messages as read", 500));
+    }
+};
+
+// Get notification count for a chat partner
+const getNotificationCount = async (req, res, next) => {
+    const { uid } = req.params;
+    const { chatPartner } = req.body;
+    try {
+        // Find the chat between uid and chatPartner
+        const chat = await Chat.findOne({
+            type: "user",
+            people: { $all: [uid, chatPartner] }
+        });
+        if (!chat) return res.status(200).json({ numNotification: 0 });
+        const numRead = chat.numOfMessagesRead.get(uid.toString()) || 0;
+        const numNotification = chat.messages.length - numRead;
+        res.status(200).json({ numNotification });
+    } catch (err) {
+        return next(new HttpError("Failed to get notification count", 500));
+    }
+};
+
 module.exports = {
     createOrGetChat,
     getUserChats,
@@ -251,4 +291,6 @@ module.exports = {
     sendUserMessage,
     confirmUserMessage,
     sendNuggetMessage,
+    markMessagesAsRead,
+    getNotificationCount,
 };

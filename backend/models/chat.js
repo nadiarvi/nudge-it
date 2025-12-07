@@ -18,7 +18,12 @@ const ChatSchema = new mongoose.Schema({
     },
     group_id: { type: mongoose.Types.ObjectId, ref: "Group" , required: true},
     about: { type: mongoose.Types.ObjectId, ref: "User" }, // if nugget chat
-    messages: [MessageSchema]
+    messages: [MessageSchema],
+    numOfMessagesRead: {
+        type: Map,
+        of: Number,
+        default: {}
+    }
   },
   { timestamps: true }
 );
