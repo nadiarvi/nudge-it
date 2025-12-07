@@ -6,6 +6,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 import { NuggitIcon } from '@/components/icons/nuggit-icon';
 import { ProfileIcon } from '@/components/icons/profile-icon';
@@ -102,7 +103,7 @@ export default function ChatScreen() {
       </ThemedView>
 
       {chatData.length === 0 ? (
-        <ThemedView style={{ alignItems: 'center', marginTop: 32 }}>
+        <ThemedView style={{ alignItems: 'center', marginTop: RFValue(32) }}>
           <ThemedText style={{ color: Colors.light.blackSecondary }}>
             No chats available.
           </ThemedText>
@@ -116,9 +117,9 @@ export default function ChatScreen() {
           >
             {/* Icon */}
             {item.name === 'Nuggit' ? (
-              <NuggitIcon size={40} />
+              <NuggitIcon size={RFValue(40)} />
             ) : (
-              <ProfileIcon size={40} />
+              <ProfileIcon size={RFValue(40)} />
             )}
 
             {/* Chat Text */}
@@ -147,38 +148,38 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   separator: {
-    height: 0.5,
+    height: RFValue(0.5),
     backgroundColor: '#CCCCCC',
-    // marginVertical: 2,
+    // marginVertical: RFValue(2),
   },
   searchInput: {
-    height: 40,
-    borderRadius: 8,
-    paddingHorizontal: 12,
+    height: RFValue(40),
+    borderRadius: RFValue(8),
+    paddingHorizontal: RFValue(12),
     backgroundColor: '#f0f0f0',
     color: '#000',
-    marginBottom: 12,
+    marginBottom: RFValue(12),
   },
   chatItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 0.5,
+    paddingVertical: RFValue(12),
+    borderBottomWidth: RFValue(0.5),
     borderColor: '#ccc',
   },
   chatTextContainer: {
     flex: 1,
-    gap: 4,
-    marginLeft: 12,
+    gap: RFValue(4),
+    marginLeft: RFValue(12),
   },
   messagePreview: {
     color: '#666',
   },
   unreadBadge: {
     backgroundColor: '#4CAF50',
-    borderRadius: 12,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    borderRadius: RFValue(12),
+    paddingHorizontal: RFValue(6),
+    paddingVertical: RFValue(2),
     alignItems: 'center',
     justifyContent: 'center',
   },

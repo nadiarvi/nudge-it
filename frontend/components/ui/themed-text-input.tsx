@@ -1,4 +1,5 @@
 import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 import { useThemeColor } from '@/hooks/use-theme-color';
 
@@ -44,23 +45,23 @@ export function ThemedTextInput({
 
 const styles = StyleSheet.create({
   default: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 0,
+    fontSize: RFValue(16),
+    paddingVertical: RFValue(12),
+    paddingHorizontal: RFValue(0),
   },
   body1: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 0,
+    fontSize: RFValue(16),
+    paddingVertical: RFValue(12),
+    paddingHorizontal: RFValue(0),
   },
   body2: {
-    fontSize: 14,
-    paddingVertical: 11,
-    paddingHorizontal: 0,
+    fontSize: RFValue(14),
+    paddingVertical: RFValue(11),
+    paddingHorizontal: RFValue(0),
   },
   body3: {
-    fontSize: 12,
-    paddingVertical: 9,
-    paddingHorizontal: 0,
+    fontSize: RFValue(12),
+    paddingVertical: RFValue(9),
+    paddingHorizontal: RFValue(0),
   },
 });

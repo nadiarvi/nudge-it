@@ -6,6 +6,7 @@ import axios from "axios";
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -273,16 +274,16 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 40,
+    paddingHorizontal: RFValue(24),
+    paddingVertical: RFValue(40),
     justifyContent: 'center',
   },
   header: {
-    marginBottom: 40,
+    marginBottom: RFValue(40),
     alignItems: 'center',
   },
   title: {
-    marginBottom: 8,
+    marginBottom: RFValue(8),
     textAlign: 'center',
   },
   subtitle: {
@@ -290,21 +291,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   form: {
-    gap: 20,
+    gap: RFValue(20),
   },
   inputContainer: {
-    gap: 8,
+    gap: RFValue(8),
   },
   label: {
     fontWeight: '600',
     color: Colors.light.text,
   },
   input: {
-    borderWidth: 1,
+    borderWidth: RFValue(1),
     borderColor: Colors.light.cardBorder,
-    borderRadius: 8,
+    borderRadius: RFValue(8),
     backgroundColor: Colors.light.card,
-    paddingHorizontal: 16,
+    paddingHorizontal: RFValue(16),
   },
   passwordContainer: {
     position: 'relative',
@@ -313,27 +314,27 @@ const styles = StyleSheet.create({
   },
   passwordInput: {
     flex: 1,
-    borderWidth: 1,
+    borderWidth: RFValue(1),
     borderColor: Colors.light.cardBorder,
-    borderRadius: 8,
+    borderRadius: RFValue(8),
     backgroundColor: Colors.light.card,
-    paddingHorizontal: 16,
-    paddingRight: 48,
+    paddingHorizontal: RFValue(16),
+    paddingRight: RFValue(48),
   },
   eyeIcon: {
     position: 'absolute',
-    right: 16,
-    padding: 4,
+    right: RFValue(16),
+    padding: RFValue(4),
   },
   submitButton: {
-    marginTop: 12,
+    marginTop: RFValue(12),
   },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 32,
-    gap: 4,
+    marginTop: RFValue(32),
+    gap: RFValue(4),
   },
   switchText: {
     color: Colors.light.blackSecondary,

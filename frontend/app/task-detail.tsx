@@ -9,6 +9,7 @@ import axios from 'axios';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { ReactElement, useEffect, useLayoutEffect, useState } from 'react';
 import { Alert, Platform, StyleSheet, TextInput, View } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const taskDetailItem = (icon: ReactElement, name: string, content: string | ReactElement) => {
     return (
@@ -450,41 +451,41 @@ export default function TaskDetailPage() {
 
 const styles = StyleSheet.create({
     taskDetails: {
-        paddingTop: 16,
+        paddingTop: RFValue(16),
     },
     taskDetailItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 36,
-        marginTop: 14,
+        gap: RFValue(36),
+        marginTop: RFValue(14),
     },
     buttonSection: {
         flexDirection: 'row',
-        gap: 12,
+        gap: RFValue(12),
         alignSelf: 'center',
     },
     separator: {
-        height: 1,
+        height: RFValue(1),
         backgroundColor: Colors.light.cardBorder,
     },
     titleInput: {
-        fontSize: 32,
+        fontSize: RFValue(32),
         fontWeight: 'bold',
         color: Colors.light.text,
-        borderWidth: 0,
-        borderRadius: 8,
-        minHeight: 48,
-        letterSpacing: 0,
+        borderWidth: RFValue(0),
+        borderRadius: RFValue(8),
+        minHeight: RFValue(48),
+        letterSpacing: RFValue(0),
         fontFamily: Platform.select({
             ios: 'System',
             android: 'sans-serif',
         }),
     },
     editableTitle: {
-        marginBottom: 16,
-        padding: 8,
-        borderRadius: 8,
+        marginBottom: RFValue(16),
+        padding: RFValue(8),
+        borderRadius: RFValue(8),
         backgroundColor: 'transparent',
-        minHeight: 48,
+        minHeight: RFValue(48),
     },
 });

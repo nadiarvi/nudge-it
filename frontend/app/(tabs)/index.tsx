@@ -6,12 +6,13 @@ import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import React, { ReactElement, useCallback, useRef, useState } from 'react';
 import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const nudgeCountComponent = (icon: ReactElement, title: string, count: number) => (
   <ThemedView style={styles.nudgeComponent}>
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: RFValue(4) }}>
       {icon}
-      <ThemedText type='H3' style={{color: Colors.light.blackSecondary}}>{title}</ThemedText>
+      <ThemedText type='Body2' style={{color: Colors.light.blackSecondary, fontWeight: '500'}}>{title}</ThemedText>
     </View>
     <ThemedText type='H1'>{count}</ThemedText>
   </ThemedView>
@@ -20,13 +21,13 @@ const nudgeCountComponent = (icon: ReactElement, title: string, count: number) =
 const getCategoryIcon = (category: string) => {
   switch (category) {
     case 'To Do':
-      return <TodoIcon size={22} color={Colors.light.blackSecondary} />;
+      return <TodoIcon size={RFValue(22)} color={Colors.light.blackSecondary} />;
     case 'To Review':
-      return <CheckIcon size={22} color={Colors.light.blackSecondary} />;
+      return <CheckIcon size={RFValue(22)} color={Colors.light.blackSecondary} />;
     case 'Pending for Review':
-      return <ClockIcon size={22} color={Colors.light.blackSecondary} />;
+      return <ClockIcon size={RFValue(22)} color={Colors.light.blackSecondary} />;
     default:
-      return <TodoIcon size={22} color={Colors.light.blackSecondary} />;
+      return <TodoIcon size={RFValue(22)} color={Colors.light.blackSecondary} />;
   }
 }
 
@@ -219,15 +220,6 @@ export default function HomeScreen() {
     );
   };
 
-
-
-  // useEffect(() => {
-  //   retrieveTasks();
-  //   fetchNudgeSent();
-  //   fetchNudgeReceived();
-  //   fetchProjectName();
-  // }, [uid]);
-
   useFocusEffect(
     useCallback(() => {
       retrieveTasks();
@@ -267,8 +259,8 @@ export default function HomeScreen() {
       </ThemedView>
 
       <ThemedView style={styles.nudgeInfoContainer}>
-        {nudgeCountComponent(<SendIcon size={20} color={Colors.light.blackSecondary} />, 'Nudge Sent', nudgeSent)}
-        {nudgeCountComponent(<InboxIcon size={20} color={Colors.light.blackSecondary} />, 'Nudge Received', nudgeReceived)}
+        {nudgeCountComponent(<SendIcon size={RFValue(16)} color={Colors.light.blackSecondary} />, 'Nudge Sent', nudgeSent)}
+        {nudgeCountComponent(<InboxIcon size={RFValue(16)} color={Colors.light.blackSecondary} />, 'Nudge Received', nudgeReceived)}
       </ThemedView>
 
       {/* { taskList.map((section) => (
@@ -291,50 +283,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   projectDropdown: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    borderWidth: 0.5,
+    paddingVertical: RFValue(4),
+    paddingHorizontal: RFValue(8),
+    borderRadius: RFValue(8),
+    borderWidth: RFValue(0.5),
     borderColor: Colors.light.tint,
     backgroundColor: Colors.light.lightTint,
     marginLeft: 'auto',
     flexDirection: 'row',
-    gap: 4,
+    gap: RFValue(4),
     alignItems: 'center',
   },
   nudgeInfoContainer: {
     flexDirection: 'row',
-    gap: 6,
-    marginBottom: 16,
+    gap: RFValue(6),
+    marginBottom: RFValue(16),
   },
   nudgeComponent: {
     backgroundColor: Colors.light.card,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
+    paddingVertical: RFValue(12),
+    paddingHorizontal: RFValue(16),
+    borderRadius: RFValue(8),
+    borderWidth: RFValue(1),
     borderColor: Colors.light.cardBorder,
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 8,
+    gap: RFValue(8),
     flex: 1,
-    minWidth: 0,
+    minWidth: RFValue(0),
   },
   todoSectionContainer: {
     flexDirection: 'column',
-    gap: 4,
-    marginBottom: 16,
+    gap: RFValue(4),
+    marginBottom: RFValue(16),
   },
   todoHeader: {
     flexDirection: 'row',
-    gap: 8,
+    gap: RFValue(8),
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: RFValue(8),
   },
   noItemContainer: {
-    paddingVertical: 16,
-    borderRadius: 4,
-    borderWidth: 0.5,
+    paddingVertical: RFValue(16),
+    borderRadius: RFValue(4),
+    borderWidth: RFValue(0.5),
     borderColor: Colors.light.cardBorder,
     backgroundColor: Colors.light.card,
     flexDirection: 'row',
@@ -346,20 +338,20 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: Colors.light.card,
-    borderRadius: 8,
-    // paddingVertical: 12,
-    // paddingHorizontal: 12,
-    borderWidth: 1,
+    borderRadius: RFValue(8),
+    // paddingVertical: RFValue(12),
+    // paddingHorizontal: RFValue(12),
+    borderWidth: RFValue(1),
     borderColor: Colors.light.cardBorder,
-    elevation: 5,
+    elevation: RFValue(5),
     flexDirection: 'column',
-    // gap: 12,
+    // gap: RFValue(12),
   },
   modalOption: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    // borderRadius: 8,
-    // marginBottom: 8,
+    paddingVertical: RFValue(12),
+    paddingHorizontal: RFValue(16),
+    // borderRadius: RFValue(8),
+    // marginBottom: RFValue(8),
   },
   selectedOption: {
     backgroundColor: Colors.light.background,

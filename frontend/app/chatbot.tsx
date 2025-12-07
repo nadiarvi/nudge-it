@@ -7,6 +7,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 // --- INTERFACES ---
 
@@ -32,10 +33,10 @@ interface TimeSeparatorProps {
 // --- SMALLER FUNCTIONAL COMPONENTS ---
 
 const baseBubbleStyle = {
-  paddingVertical: 8,
-  paddingHorizontal: 12,
-  marginVertical: 8,
-  borderRadius: 8,
+  paddingVertical: RFValue(8),
+  paddingHorizontal: RFValue(12),
+  marginVertical: RFValue(8),
+  borderRadius: RFValue(8),
   maxWidth: '75%',
 };
 
@@ -91,33 +92,6 @@ export default function ChatbotScreen() {
   const [botCid, setBotCid] = useState<string | null>(null);
 
   const [isWaitAI, setIsWaitAI] = useState(false);
-
-  // const getTargetUserId = (peopleList) => {
-  //   let list = peopleList;
-    
-  //   if (typeof peopleList === 'string') {
-  //         try {
-  //             list = JSON.parse(peopleList);
-  //         } catch (e) {
-  //             console.error("Failed to parse peopleList string:", e);
-  //             return null;
-  //         }
-  //     }
-      
-  //     if (!Array.isArray(list) || list.length === 0) {
-  //         return null;
-  //     }
-
-  //     const idList = list.map(person => person._id);
-  //     console.log(`ID List: ${idList}`);
-
-  //     for (const id of idList) {
-  //       if (id !== uid) { 
-  //         return id;
-  //       }
-  //     }
-  //     return null;
-  // };
 
   const getChatHistory = async () => {
     const payload = {
@@ -303,36 +277,36 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: RFValue(24),
   },
   flatListContent: {
-    paddingVertical: 12,
+    paddingVertical: RFValue(12),
   },
   textInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingHorizontal: RFValue(24),
+    paddingVertical: RFValue(12),
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: Colors.light.cardBorder,
     backgroundColor: Colors.light.card,
-    paddingBottom: 24,
+    paddingBottom: RFValue(24),
   },
   textInput: {
     flex: 1,
-    minHeight: 40,
-    maxHeight: 120,
-    marginRight: 10,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+    minHeight: RFValue(40),
+    maxHeight: RFValue(120),
+    marginRight: RFValue(10),
+    paddingHorizontal: RFValue(12),
+    borderRadius: RFValue(8),
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: Colors.light.cardBorder,
     backgroundColor: Colors.light.background,
   },
   sendButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: RFValue(12),
+    paddingVertical: RFValue(8),
+    borderRadius: RFValue(8),
     backgroundColor: Colors.light.tint,
   },
   sendButtonText: {
@@ -346,13 +320,13 @@ const separatorStyles = StyleSheet.create({
     backgroundColor: Colors.light.blackSecondary,
     alignItems: 'center',
     alignSelf: 'center',
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginBottom: 12,
+    paddingVertical: RFValue(4),
+    paddingHorizontal: RFValue(12),
+    borderRadius: RFValue(12),
+    marginBottom: RFValue(12),
   },
   text: {
-    fontSize: 16,
+    fontSize: RFValue(16),
     color: Colors.light.background,
   },
 });

@@ -7,6 +7,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, Modal, StyleSheet, TouchableOpacity } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 import { formatDisplayName } from '@/utils/name-formatter';
 
@@ -280,39 +281,39 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: RFValue(8),
   },
   profileSectionContainer: {
     flexDirection: 'column',
-    gap: 4,
+    gap: RFValue(4),
   },
   profileSectionItemContainer: {
     backgroundColor: Colors.light.card,
     borderColor: Colors.light.cardBorder,
-    borderWidth: 0.5,
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    borderWidth: RFValue(0.5),
+    borderRadius: RFValue(8),
+    paddingVertical: RFValue(8),
+    paddingHorizontal: RFValue(12),
     flexDirection: 'column',
-    gap: 4,
+    gap: RFValue(4),
   },
   fieldItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: 4,
-    paddingBottom: 8,
-    paddingVertical: 8,
+    paddingTop: RFValue(4),
+    paddingBottom: RFValue(8),
+    paddingVertical: RFValue(8),
     borderBottomColor: Colors.light.cardBorder,
-    borderBottomWidth: 0.5,
+    borderBottomWidth: RFValue(0.5),
   },
   actionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingVertical: 4,
+    gap: RFValue(4),
+    paddingVertical: RFValue(4),
     backgroundColor: Colors.light.card,
     borderBottomColor: Colors.light.cardBorder,
-    borderBottomWidth: 0.5,
+    borderBottomWidth: RFValue(0.5),
   },
   modalContainer: {
     flex: 1,
@@ -323,21 +324,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 24,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
+    padding: RFValue(24),
+    paddingBottom: RFValue(12),
+    borderBottomWidth: RFValue(1),
     borderBottomColor: Colors.light.cardBorder,
   },
   modalContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: RFValue(12),
+    paddingHorizontal: RFValue(24),
     flex: 1,
   },
   textInput: {
-    borderWidth: 0.5,
+    borderWidth: RFValue(0.5),
     borderColor: Colors.light.cardBorder,
-    borderRadius: 8,
+    borderRadius: RFValue(8),
     backgroundColor: Colors.light.card,
-    paddingHorizontal: 18,
+    paddingHorizontal: RFValue(18),
   },
 });

@@ -10,6 +10,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import moment from 'moment';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Modal, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 // --- INTERFACES ---
 
@@ -40,10 +41,10 @@ interface RevisionData {
 // --- STYLES ---
 
 const baseBubbleStyle = {
-  paddingVertical: 8,
-  paddingHorizontal: 12,
-  marginVertical: 8,
-  borderRadius: 8,
+  paddingVertical: RFValue(8),
+  paddingHorizontal: RFValue(12),
+  marginVertical: RFValue(8),
+  borderRadius: RFValue(8),
   maxWidth: '75%',
 };
 
@@ -53,36 +54,36 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: RFValue(24),
   },
   flatListContent: {
-    paddingVertical: 12,
+    paddingVertical: RFValue(12),
   },
   textInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingHorizontal: RFValue(24),
+    paddingVertical: RFValue(12),
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: Colors.light.cardBorder,
     backgroundColor: Colors.light.card,
-    paddingBottom: 24,
+    paddingBottom: RFValue(24),
   },
   textInput: {
     flex: 1,
-    minHeight: 40,
-    maxHeight: 120,
-    marginRight: 10,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+    minHeight: RFValue(40),
+    maxHeight: RFValue(120),
+    marginRight: RFValue(10),
+    paddingHorizontal: RFValue(12),
+    borderRadius: RFValue(8),
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: Colors.light.cardBorder,
     backgroundColor: Colors.light.background,
   },
   sendButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: RFValue(12),
+    paddingVertical: RFValue(8),
+    borderRadius: RFValue(8),
     backgroundColor: Colors.light.tint,
   },
   sendButtonText: {
@@ -90,15 +91,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   sticker: {
-    width: 60,
-    height: 60,
+    width: RFValue(60),
+    height: RFValue(60),
     position: 'absolute',
-    bottom: 12,
-    right: 24,
+    bottom: RFValue(12),
+    right: RFValue(24),
   },
   emptyState: {
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: RFValue(20),
   },
 });
 
@@ -107,13 +108,13 @@ const separatorStyles = StyleSheet.create({
     backgroundColor: Colors.light.blackSecondary,
     alignItems: 'center',
     alignSelf: 'center',
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginBottom: 12,
+    paddingVertical: RFValue(4),
+    paddingHorizontal: RFValue(12),
+    borderRadius: RFValue(12),
+    marginBottom: RFValue(12),
   },
   text: {
-    fontSize: 16,
+    fontSize: RFValue(16),
     color: Colors.light.background,
   },
 });
@@ -150,41 +151,41 @@ const revisionModalStyles = StyleSheet.create({
   },
   box: {
     backgroundColor: Colors.light.background,
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    padding: RFValue(20),
+    borderTopLeftRadius: RFValue(20),
+    borderTopRightRadius: RFValue(20),
   },
   title: {
-    marginBottom: 15,
+    marginBottom: RFValue(15),
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: Colors.light.cardBorder,
-    paddingBottom: 10,
+    paddingBottom: RFValue(10),
   },
   label: {
     fontWeight: 'bold',
-    marginTop: 15,
-    marginBottom: 5,
+    marginTop: RFValue(15),
+    marginBottom: RFValue(5),
     color: Colors.light.blackSecondary,
   },
   originalText: {
     backgroundColor: Colors.light.red + '10',
-    padding: 10,
-    borderRadius: 8,
+    padding: RFValue(10),
+    borderRadius: RFValue(8),
   },
   suggestionText: {
     backgroundColor: Colors.light.tint + '10',
-    padding: 10,
-    borderRadius: 8,
+    padding: RFValue(10),
+    borderRadius: RFValue(8),
     fontWeight: '600',
   },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: RFValue(20),
   },
   button: {
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: RFValue(5),
   },
 });
 
