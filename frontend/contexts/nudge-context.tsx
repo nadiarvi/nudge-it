@@ -9,25 +9,17 @@ interface NudgeOptions {
   option3Enabled?: boolean;
 }
 
-// interface ModalState {
-//   showSelection: boolean;
-//   showConfirmation: boolean;
-//   taskTitle: string;
-//   selectedNudgeType: string;
-//   targetUser: User;
-//   options: NudgeOptions;
-// }
-
-// nudge context.tsx
 interface ModalState {
   showSelection: boolean;
   showConfirmation: boolean;
   taskTitle: string;
   tid: string; // Add tid to state
   selectedNudgeType: string;
-  targetUserId: string; // Change to string ID
-  targetUserName: string; // Add for display
+  targetUser: User | null;
+  // targetUserId: string; // Change to string ID
+  // targetUserName: string; // Add for display
   options: NudgeOptions;
+  onSuccessCallback?: () => void; // Callback function
 }
 
 interface NudgeContextType {
@@ -36,8 +28,8 @@ interface NudgeContextType {
     taskTitle: string, 
     targetUser: User, 
     nudgeCount: number,
-    // onSuccessCallback?: () => void
-    targetUserName?: string,
+    onSuccessCallback?: () => void
+    // targetUserName?: string,
   ) => void;
 }
 
@@ -54,15 +46,17 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
     showSelection: false,
     showConfirmation: false,
     taskTitle: '',
+    tid: '',
     selectedNudgeType: '',
-    targetUser: '',
+    targetUser: null,
     options: {},
+    onSuccessCallback: undefined,
   });
 
   const showNudgeAlert = (
     tid: string, 
     taskTitle: string, 
-    targetUser: string, 
+    targetUser: User, 
     nudgeCount: number, 
     onSuccessCallback?: () => void
   ) => {
@@ -91,6 +85,11 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
   };
 
   const handleConfirm = () => {
+    if (!modalState.targetUser) {
+      console.error('No target user specified for nudge.');
+      handleClose();
+      return;
+    }
 
     const nudgeData = {
       type: modalState.selectedNudgeType,
@@ -127,9 +126,11 @@ export function NudgeProvider({ children }: NudgeProviderProps) {
       showSelection: false,
       showConfirmation: false,
       taskTitle: '',
+      tid: '',
       selectedNudgeType: '',
-      targetUser: '',
+      targetUser: null,
       options: {},
+      onSuccessCallback: undefined,
     });
   };
 

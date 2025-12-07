@@ -49,8 +49,9 @@ export function TaskCard({
   const handleNudge = () => {
     const shouldNudgeReviewer = status === "In Review" && reviewer && reviewer.length > 0;
     const targetUid = shouldNudgeReviewer ? reviewer[0]._id : assignedTo._id;
+    const targetUser = shouldNudgeReviewer ? reviewer[0] : assignedTo;
 
-    showNudgeAlert(id, title, targetUid, nudgeCount, onNudgeSent);
+    showNudgeAlert(id, title, targetUser, nudgeCount, onNudgeSent);
     // onNudgeSent();
   };
 

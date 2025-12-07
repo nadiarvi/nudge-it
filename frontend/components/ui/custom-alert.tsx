@@ -5,6 +5,8 @@ import { ThemedButton } from '@/components/ui/themed-button';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { Colors } from '@/constants/theme';
+import { User } from '@/types/user';
+import { formatDisplayName } from '@/utils/name-formatter';
 import React from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
@@ -129,7 +131,7 @@ interface NudgeConfirmationModalProps {
   onClose: () => void;
   taskTitle: string;
   nudgeType: string;
-  targetUser: string;
+  targetUser: User | null;
   onConfirm: () => void;
 }
 
@@ -235,7 +237,8 @@ export function NudgeConfirmationModal({
         </View>
 
         <ThemedText type="H3" style={[ styles.confirmationText, { color: Colors.light.tint, fontWeight: '400' } ]}>
-          Send this nudge to <ThemedText style={{ fontWeight: '800', color: Colors.light.tint }}>{targetUser.first_name}</ThemedText>?
+          Send this nudge to <ThemedText style={{ fontWeight: '800', color: Colors.light.tint }}>
+            {targetUser ? formatDisplayName(targetUser.first_name) : 'Unknown User'}</ThemedText>?
         </ThemedText>
       </View>
       
