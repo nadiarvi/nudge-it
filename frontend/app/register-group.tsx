@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 export default function RegisterGroupScreen() {
   const router = useRouter();
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
     backNavTitle: {
         color: Colors.light.tint, 
         fontWeight: '600',
-        fontSize: 16,
+        fontSize: RFValue(16),
     },
     subtitle: {
         textAlign: 'center',
@@ -259,16 +260,16 @@ const styles = StyleSheet.create({
     tabContainer: {
         flexDirection: 'row',
         backgroundColor: Colors.light.card,
-        borderRadius: 8,
-        padding: 4,
-        borderWidth: 0.5,
+        borderRadius: RFValue(8),
+        padding: RFValue(4),
+        borderWidth: RFValue(0.5),
         borderColor: Colors.light.cardBorder,
     },
     tab: {
         flex: 1,
-        paddingVertical: 8,
+        paddingVertical: RFValue(8),
         alignItems: 'center',
-        borderRadius: 8,
+        borderRadius: RFValue(8),
     },
     activeTab: {
         backgroundColor: Colors.light.cardBorder,
@@ -284,11 +285,11 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     form: {
-        gap: 20,
-        marginBottom: 30,
+        gap: RFValue(20),
+        marginBottom: RFValue(30),
     },
     inputContainer: {
-        gap: 8,
+        gap: RFValue(8),
     },
     label: {
         fontWeight: '600',
@@ -296,23 +297,23 @@ const styles = StyleSheet.create({
     },
     helperText: {
         color: Colors.light.blackSecondary,
-        fontSize: 14,
+        fontSize: RFValue(14),
     },
     input: {
-        borderWidth: 1,
+        borderWidth: RFValue(1),
         borderColor: Colors.light.cardBorder,
-        borderRadius: 8,
-        paddingHorizontal: 16,
-        paddingVertical: 20,
+        borderRadius: RFValue(8),
+        paddingHorizontal: RFValue(16),
+        paddingVertical: RFValue(20),
         backgroundColor: Colors.light.card,
     },
     codeInput: {
-        fontSize: 28,
+        fontSize: RFValue(28),
         textAlign: 'center',
-        letterSpacing: 12,
+        letterSpacing: RFValue(12),
         fontWeight: '600',
     },
     button: {
-        marginTop: 12,
+        marginTop: RFValue(12),
     }
 });

@@ -2,6 +2,7 @@ import { Colors } from '@/constants/theme';
 import { formatDisplayName } from '@/utils/name-formatter';
 import React, { useRef, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { ThemedText } from './themed-text';
 
 export type Member = User;
@@ -125,32 +126,32 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   arrow: {
-    fontSize: 8,
-    marginLeft: 4,
+    fontSize: RFValue(8),
+    marginLeft: RFValue(4),
   },
   overlay: {
     flex: 1,
   },
   optionsContainer: {
     backgroundColor: 'white',
-    borderRadius: 0,
-    minWidth: 120,
+    borderRadius: RFValue(0),
+    minWidth: RFValue(120),
     borderColor: Colors.light.cardBorder,
-    borderWidth: 0.5,
+    borderWidth: RFValue(0.5),
     elevation: 5,
   },
   option: {
-    paddingVertical: 8,
-    borderBottomWidth: 0.5,
+    paddingVertical: RFValue(8),
+    borderBottomWidth: RFValue(0.5),
     borderColor: Colors.light.cardBorder,
-    marginVertical: 0,
-    minWidth: 100,
+    marginVertical: RFValue(0),
+    minWidth: RFValue(100),
     justifyContent: 'center',
     alignItems: 'center',
   },
   optionText: {
     color: Colors.light.text,
-    fontSize: 14,
+    fontSize: RFValue(14),
     fontWeight: '500',
     textAlign: 'center',
   },

@@ -25,7 +25,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.nadiarvi.nudgeit"
+      "package": "com.nadiarvi.nudgeit",
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "output": "static",

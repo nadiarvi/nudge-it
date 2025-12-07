@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Alert, TouchableOpacity } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { TrashIcon } from '../icons/trash-icon';
 
 interface TaskDetailHeaderProps {
@@ -56,7 +57,7 @@ export function TaskDetailHeader({ tid }: TaskDetailHeaderProps) {
 
   return (
     <TouchableOpacity onPress={handleMenuPress}>
-      <TrashIcon size={22} color={Colors.light.tint} />
+      <TrashIcon size={RFValue(22)} color={Colors.light.tint} />
     </TouchableOpacity>
   );
 }

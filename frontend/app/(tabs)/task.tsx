@@ -8,8 +8,8 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
-// const taskLists = ALL_TASKS("Alice");
 
 const FILTER_OPTIONS = [
   {
@@ -68,15 +68,6 @@ export default function TasksScreen() {
 
   const [taskList, setTaskList] = useState<TaskItem[]>([]);
 
-  // const fetchTasks = async () => {
-  //   try {
-  //     const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
-  //     setTaskList(res.data.tasks);
-  //   } catch (error) {
-  //     console.error('Error fetching tasks:', error);
-  //     console.log('failed req: ', `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/tasks/${gid}`);
-  //   }
-  // };
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -95,16 +86,7 @@ export default function TasksScreen() {
     }, [fetchTasks]) // Dependency on fetchTasks ensures it runs when gid changes
   );
 
-  // useEffect(() => {
-  //   fetchTasks();
-  // }, []);
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     fetchTasks();
-  //     return () => {}; 
-  //   }, [gid])
-  // );
 
   // State for filters and sorts
   const [filters, setFilters] = useState<{ [key: string]: string | null }>({
@@ -239,31 +221,17 @@ export default function TasksScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="H1" style={{ flex: 1 }}>Tasks</ThemedText>
         <ThemedView style={styles.actionContainer}>
-          {/* <ThemedTouchableView onPress={handleFilter}>
-            <FilterIcon 
-              size={22} 
-              color={hasActiveFilters ? Colors.light.tint : Colors.light.blackSecondary}
-              variant={hasActiveFilters ? 'solid' : 'outline'}
-            />
-          </ThemedTouchableView>
-          <ThemedTouchableView onPress={handleSort}>
-            <SortIcon 
-              size={22} 
-              color={hasActiveSort ? Colors.light.tint : Colors.light.blackSecondary}
-              strokeWidth={hasActiveSort ? 2 : 1.5}
-            />
-          </ThemedTouchableView> */}
           <ThemedTouchableView onPress={handleAddTask}>
-            <PlusIcon size={22} color={Colors.light.blackSecondary}/>
+            <PlusIcon size={RFValue(22)} color={Colors.light.blackSecondary}/>
           </ThemedTouchableView>
         </ThemedView>
       </ThemedView>
       <ThemedView style={styles.separator}/>
 
-      <ThemedView style={{ gap: 8 }}>
+      <ThemedView style={{ gap: RFValue(8) }}>
 
        {taskList.length === 0 ? (
-          <ThemedView style={{ alignItems: 'center', marginTop: 32 }}>
+          <ThemedView style={{ alignItems: 'center', marginTop: RFValue(32) }}>
             <ThemedText style={{ color: Colors.light.blackSecondary }}>
               No tasks available.
             </ThemedText>
@@ -285,19 +253,6 @@ export default function TasksScreen() {
         )}
 
       
-      {/* {taskList.map((task, index) => (
-        <TaskCard
-            key={task.id}
-            id={task.id}
-            title={task.title}
-            deadline={task.deadline}
-            assignedTo={task.assignee[0]}
-            status={task.status}
-            reviewer={task.reviewer}
-            nudgeCount={task.nudges.length}
-            onNudgeSent={fetchTasks}
-          />
-      ))} */}
       </ThemedView>
 
       <FilterModal
@@ -327,12 +282,12 @@ const styles = StyleSheet.create({
   },
   actionContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: RFValue(8),
     alignItems: 'center',
   },
   separator: {
-    height: 1,
+    height: RFValue(1),
     backgroundColor: Colors.light.cardBorder,
-    marginTop: -4,
+    marginTop: RFValue(-4),
   }
 });

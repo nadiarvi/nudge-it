@@ -5,8 +5,11 @@ import { ThemedButton } from '@/components/ui/themed-button';
 import { ThemedText } from '@/components/ui/themed-text';
 import { ThemedView } from '@/components/ui/themed-view';
 import { Colors } from '@/constants/theme';
+import { User } from '@/types/user';
+import { formatDisplayName } from '@/utils/name-formatter';
 import React from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 interface CustomAlertProps {
   visible: boolean;
@@ -68,7 +71,7 @@ export function NudgeSelectionModal({
           onPress={() => onSelectNudge('reminder')}
         >
           <View style={styles.optionContent}>
-            <BellIcon size={24} color={Colors.light.tint} />
+            <BellIcon size={RFValue(24)} color={Colors.light.tint} />
             <View style={styles.optionText}>
               <ThemedText type="H3">Push Notification</ThemedText>
               <ThemedText type="Body3" style={styles.optionDescription}>
@@ -84,7 +87,7 @@ export function NudgeSelectionModal({
             onPress={() => onSelectNudge('phone_call')}
           >
             <View style={styles.optionContent}>
-              <CallIcon size={24} color={Colors.light.tint} />
+              <CallIcon size={RFValue(24)} color={Colors.light.tint} />
               <View style={styles.optionText}>
                 <ThemedText type="H3">Simulated Phone Call</ThemedText>
                 <ThemedText type="Body3" style={styles.optionDescription}>
@@ -101,7 +104,7 @@ export function NudgeSelectionModal({
             onPress={() => onSelectNudge('email_ta')}
           >
             <View style={styles.optionContent}>
-              <FlagIcon size={24} color={Colors.light.red} />
+              <FlagIcon size={RFValue(24)} color={Colors.light.red} />
               <View style={styles.optionText}>
                 <ThemedText type="H3">Report to TA</ThemedText>
                 <ThemedText type="Body3" style={styles.optionDescription}>
@@ -129,7 +132,7 @@ interface NudgeConfirmationModalProps {
   onClose: () => void;
   taskTitle: string;
   nudgeType: string;
-  targetUser: string;
+  targetUser: User | null;
   onConfirm: () => void;
 }
 
@@ -142,8 +145,8 @@ export function NudgeConfirmationModal({
   onConfirm 
 }: NudgeConfirmationModalProps) {
   const getIcon = () => {
-    const ICON_SIZE = 24;
-    const STROKE_WIDTH = 2;
+    const ICON_SIZE = RFValue(24);
+    const STROKE_WIDTH = RFValue(2);
     switch (nudgeType) {
       case 'reminder':
         return <BellIcon size={ICON_SIZE} strokeWidth={STROKE_WIDTH} color={Colors.light.tint} />;
@@ -205,13 +208,13 @@ export function NudgeConfirmationModal({
 
     const dotColors = getDotColors();
 
-    const DOT_SIZE = 12;
+    const DOT_SIZE = RFValue(12);
     
     return (
         <View style={{ flexDirection: 'row', gap: DOT_SIZE, alignItems: 'center' }}>
-            <View style={{ width: DOT_SIZE, height: DOT_SIZE, borderRadius: DOT_SIZE / 2, backgroundColor: dotColors[0] }}></View>
-            <View style={{ width: DOT_SIZE, height: DOT_SIZE, borderRadius: DOT_SIZE / 2, backgroundColor: dotColors[1] }}></View>
-            <View style={{ width: DOT_SIZE, height: DOT_SIZE, borderRadius: DOT_SIZE / 2, backgroundColor: dotColors[2] }}></View>
+          <View style={{ width: DOT_SIZE, height: DOT_SIZE, borderRadius: DOT_SIZE / 2, backgroundColor: dotColors[0] }}></View>
+          <View style={{ width: DOT_SIZE, height: DOT_SIZE, borderRadius: DOT_SIZE / 2, backgroundColor: dotColors[1] }}></View>
+          <View style={{ width: DOT_SIZE, height: DOT_SIZE, borderRadius: DOT_SIZE / 2, backgroundColor: dotColors[2] }}></View>
         </View>
     );
   };
@@ -227,7 +230,7 @@ export function NudgeConfirmationModal({
           {getDescription()}
         </ThemedText>
 
-        <View style={{ alignItems: 'center', flexDirection: 'column', gap: 8 }}>
+        <View style={{ alignItems: 'center', flexDirection: 'column', gap: RFValue(8) }}>
             <ThemedText type="Body1" style={styles.confirmationDescription}>
             Nudge Level
             </ThemedText>
@@ -235,7 +238,8 @@ export function NudgeConfirmationModal({
         </View>
 
         <ThemedText type="H3" style={[ styles.confirmationText, { color: Colors.light.tint, fontWeight: '400' } ]}>
-          Send this nudge to <ThemedText style={{ fontWeight: '800', color: Colors.light.tint }}>{targetUser.first_name}</ThemedText>?
+          Send this nudge to <ThemedText style={{ fontWeight: '800', color: Colors.light.tint }}>
+            {targetUser ? formatDisplayName(targetUser.first_name) : 'Unknown User'}</ThemedText>?
         </ThemedText>
       </View>
       
@@ -270,50 +274,50 @@ const styles = StyleSheet.create({
     width: '85%',
   },
   modal: {
-    borderRadius: 8,
-    paddingVertical: 24,
-    paddingHorizontal: 32,
-    borderWidth: 0.5,
+    borderRadius: RFValue(8),
+    paddingVertical: RFValue(24),
+    paddingHorizontal: RFValue(32),
+    borderWidth: RFValue(0.5),
     borderColor: Colors.light.cardBorder,
   },
   title: {
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: RFValue(8),
     color: Colors.light.tint,
   },
   subtitle: {
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: RFValue(24),
     color: Colors.light.text,
   },
   buttonContainer: {
-    gap: 12,
+    gap: RFValue(12),
   },
   nudgeOption: {
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: RFValue(8),
+    borderWidth: RFValue(1),
     borderColor: Colors.light.cardBorder,
-    padding: 16,
+    padding: RFValue(16),
   },
   optionContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: RFValue(14),
   },
   optionText: {
     flex: 1,
-    gap: 4,
+    gap: RFValue(4),
   },
   optionDescription: {
     color: Colors.light.blackSecondary,
   },
   cancelButton: {
-    marginTop: 8,
+    marginTop: RFValue(8),
   },
   confirmationContent: {
     alignItems: 'center',
-    gap: 16,
-    marginBottom: 24,
+    gap: RFValue(16),
+    marginBottom: RFValue(24),
   },
   confirmationText: {
     textAlign: 'center',
@@ -325,7 +329,7 @@ const styles = StyleSheet.create({
   },
   confirmationButtons: {
     flexDirection: 'row',
-    gap: 12,
+    gap: RFValue(12),
   },
   confirmationButton: {
     flex: 1,
@@ -334,8 +338,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    marginBottom: 18,
+    gap: RFValue(12),
+    marginBottom: RFValue(18),
   },
   titleText: {
     textAlign: 'center',

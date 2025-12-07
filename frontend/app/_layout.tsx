@@ -7,7 +7,9 @@ import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import { router, Stack, useSegments } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import 'react-native-reanimated';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 export const unstable_settings = {
   initialRouteName: 'login',
@@ -16,7 +18,9 @@ export const unstable_settings = {
 export default function RootLayout() {
   return (
     <AuthStore>
-      <RootNavigation />
+      <KeyboardProvider>
+        <RootNavigation />
+      </KeyboardProvider>
     </AuthStore>
   );
 }
@@ -100,7 +104,7 @@ function RootNavigation() {
 
   if (isLoading) {
     return (
-      <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <ThemedView style={{ flex: RFValue(1), justifyContent: 'center', alignItems: 'center' }}>
         <ThemedText>Loading...</ThemedText>
       </ThemedView>
     );

@@ -2,6 +2,7 @@ import { CheckIcon } from '@/components/icons/check-icon';
 import { Colors } from '@/constants/theme';
 import React, { useEffect, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { ThemedButton } from './themed-button';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
@@ -117,7 +118,7 @@ export function FilterModal({ visible, onClose, selectedFilters, onFiltersApply,
                       {option}
                     </ThemedText>
                     {tempFilters[filterOption.field] === option && (
-                      <CheckIcon size={20} color={Colors.light.tint} />
+                      <CheckIcon size={RFValue(20)} color={Colors.light.tint} />
                     )}
                   </TouchableOpacity>
                 ))}
@@ -139,44 +140,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 24,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
+    padding: RFValue(24),
+    paddingBottom: RFValue(12),
+    borderBottomWidth: RFValue(1),
     borderBottomColor: Colors.light.cardBorder,
   },
   modalContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    paddingVertical: RFValue(12),
+    paddingHorizontal: RFValue(24),
   },
   clearAllButton: {
     alignSelf: 'flex-end',
-    marginBottom: 16,
+    marginBottom: RFValue(16),
   },
   clearAllText: {
     color: Colors.light.tint,
     fontWeight: '600',
   },
   filterSection: {
-    marginBottom: 24,
+    marginBottom: RFValue(24),
   },
   filterLabel: {
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: RFValue(12),
     color: Colors.light.text,
   },
   optionsContainer: {
-    gap: 8,
+    gap: RFValue(8),
   },
   optionItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 12,
+    paddingVertical: RFValue(16),
+    paddingHorizontal: RFValue(12),
     backgroundColor: Colors.light.card,
     borderColor: Colors.light.cardBorder,
-    borderWidth: 0.5,
-    borderRadius: 8,
+    borderWidth: RFValue(0.5),
+    borderRadius: RFValue(8),
   },
   optionText: {
     flex: 1,

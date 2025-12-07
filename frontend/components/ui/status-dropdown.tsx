@@ -2,6 +2,7 @@ import { Colors, StatusColors } from '@/constants/theme';
 import { TaskStatus } from '@/types/task';
 import React, { useRef, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { ThemedText } from './themed-text';
 
 interface StatusDropdownProps {
@@ -112,36 +113,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 3,
-    borderRadius: 8,
-    minWidth: 60,
+    paddingHorizontal: RFValue(12),
+    paddingVertical: RFValue(3),
+    borderRadius: RFValue(8),
+    minWidth: RFValue(60),
   },
   arrow: {
     color: 'white',
-    fontSize: 8,
-    marginLeft: 4,
+    fontSize: RFValue(8),
+    marginLeft: RFValue(4),
   },
   overlay: {
     flex: 1,
   },
   optionsContainer: {
     backgroundColor: 'white',
-    borderRadius: 8,
-    minWidth: 120,
+    borderRadius: RFValue(8),
+    minWidth: RFValue(120),
     borderColor: '#9CA3AF',
-    borderWidth: 0.5,
+    borderWidth: RFValue(0.5),
     elevation: 5,
   },
   option: {
-    paddingVertical: 4,
-    borderBottomWidth: 0.5,
+    paddingVertical: RFValue(4),
+    borderBottomWidth: RFValue(0.5),
     borderColor: '#9CA3AF',
-    marginVertical: 2,
+    marginVertical: RFValue(2),
   },
   optionText: {
     color: Colors.light.text,
-    fontSize: 14,
+    fontSize: RFValue(14),
     fontWeight: '500',
     textAlign: 'center',
   },

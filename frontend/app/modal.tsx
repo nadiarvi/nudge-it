@@ -1,6 +1,7 @@
 import { ThemedText, ThemedView } from '@/components/ui';
 import { Link } from 'expo-router';
 import { StyleSheet } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 export default function ModalScreen() {
   return (
@@ -15,13 +16,13 @@ export default function ModalScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: RFValue(1),
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: RFValue(20),
   },
   link: {
-    marginTop: 15,
-    paddingVertical: 15,
+    marginTop: RFValue(15),
+    paddingVertical: RFValue(15),
   },
 });

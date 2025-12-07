@@ -2,6 +2,7 @@ import { ThemedText } from '@/components/ui/themed-text';
 import { Colors } from '@/constants/theme';
 import { ReactElement, ReactNode } from 'react';
 import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 interface ThemedButtonProps {
   children: ReactNode;
@@ -73,9 +74,9 @@ export function ThemedButton({
   );
 }
 
-const PADDING_HORIZONTAL = 12;
-const PADDING_VERTICAL = 8;
-const BORDER_RADIUS = 8;
+const PADDING_HORIZONTAL = RFValue(12);
+const PADDING_VERTICAL = RFValue(8);
+const BORDER_RADIUS = RFValue(8);
 
 const baseButtonStyle = {
   paddingHorizontal: PADDING_HORIZONTAL,
@@ -117,12 +118,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: RFValue(4),
+    fontSize: RFValue(16),
   },
   buttonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: RFValue(8),
   },
   pressed: {
     opacity: 0.8,
