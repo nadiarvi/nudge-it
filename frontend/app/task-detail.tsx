@@ -1,5 +1,5 @@
 import { CalendarIcon, SearchIcon, StatusIcon, UserCircleIcon } from '@/components/icons';
-import { MemberDropdown, ParallaxScrollView, StatusDropdown, TaskDetailHeader, ThemedButton, ThemedText, ThemedView } from '@/components/ui';
+import { MemberDropdown, ParallaxScrollView, StatusDropdown, TaskDetailHeader, ThemedButton, ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
 import { useNudgeAlert } from '@/contexts/nudge-context';
@@ -348,6 +348,36 @@ export default function TaskDetailPage() {
     }
 
     const DatePicker = () => {
+        const [showPicker, setShowPicker] = useState(false);
+
+        if (Platform.OS === 'android') {
+            return (
+                <View>
+                    <ThemedTouchableView onPress={() => setShowPicker(true)}>
+                        <ThemedText type='Body2'>
+                            {currentDeadline.toLocaleDateString()}
+                        </ThemedText>
+                    </ThemedTouchableView>
+                    
+                    {showPicker && (
+                        <DateTimePicker
+                            mode="date"
+                            display="default"
+                            value={currentDeadline}
+                            onChange={(event, selectedDate) => {
+                                setShowPicker(false); // Close picker first
+                                if (event.type === 'set' && selectedDate) {
+                                    setCurrentDeadline(selectedDate);
+                                }
+                                // event.type === 'dismissed' means user cancelled
+                            }}
+                        />
+                    )}
+                </View>
+            );
+        }
+
+        // iOS
         return (
             <DateTimePicker
                 mode="date"
@@ -359,11 +389,11 @@ export default function TaskDetailPage() {
                     }
                 }}
                 style={{
-                    marginLeft: Platform.OS === "ios" ? -16 : 0,
+                    marginLeft: -16,
                 }}
             />
-        )
-    }
+        );
+    };
     
     return (
         <ParallaxScrollView paddingTop={0}>
