@@ -182,9 +182,9 @@ export default function ProfileScreen() {
 
   return (
     <ParallaxScrollView>
-      <ThemedView style={styles.titleContainer}>
+      {/* <ThemedView style={styles.titleContainer}>
         <ThemedText type="H1">Profile</ThemedText>
-      </ThemedView>
+      </ThemedView> */}
 
       <ProfileSection sectionTitle="Account Info">
         <FieldItem 

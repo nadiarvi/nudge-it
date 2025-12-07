@@ -457,7 +457,7 @@ export function TaskCard({
       <ThemedView style={styles.rightSection}>
         {showNudgeButton ? (
           <ThemedTouchableView onPress={handleNudge} style={styles.nudgeButton}>
-            <BellIcon size={RFValue(24)} color={Colors.light.blackSecondary} />
+            <BellIcon size={RFValue(22)} color={Colors.light.blackSecondary} />
           </ThemedTouchableView>
         ) : (
           <View style={styles.placeholderIcon} />

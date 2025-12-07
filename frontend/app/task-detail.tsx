@@ -469,13 +469,16 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.light.cardBorder,
     },
     titleInput: {
-        fontSize: RFValue(32),
+        fontSize: RFValue(24),
         fontWeight: 'bold',
         color: Colors.light.text,
+
         borderWidth: RFValue(0),
-        borderRadius: RFValue(8),
-        minHeight: RFValue(48),
-        letterSpacing: RFValue(0),
+        borderRadius: RFValue(6),     // slightly smaller because text is smaller now
+
+        minHeight: RFValue(40),       // scaled from 48 → better proportional height for 24px text
+        letterSpacing: RFValue(0.2),  // subtle spacing looks better at 24px
+
         fontFamily: Platform.select({
             ios: 'System',
             android: 'sans-serif',

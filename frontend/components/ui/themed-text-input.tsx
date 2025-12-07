@@ -43,25 +43,75 @@ export function ThemedTextInput({
   );
 }
 
+// const styles = StyleSheet.create({
+//   default: {
+//     fontSize: RFValue(16),
+//     paddingVertical: RFValue(12),
+//     paddingHorizontal: RFValue(0),
+//   },
+//   body1: {
+//     fontSize: RFValue(16),
+//     paddingVertical: RFValue(12),
+//     paddingHorizontal: RFValue(0),
+//   },
+//   body2: {
+//     fontSize: RFValue(14),
+//     paddingVertical: RFValue(11),
+//     paddingHorizontal: RFValue(0),
+//   },
+//   body3: {
+//     fontSize: RFValue(12),
+//     paddingVertical: RFValue(9),
+//     paddingHorizontal: RFValue(0),
+//   },
+// });
+
+
+// const styles = StyleSheet.create({
+//   default: {
+//     fontSize: RFValue(15),
+//     paddingVertical: RFValue(10),
+//     paddingHorizontal: RFValue(0),
+//   },
+//   body1: {
+//     fontSize: RFValue(15),
+//     paddingVertical: RFValue(10),
+//     paddingHorizontal: RFValue(0),
+//     fontWeight: '500',
+//   },
+//   body2: {
+//     fontSize: RFValue(14),
+//     paddingVertical: RFValue(9),
+//     paddingHorizontal: RFValue(0),
+//   },
+//   body3: {
+//     fontSize: RFValue(12.5),
+//     paddingVertical: RFValue(7),
+//     paddingHorizontal: RFValue(0),
+//   },
+// });
+
 const styles = StyleSheet.create({
   default: {
-    fontSize: RFValue(16),
-    paddingVertical: RFValue(12),
+    fontSize: RFValue(15),            // matches Body1
+    paddingVertical: RFValue(10),
     paddingHorizontal: RFValue(0),
   },
   body1: {
-    fontSize: RFValue(16),
-    paddingVertical: RFValue(12),
+    fontSize: RFValue(15),            // Body1
+    paddingVertical: RFValue(10),
     paddingHorizontal: RFValue(0),
+    fontWeight: '500',
   },
   body2: {
-    fontSize: RFValue(14),
-    paddingVertical: RFValue(11),
-    paddingHorizontal: RFValue(0),
-  },
-  body3: {
-    fontSize: RFValue(12),
+    fontSize: RFValue(14),            // Body2
     paddingVertical: RFValue(9),
     paddingHorizontal: RFValue(0),
   },
+  body3: {
+    fontSize: RFValue(12.5),          // Body3
+    paddingVertical: RFValue(7),
+    paddingHorizontal: RFValue(0),
+  },
 });
+

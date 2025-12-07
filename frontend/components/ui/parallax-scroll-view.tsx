@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: RFValue(24),
-    paddingTop: RFValue(64),
+    padding: RFValue(20),
+    paddingTop: RFValue(36),
     gap: RFValue(16),
     overflow: 'hidden',
   },
