@@ -32,6 +32,8 @@
     - [4. Send a Message (User Chat)](#4-send-a-message-user-chat)
     - [5. Confirm and Save User Message (After Revision)](#5-confirm-and-save-user-message-after-revision)
     - [6. Send a Message (Nugget Chat)](#6-send-a-message-nugget-chat)
+    - [7. Mark All Messages as Read for a User in a Chat](#7-mark-all-messages-as-read-for-a-user-in-a-chat)
+    - [8. Get Notification Count for a Chat Partner](#8-get-notification-count-for-a-chat-partner)
   - [🔔 Nudge API](#-nudge-api)
     - [1. Send a Nudge (Notification)](#1-send-a-nudge-notification)
     - [2. Get Nudges Received by User](#2-get-nudges-received-by-user)
@@ -948,6 +950,46 @@
     }],
   "createdAt": "date3",
   "updatedAt": "date3"
+}
+```
+- `500`: Server error
+
+---
+### 7. Mark All Messages as Read for a User in a Chat
+
+**Endpoint:** `PATCH api/chats/:cid/:uid/read`
+- **Description:** Mark all messages as read for a user in a chat
+
+**Responses:**
+- `200 OK`: All messages marked as read
+```json
+{
+  "message": "All messages marked as read."
+}
+```
+- `404`: Chat not found
+- `500`: Server error
+
+---
+### 8. Get Notification Count for a Chat Partner
+
+**Endpoint:** `POST api/chats/notification/:uid`
+- **Description:** Get the number of unread messages for a chat partner
+- **Request Body:**
+  - `chatPartner`: String (required)
+
+**Request Example:**
+```json
+{
+  "chatPartner": "userId2"
+}
+```
+
+**Responses:**
+- `200 OK`: Returns number of unread messages
+```json
+{
+  "numNotification": 2
 }
 ```
 - `500`: Server error

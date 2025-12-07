@@ -9,7 +9,9 @@ const {
     getChatById,
     sendUserMessage,
     confirmUserMessage,
-    sendNuggetMessage
+    sendNuggetMessage,
+    markMessagesAsRead,
+    getNotificationCount
 } = chatControllers;
 
 // Create or get a chat between two users in a group
@@ -55,5 +57,11 @@ router.post(
     ],
     sendNuggetMessage
 );
+
+// Mark all messages as read for a user in a chat
+router.patch("/:cid/:uid/read", markMessagesAsRead);
+
+// Get notification count for a chat partner
+router.post("/notification/:uid", getNotificationCount);
 
 module.exports = router;
