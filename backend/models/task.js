@@ -9,6 +9,12 @@ const CommentSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+const StatusHistorySchema = new mongoose.Schema({
+  status: { type: String, enum: TASK_STATUS.ALL, required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  changedAt: { type: Date, default: Date.now }
+});
+
 const TaskSchema = new mongoose.Schema({
     group_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Group', required: true },
     title: { type: String },
@@ -18,6 +24,7 @@ const TaskSchema = new mongoose.Schema({
     status: { type: String, enum: TASK_STATUS.ALL, default: TASK_STATUS.TODO },
     comments: [CommentSchema],
     nudges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Nudge' }],
+    status_history: [StatusHistorySchema],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 })

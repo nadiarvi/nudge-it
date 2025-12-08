@@ -651,13 +651,15 @@
   - `status`: String (optional)
   - `comments`: Array of Comments (optional)
   - `nudges`: Array (optional)
+  - `changer`: String (optional, user ID of the person making the change; only needed if status is changed)
 
 **Request Example:**
 ```json
 {
   "title": "Update Landing Page",
   "reviewer": ["userId3"],
-  "status": "In Review"
+  "status": "In Review",
+  "changer": "userId1"
 }
 ```
 

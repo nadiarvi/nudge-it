@@ -16,6 +16,8 @@ const createTask = async (req, res, next) => {
 
     let newTask;
     try {
+        // Default status_history: status TODO, creator is first assignee, now
+        const creator = Array.isArray(assignee) && assignee.length > 0 ? assignee[0] : assignee;
         newTask = new Task({
             group_id,
             title,
@@ -26,7 +28,12 @@ const createTask = async (req, res, next) => {
             comments,
             nudges,
             createdAt,
-            updatedAt
+            updatedAt,
+            status_history: [{
+                status: status || 'To-Do',
+                user: creator,
+                changedAt: createdAt || Date.now()
+            }]
         });
         await newTask.save();
     } catch (err) {
@@ -168,7 +175,7 @@ const deleteTask = async (req, res, next) => {
 
 const updateTask = async (req, res, next) => {
     const { tid, gid } = req.params;
-    const { title, deadline, assignee, reviewer, status, comments, nudges } = req.body;
+    const { title, deadline, assignee, reviewer, changer, status, comments, nudges } = req.body;
     let existingTask;
     try {
         await checkGroupExists(gid);
@@ -176,13 +183,26 @@ const updateTask = async (req, res, next) => {
         if (!existingTask) {
             return next(new HttpError('Task does not exist', 400));
         }
+        let statusChanged = false;
         if (title !== undefined) existingTask.title = title;
         if (deadline !== undefined) existingTask.deadline = deadline;
         if (assignee !== undefined) existingTask.assignee = assignee;
         if (reviewer !== undefined) existingTask.reviewer = reviewer;
-        if (status !== undefined) existingTask.status = status;
+        if (status !== undefined && existingTask.status !== status) {
+            statusChanged = true;
+            existingTask.status = status;
+        }
         if (comments !== undefined) existingTask.comments = comments;
         if (nudges !== undefined) existingTask.nudges = nudges;
+        if (statusChanged) {
+            // Record status change in status_history
+            const changer = req.body.changer || null;
+            existingTask.status_history.push({
+                status,
+                user: changer,
+                changedAt: Date.now()
+            });
+        }
         await existingTask.save();
         res.status(200).json({ message: 'Task updated', task: existingTask });
     } catch (err) {
