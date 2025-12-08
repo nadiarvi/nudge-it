@@ -11,7 +11,7 @@ const CommentSchema = new mongoose.Schema({
 
 const StatusHistorySchema = new mongoose.Schema({
   status: { type: String, enum: TASK_STATUS.ALL, required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   changedAt: { type: Date, default: Date.now }
 });
 
