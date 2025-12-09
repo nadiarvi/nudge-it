@@ -13,6 +13,7 @@ import { ProfileIcon } from '@/components/icons/profile-icon';
 
 import { useAuthStore } from '@/contexts/auth-context';
 import axios from 'axios';
+import Constants from 'expo-constants';
 
 import { User } from '@/types/user';
 
@@ -21,14 +22,22 @@ import { formatDisplayName } from '@/utils/name-formatter';
 
 export default function ChatScreen() {
   const { uid, groups } = useAuthStore();
-  const gid = groups[0];
+  // const gid = groups[0];
+  const gid = Array.isArray(groups) && groups.length > 0 ? groups[0] : null;
+
+  const API_BASE =
+    Constants.expoConfig?.extra?.EXPO_PUBLIC_API_BASE_URL ||
+    process.env.EXPO_PUBLIC_API_BASE_URL;
+
   //console.log(`chat screen ${uid} - ${gid}`);
 
   const [chatData, setChatData] = useState([]);
 
   const getAllChats = useCallback(async () => {
+    if (!uid || !gid) return;   // ✅ prevents native crash
+
     try {
-      const res = await axios.get(`${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${gid}/${uid}`);
+      const res = await axios.get(`${API_BASE}/api/chats/${gid}/${uid}`);
       const chats = res.data.chats;
       
       const _chatData = chats
@@ -82,13 +91,22 @@ export default function ChatScreen() {
       return;
     }
 
+    // router.push({
+    //     pathname: '/chat-member',
+    //     params: {
+    //       targetUid: otherUser._id,
+    //       targetUsername: otherUser.first_name,
+    //     }
+    // });
+
     router.push({
-        pathname: '/chat-member',
-        params: {
-          targetUid: otherUser._id,
-          targetUsername: otherUser.first_name,
-        }
+      pathname: '/chat-member',
+      params: {
+        targetUid: String(otherUser?._id ?? ''),
+        targetUsername: String(otherUser?.first_name ?? ''),
+      }
     });
+
   }
 
   const MAX_LENGTH = 400;
