@@ -1,10 +1,5 @@
-import { ThemedButton, ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui';
-import { ThemedTextInput } from '@/components/ui/themed-text-input';
-import { Colors } from '@/constants/theme';
-import { useAuthStore } from '@/contexts/auth-context';
-import { User } from '@/types/user';
-import { formatDisplayName } from '@/utils/name-formatter';
 import axios from 'axios';
+import Constants from 'expo-constants';
 import { Image as ExpoImage } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import moment from 'moment';
@@ -16,14 +11,28 @@ import {
   Platform,
   StyleSheet,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// 👉 ADD THIS
 import { CloseIcon } from '@/components/icons/close-icon';
-import { useKeyboardAnimation } from 'react-native-keyboard-controller';
+import { ThemedButton, ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui';
+import { ThemedTextInput } from '@/components/ui/themed-text-input';
+import { useAuthStore } from '@/contexts/auth-context';
+
+import { Colors } from '@/constants/theme';
+import { User } from '@/types/user';
+import { formatDisplayName } from '@/utils/name-formatter';
+
+
+const API_BASE =
+  Constants.expoConfig?.extra?.EXPO_PUBLIC_API_BASE_URL ||
+  process.env.EXPO_PUBLIC_API_BASE_URL;
+
+if (!API_BASE) {
+  console.error('API BASE URL IS MISSING');
+}
 
 // --- INTERFACES ---
 interface Message {
@@ -107,6 +116,13 @@ const styles = StyleSheet.create({
     bottom: RFValue(12),
     right: RFValue(24),
   },
+  stickerTouchable: {
+    position: 'absolute',
+    bottom: RFValue(12),
+    right: RFValue(24),
+    zIndex: 1000,      
+    elevation: 5,      
+  },
   emptyState: {
     textAlign: 'center',
     marginTop: RFValue(20),
@@ -136,19 +152,19 @@ const chatBubbleStyles = StyleSheet.create({
   partnerContainer: {
     alignItems: 'flex-start',
   },
-  userBubble: {
+  partnerBubble: {
     backgroundColor: Colors.light.cardBorder + '90',
   },
-  partnerBubble: {
+  userBubble: {
     backgroundColor: Colors.light.tint,
   },
   nuggetBubble: {
     backgroundColor: Colors.light.red,
   },
-  userText: {
+  partnerText: {
     color: Colors.light.text,
   },
-  partnerText: {
+  userText: {
     color: Colors.light.background,
   },
 });
@@ -248,12 +264,20 @@ const PartnerChatBubble = ({ content, isNugget = false }: ChatBubbleProps) => (
 export default function ChatDetailScreen() {
   const insets = useSafeAreaInsets();
   const { uid, groups } = useAuthStore();
-  const gid = groups[0];
-  const router = useRouter();
-  const { targetUid, targetUsername } = useLocalSearchParams();
+  // const gid = groups[0];
+  const gid = Array.isArray(groups) && groups.length > 0 ? groups[0] : null;
 
-  // 👉 ADD THIS
-  const { height: keyboardHeight } = useKeyboardAnimation();
+  const router = useRouter();
+  // const { targetUid, targetUsername } = useLocalSearchParams();
+  const { targetUid, targetUsername } = useLocalSearchParams<{
+    targetUid?: string;
+    targetUsername?: string;
+  }>();
+
+  const safeTargetUid = typeof targetUid === 'string' ? targetUid : '';
+  const safeTargetUsername =
+    typeof targetUsername === 'string' ? targetUsername : 'Chat';
+
 
   const [chatId, setChatId] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -263,6 +287,8 @@ export default function ChatDetailScreen() {
   const [revisionData, setRevisionData] = useState<RevisionData | null>(null);
 
   const fetchChatData = useCallback(async () => {
+    if (!uid || !gid || !targetUid) return;
+
     const payload = {
       otherUserId: targetUid,
       groupId: gid,
@@ -271,7 +297,7 @@ export default function ChatDetailScreen() {
 
     try {
       const res = await axios.post(
-        `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/create/${uid}`,
+        `${API_BASE}/api/chats/create/${uid}`,
         payload
       );
 
@@ -301,7 +327,7 @@ export default function ChatDetailScreen() {
 
     try {
       const res = await axios.post(
-        `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${chatId}/${uid}/user`,
+        `${API_BASE}/api/chats/${chatId}/${uid}/user`,
         { content: trimmed }
       );
 
@@ -329,7 +355,7 @@ export default function ChatDetailScreen() {
 
     try {
       const res = await axios.post(
-        `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/chats/${chatId}/${uid}/confirm`,
+        `${API_BASE}/api/chats/${chatId}/${uid}/confirm`,
         { chosenContent: revisionData.original }
       );
       setMessages(res.data.chat.messages);
@@ -409,7 +435,7 @@ export default function ChatDetailScreen() {
   // --- RENDER ---
   return (
     <>
-      <Stack.Screen options={{ title: formatDisplayName(targetUsername) }} />
+      <Stack.Screen options={{ title: formatDisplayName(safeTargetUsername) }} />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -420,17 +446,22 @@ export default function ChatDetailScreen() {
         <ThemedView style={styles.container}>{renderChatHistory(messages)}</ThemedView>
 
         {/* Floating Button */}
-        <TouchableOpacity onPress={handleNuggitPress}>
+        <TouchableOpacity 
+          onPress={handleNuggitPress}
+          style={[
+            styles.stickerTouchable,
+            {
+              bottom: RFValue(12) + insets.bottom + RFValue(60),
+            },
+          ]}
+          activeOpacity={0.7}  
+        >
           <ExpoImage
             source={require('@/assets/images/nuggit-icon.png')}
-            style={[
-              styles.sticker,
-              {
-                bottom:
-                  RFValue(12) +
-                  (Platform.OS === 'android' ? keyboardHeight : 0), // ANDROID FIX
-              },
-            ]}
+            style={{             
+              width: RFValue(60),
+              height: RFValue(60),
+            }}
             contentFit="contain"
             placeholder={require('@/assets/images/nuggit-icon-small.png')}
             transition={150}
@@ -441,12 +472,7 @@ export default function ChatDetailScreen() {
         <ThemedView
           style={[
             styles.textInputContainer,
-            {
-              paddingBottom:
-                Platform.OS === 'android'
-                  ? keyboardHeight // ANDROID FIX
-                  : insets.bottom, // iOS stays same
-            },
+            { paddingBottom: insets.bottom + RFValue(4)}
           ]}
         >
           <ThemedTextInput
