@@ -329,12 +329,6 @@ export default function TaskDetailPage() {
             return;
         }
 
-        // DEBUG
-        // console.log(`Passing param to chat-member: `);
-        // console.log(currentAssignedTo);
-
-        // const targetUid = currentAssignedTo._id;
-
         router.push({
             pathname: '/chat-member',
             params: {
@@ -370,7 +364,6 @@ export default function TaskDetailPage() {
                                 if (event.type === 'set' && selectedDate) {
                                     setCurrentDeadline(selectedDate);
                                 }
-                                // event.type === 'dismissed' means user cancelled
                             }}
                         />
                     )}
@@ -413,12 +406,12 @@ export default function TaskDetailPage() {
                     'Assigned To', 
                     memberDropdownComponent(members, currentAssignedTo, setCurrentAssignedTo, 'Select Member')
                 )}
-                {taskDetailItem(<StatusIcon size={20}/>, 'Status', statusComponent(currentStatus))}
                 {taskDetailItem(
                     <SearchIcon size={20}/>, 
                     'Reviewer', 
                     memberDropdownComponent(members, currentReviewer, setCurrentReviewer, 'Select Reviewer')
                 )}
+                {taskDetailItem(<StatusIcon size={20}/>, 'Status', statusComponent(currentStatus))}
             </ThemedView>
 
             <ThemedView style={styles.separator} />
