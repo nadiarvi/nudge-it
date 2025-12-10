@@ -11,7 +11,10 @@ interface StatusDropdownProps {
   options?: TaskStatus[];
 }
 
-const defaultOptions: TaskStatus[] = ['To-Do', 'In Review', 'Revise', 'Done'];
+const defaultOptions: TaskStatus[] = ['To-Do', 'To Review', 'Revise', 'Done'];
+
+const MAX_STATUS_LENGTH = defaultOptions.reduce((max, status) => 
+  status.length > max ? status.length : max, 0);
 
 const statusColorMap = {
   'To-Do': StatusColors.toDo,
@@ -34,6 +37,7 @@ export function StatusDropdown({
 }: StatusDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownLayout, setDropdownLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [maxOptionWidth, setMaxOptionWidth] = useState(0);
   const dropdownRef = useRef<View>(null);
 
   const handleSelect = (status: TaskStatus) => {
@@ -57,14 +61,35 @@ export function StatusDropdown({
   }
 
   return (
+    <>
+    <View style={{ position: "absolute", opacity: 0 }}>
+      {options.map((opt) => (
+        <Text
+          key={opt}
+          style={styles.optionText}
+          onLayout={(e) => {
+            const w = e.nativeEvent.layout.width;
+            if (w > maxOptionWidth) setMaxOptionWidth(w);
+          }}
+        >
+          {opt}
+        </Text>
+      ))}
+    </View>
+
     <View>
       <TouchableOpacity 
         ref={dropdownRef}
-        style={[styles.dropdown, { backgroundColor: getBackgroundColor(value), borderColor: getStatusColor(value), borderWidth: 1 }]}
+        style={[styles.dropdown, 
+          { 
+            backgroundColor: getBackgroundColor(value),
+            borderColor: getStatusColor(value),
+            borderWidth: 1,
+            minWidth: maxOptionWidth + RFValue(18)
+          }]}
         onPress={openDropdown}
       >
         <ThemedText style={{ color: getStatusColor(value) }} type="Body2">{value}</ThemedText>
-        {/* <ThemedText style={{ color: getStatusColor(value) }} type="Body2">▼</ThemedText> */}
       </TouchableOpacity>
 
       <Modal
@@ -105,18 +130,17 @@ export function StatusDropdown({
         </TouchableOpacity>
       </Modal>
     </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   dropdown: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: RFValue(12),
+    justifyContent: 'center',
     paddingVertical: RFValue(3),
     borderRadius: RFValue(8),
-    minWidth: RFValue(60),
+    borderWidth: 1,
   },
   arrow: {
     color: 'white',
