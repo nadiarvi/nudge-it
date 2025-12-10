@@ -12,9 +12,9 @@ const nudgeCountComponent = (icon: ReactElement, title: string, count: number) =
   <ThemedView style={styles.nudgeComponent}>
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: RFValue(4) }}>
       {icon}
-      <ThemedText type='Body2' style={{color: Colors.light.blackSecondary, fontWeight: '500'}}>{title}</ThemedText>
+      <ThemedText type='Body1' style={{color: Colors.light.text, fontWeight: '500'}}>{title}</ThemedText>
     </View>
-    <ThemedText type='H1'>{count}</ThemedText>
+    <ThemedText type='H1' style={{color: Colors.light.text}}>{count}</ThemedText>
   </ThemedView>
 )
 
@@ -255,8 +255,8 @@ export default function HomeScreen() {
       </ThemedView>
 
       <ThemedView style={styles.nudgeInfoContainer}>
-        {nudgeCountComponent(<SendIcon size={RFValue(16)} color={Colors.light.blackSecondary} />, 'Nudge Sent', nudgeSent)}
-        {nudgeCountComponent(<InboxIcon size={RFValue(16)} color={Colors.light.blackSecondary} />, 'Nudge Received', nudgeReceived)}
+        {nudgeCountComponent(<SendIcon size={RFValue(16)} color={Colors.light.text} />, 'Nudge Sent', nudgeSent)}
+        {nudgeCountComponent(<InboxIcon size={RFValue(16)} color={Colors.light.text} />, 'Nudge Received', nudgeReceived)}
       </ThemedView>
 
       {/* { taskList.map((section) => (
@@ -296,7 +296,8 @@ const styles = StyleSheet.create({
     marginBottom: RFValue(16),
   },
   nudgeComponent: {
-    backgroundColor: Colors.light.card,
+    // backgroundColor: Colors.light.card,
+    backgroundColor: Colors.light.cardBorder + '80',
     paddingVertical: RFValue(12),
     paddingHorizontal: RFValue(16),
     borderRadius: RFValue(8),
