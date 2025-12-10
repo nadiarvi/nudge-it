@@ -213,28 +213,12 @@ const sendEmailToTA = async (taEmail, groupId, senderId, receiverId) => {
         console.error("Failed to send push notification:", err);
     }
 
-    // Dummy data, to be deleted later
-    const existingGroup = {
-        name: "CS473"
-    }
-
-    const receiver = {
-        name: "free-rider"
-    }
-
+    // Compose email using actual receiver and task info
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: taEmail,
-        subject: `[Nudge] Issue with Group Member in Group ${existingGroup.name}`,
-        text: `Dear TA,
-I'm writing you this email to notify that ${receiver.name} did not do their part in the group project.
-We have sent reminders to them but they still did not do their part.
-
-Thank you for your help!
-
-Best,
-Student
-        `
+        subject: `[Nudge] Issue with Group Member in Group ${group.name}`,
+        text: `Dear TA,\n\nI'm writing to notify you that ${receiver.first_name} ${receiver.last_name} did not do their part on the task: '${task.title}'.\nWe have sent this person ${task.nudges?.length || 0} reminders, but they have not responded.\n\nWe are reaching out to you in hopes that you can assist in resolving this issue.\n\nThank you for your help!\n\nBest,\nStudent`
     };
 
     await transporter.sendMail(mailOptions);
