@@ -45,7 +45,7 @@ export function TaskCard({
   const { showNudgeAlert } = useNudgeAlert();
 
   const [showNudgeButton, setShowNudgeButton] = useState(false);
-  const [statusOptions, setStatusOptions] = useState<TaskStatus[]>(['To-Do', 'In Review', 'Revise', 'Done']);
+  const [statusOptions, setStatusOptions] = useState<TaskStatus[]>(['To-Do', 'To Review', 'Revise', 'Done']);
 
   const formattedDeadline = formatDate(deadline);
   const MAX_TITLE_LENGTH = 23;

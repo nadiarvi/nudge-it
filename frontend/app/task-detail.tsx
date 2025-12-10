@@ -1,4 +1,4 @@
-import { CalendarIcon, SearchIcon, StatusIcon, UserCircleIcon } from '@/components/icons';
+import { CalendarIcon, FlagIcon, SearchIcon, StatusIcon, UserCircleIcon } from '@/components/icons';
 import { MemberDropdown, ParallaxScrollView, StatusDropdown, TaskDetailHeader, ThemedButton, ThemedText, ThemedTouchableView, ThemedView } from '@/components/ui';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/contexts/auth-context';
@@ -14,7 +14,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 const taskDetailItem = (icon: ReactElement, name: string, content: string | ReactElement) => {
     return (
         <ThemedView style={styles.taskDetailItem}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 4, width: '30%'}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: RFValue(8), width: '30%'}}>
                 <ThemedText type='Body2'>{icon}</ThemedText>
                 <ThemedText type='Body2'>{name}</ThemedText>
             </View>
@@ -96,6 +96,7 @@ export default function TaskDetailPage() {
     const [currentAssignedTo, setCurrentAssignedTo] = useState<string>('');     // User Schema
     const [currentReviewer, setCurrentReviewer] = useState<string>('');         // User Schema
     const [currentDeadline, setCurrentDeadline] = useState<Date>(new Date());
+    const [currentNudgeCount, setCurrentNudgeCount] = useState<number>(0);
     const [allowNudge, setAllowNudge] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
 
@@ -217,6 +218,7 @@ export default function TaskDetailPage() {
             setCurrentStatus(taskDetail.status);
             setCurrentAssignedTo(taskDetail.assignee[0] || '');
             setCurrentReviewer(taskDetail.reviewer?.[0] || '');
+            setCurrentNudgeCount(taskDetail.nudges.length || 0);
             
             if (taskDetail.deadline) {
                 setCurrentDeadline(new Date(taskDetail.deadline));
@@ -425,19 +427,25 @@ export default function TaskDetailPage() {
                     onBlur={() => setIsEditingTitle(false)}
                 />
                 
-                {taskDetailItem(<CalendarIcon size={20}/>, 'Deadline', <DatePicker />)}
-                {taskDetailItem(
-                    <UserCircleIcon size={20}/>, 
-                    'Assigned To', 
-                    memberDropdownComponent(members, currentAssignedTo, setCurrentAssignedTo, 'Select Member')
-                )}
-                {taskDetailItem(
-                    <SearchIcon size={20}/>, 
-                    'Reviewer', 
-                    memberDropdownComponent(members, currentReviewer, setCurrentReviewer, 'Select Reviewer')
-                )}
-                {taskDetailItem(<StatusIcon size={20}/>, 'Status', statusComponent(currentStatus))}
+                <View style={{flexDirection: 'column', gap: RFValue(12), marginTop: RFValue(12)}}>
+                    {taskDetailItem(<CalendarIcon size={20}/>, 'Deadline', <DatePicker />)}
+                    {taskDetailItem(
+                        <UserCircleIcon size={20}/>, 
+                        'Assigned To', 
+                        memberDropdownComponent(members, currentAssignedTo, setCurrentAssignedTo, 'Select Member')
+                    )}
+                    {taskDetailItem(
+                        <SearchIcon size={20}/>, 
+                        'Reviewer', 
+                        memberDropdownComponent(members, currentReviewer, setCurrentReviewer, 'Select Reviewer')
+                    )}
+                    {taskDetailItem(<StatusIcon size={20}/>, 'Status', statusComponent(currentStatus))}
+                </View>
             </ThemedView>
+
+            <ThemedView style={styles.separator} />
+
+            {taskDetailItem(<FlagIcon size={20}/>, 'Nudge Count', <ThemedText type="Body2">{currentNudgeCount}</ThemedText>)}
 
             <ThemedView style={styles.separator} />
 
@@ -475,7 +483,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: RFValue(36),
-        marginTop: RFValue(14),
+        // marginTop: RFValue(14),
     },
     buttonSection: {
         flexDirection: 'row',
