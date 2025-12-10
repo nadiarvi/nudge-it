@@ -78,6 +78,8 @@ export default function TaskDetailPage() {
     const { uid, groups } = useAuthStore();
     const { tid } = useLocalSearchParams();
     const gid = groups[0];
+    const { showNudgeAlert } = useNudgeAlert();
+    const router = useRouter();
     
     // Determine if this is a new task or existing task
     const isNewTask = !tid || tid === 'new';
@@ -86,6 +88,7 @@ export default function TaskDetailPage() {
     const [members, setMembers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(!isNewTask);
     const [isSelf, setIsSelf] = useState(false);
+    
 
     // Form fields
     const [taskTitle, setTaskTitle] = useState<string>('');
@@ -96,16 +99,8 @@ export default function TaskDetailPage() {
     const [allowNudge, setAllowNudge] = useState(false);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
 
-    useEffect(() => {
-        // console.log('current user id:', uid);
-        // console.log('current assigned to:', currentAssignedTo._id);
-        if (uid && currentAssignedTo._id) {
-            setIsSelf(uid === currentAssignedTo._id);
-        }
-    }, [uid, currentAssignedTo]);
-    
-    const { showNudgeAlert } = useNudgeAlert();
-    const router = useRouter();
+    // Status Option
+    const [statusOptions, setStatusOptions] = useState<TaskStatus[]>(['To-Do', 'In Review', 'Revise', 'Done']);
 
     const fetchGroupMemberIDs = async () => {
         try {
@@ -196,6 +191,12 @@ export default function TaskDetailPage() {
     };
 
     useEffect(() => {
+        if (uid && currentAssignedTo._id) {
+            setIsSelf(uid === currentAssignedTo._id);
+        }
+    }, [uid, currentAssignedTo]);
+
+    useEffect(() => {
         if (!isNewTask && taskDetail) {
             return () => {
                 updateTask();
@@ -244,6 +245,29 @@ export default function TaskDetailPage() {
         }
     }, [taskDetail, uid, isNewTask]);
 
+    useEffect(() => {
+        if (!taskDetail || !uid) return;
+
+        const isAssignee = taskDetail?.assignee.some(a => a._id === uid);
+        const isReviewer = taskDetail?.reviewer?.some(r => r._id === uid);
+
+        let options: TaskStatus[] = [];
+        
+        if (isAssignee) {
+            options = ['To-Do', 'In Review'];
+        } else if (isReviewer) {
+            options = ['In Review', 'Revise', 'Done'];
+        } else {
+            console.log('Not Assignee nor Reviewer');
+            console.log('Showing only current status', taskDetail.status);
+            options = [taskDetail?.status];
+        };
+
+        console.log('Status options set to:', options);
+        setStatusOptions(options);
+
+    }, [uid, currentAssignedTo, currentStatus]);
+
     // Update header for existing tasks
     useLayoutEffect(() => {
         if (!isNewTask && tid) {
@@ -271,6 +295,7 @@ export default function TaskDetailPage() {
             <StatusDropdown 
                 value={taskStatus} 
                 onValueChange={setCurrentStatus}
+                options={statusOptions}
             />
         )
     }
