@@ -151,7 +151,6 @@ const sendEmailToTA = async (taEmail, groupId, taskId, senderId, receiverId) => 
         const receiverTokens = receiver.expo_push_tokens || [];
         if (receiverTokens.length === 0) {
             console.log("No Expo push token for user", receiver.name);
-            return false;
         }
 
         // send a push notification to the receiver
@@ -226,8 +225,12 @@ const sendEmailToTA = async (taEmail, groupId, taskId, senderId, receiverId) => 
         text: `Dear TA,\n\nI'm writing to notify you that ${receiver.first_name} ${receiver.last_name} did not do their part on the task: '${task.title}'.\nWe have sent this person ${task.nudges?.length || 0} reminders, but they have not responded.\n\nWe are reaching out to you in hopes that you can assist in resolving this issue.\n\nThank you for your help!\n\nBest,\nStudent`
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log("An email is sent to TA");
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log("An email is sent to TA");
+    } catch (err) {
+        console.error("Failed to send email:", err);
+    }
 }
 
 const handleNudgeDelivery = async (type, senderId, receiverId, groupId, taskId, taEmail) => {
