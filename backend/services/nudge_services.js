@@ -139,6 +139,11 @@ const sendEmailToTA = async (taEmail, groupId, taskId, senderId, receiverId) => 
             Task.findById(taskId)
         ]);
 
+        console.log("receiver ID: ", receiverId);
+        console.log("sender ID: ", senderId);
+        console.log("group: ", group.name);
+        console.log("task: ", task.title);
+
         if (!receiver) throw new HttpError("Receiver not found", 404);
         if (!group) throw new HttpError("Group not found", 404);
         if (!task) throw new HttpError("Task not found", 404);
