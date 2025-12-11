@@ -212,9 +212,16 @@ const sendEmailToTA = async (taEmail, groupId, taskId, senderId, receiverId) => 
                 }
             }
             console.log("Pushed a notification to sender");
+
+            try {
+                await transporter.sendMail(mailOptions);
+                console.log("An email is sent to TA");
+            } catch (err) {
+                console.error("Failed to send email:", err);
+            }
         }
     } catch (err) {
-        console.error("Failed to send push notification:", err);
+        console.error("Failed to send an email:", err);
     }
 
     // Compose email using actual receiver and task info
@@ -224,13 +231,6 @@ const sendEmailToTA = async (taEmail, groupId, taskId, senderId, receiverId) => 
         subject: `[Nudge] Issue with Group Member in Group ${group.name}`,
         text: `Dear TA,\n\nI'm writing to notify you that ${receiver.first_name} ${receiver.last_name} did not do their part on the task: '${task.title}'.\nWe have sent this person ${task.nudges?.length || 0} reminders, but they have not responded.\n\nWe are reaching out to you in hopes that you can assist in resolving this issue.\n\nThank you for your help!\n\nBest,\nStudent`
     };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log("An email is sent to TA");
-    } catch (err) {
-        console.error("Failed to send email:", err);
-    }
 }
 
 const handleNudgeDelivery = async (type, senderId, receiverId, groupId, taskId, taEmail) => {
