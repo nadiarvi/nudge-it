@@ -130,7 +130,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const sendEmailToTA = async (taEmail, groupId, senderId, receiverId) => {
+const sendEmailToTA = async (taEmail, groupId, taskId, senderId, receiverId) => {
     try {
         const [sender, receiver, group, task] = await Promise.all([
             User.findById(senderId),
@@ -238,7 +238,7 @@ const handleNudgeDelivery = async (type, senderId, receiverId, groupId, taskId, 
 
             case "email_ta":
                 if (!taEmail) throw new HttpError("TA email not available", 400);
-                await sendEmailToTA(taEmail, groupId, senderId, receiverId);
+                await sendEmailToTA(taEmail, groupId, taskId, senderId, receiverId);
                 break;
 
             default:
